@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sistema de Monitoramento de Segurança em Obras - Trabalho Acadêmico</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-light">
+  <!-- Header Acadêmico -->
+  <header class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-shield-check text-warning me-2 fs-4"></i>
+        <span class="navbar-brand mb-0 h1 fw-bold">Sistema de Monitoramento de Segurança em Obras</span>
+      </div>
+      <div class="navbar-nav ms-auto">
+        <span class="nav-text text-light small">Trabalho Acadêmico - Engenharia de Software</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Subheader com informações do trabalho -->
+  <div class="bg-primary text-white py-2">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <small class="d-block"><strong>Disciplina:</strong> Desenvolvimento de Sistemas Web</small>
+          <small class="d-block"><strong>Objetivo:</strong> Simular sistema de monitoramento em tempo real</small>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <small><strong>Integrantes:</strong> [Seu Nome] | [Nome do Colega]</small>
+          <small class="d-block"><strong>Professor:</strong> [Nome do Professor]</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegação -->
+  <nav class="navbar navbar-expand navbar-light bg-white border-bottom shadow-sm">
+    <div class="container">
+      <div class="navbar-nav">
+        <button id="nav-map" class="nav-btn btn btn-outline-primary me-2">
+          <i class="bi bi-map me-1"></i>Monitoramento em Tempo Real
+        </button>
+        <button id="nav-cadastro" class="nav-btn btn btn-outline-primary">
+          <i class="bi bi-people me-1"></i>Gestão de Recursos
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mt-4">
+    <section id="view-root" class="row justify-content-center">
+      <!-- Views serão renderizadas aqui -->
+    </section>
+  </main>
+
+  <!-- Footer Acadêmico -->
+  <footer class="footer bg-dark text-white py-4 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="text-warning">Sistema de Monitoramento de Segurança em Obras</h6>
+          <p class="small mb-2">Trabalho acadêmico desenvolvido para a disciplina de Desenvolvimento de Sistemas Web</p>
+          <p class="small text-muted">Simulação local - Dados persistidos via localStorage</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="small mb-1"><strong>Universidade:</strong> [Nome da Universidade]</p>
+          <p class="small mb-1"><strong>Curso:</strong> Engenharia de Software</p>
+          <p class="small mb-1"><strong>Semestre:</strong> 2024.1</p>
+        </div>
+      </div>
+      <hr class="my-3">
+      <div class="text-center small text-muted">
+        &copy; 2024 - Desenvolvido para fins acadêmicos
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="js/models/mapModel.js"></script>
+  <script src="js/models/peopleModel.js"></script>
+  <script src="js/models/devicesModel.js"></script>
+
+  <script src="js/views/mapView.js"></script>
+  <script src="js/views/cadastro.js"></script>
+
+  <script src="js/controllers/mapController.js"></script>
+  <script src="js/controllers/peopleController.js"></script>
+  <script src="js/controllers/devicesController.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      MapController.init();
+      PeopleController.init();
+      DevicesController.init();
+
+      Router.show('map');
+
+      document.getElementById('nav-map').addEventListener('click', ()=>Router.show('map'));
+      document.getElementById('nav-cadastro').addEventListener('click', ()=>Router.show('cadastro'));
+    });
+
+    const Router = {
+      show(name){
+        document.querySelectorAll('.nav-btn').forEach(b=>{
+          b.classList.remove('btn-primary', 'active');
+          b.classList.add('btn-outline-primary');
+        });
+        const activeBtn = document.getElementById('nav-' + name);
+        activeBtn.classList.remove('btn-outline-primary');
+        activeBtn.classList.add('btn-primary', 'active');
+        
+        if (name === 'map') MapView.render();
+        if (name === 'cadastro') CombinedView.render();
+      }
+    };
+  </script>
+</body>
+</html>

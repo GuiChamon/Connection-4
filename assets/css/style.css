@@ -1,0 +1,98 @@
+/* assets/css/style.css */
+/* Estilos essenciais para o sistema acadêmico */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Cards com efeito sutil */
+.card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Botões com bordas arredondadas */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Estilos específicos para o mapa */
+.map-container {
+  background: 
+    linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+    linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+    linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.marker {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  border: 3px solid white;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: absolute;
+}
+
+.zone {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 2px dashed #dc3545;
+  border-radius: 8px;
+  background-color: rgba(220, 53, 69, 0.1);
+  pointer-events: none;
+}
+
+/* Melhorias de formulário */
+.form-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.card-header {
+  font-weight: 600;
+}
+
+/* Utilitários para texto pequeno */
+.small {
+  font-size: 0.875rem;
+}
+
+/* Ajustes para badges */
+.badge {
+  font-weight: 500;
+}
+
+/* Efeito sutil para botões ativos */
+.nav-btn.active {
+  font-weight: 600;
+}
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .btn-group-vertical .btn {
+    margin-bottom: 2px;
+  }
+}
