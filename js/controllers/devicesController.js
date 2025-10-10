@@ -1,6 +1,5 @@
 // js/controllers/devicesController.js
 const DevicesController = (function(){
-<<<<<<< HEAD
     function init(){
         console.log('DevicesController inicializado');
     }
@@ -62,11 +61,4 @@ const DevicesController = (function(){
         remove, 
         getAll 
     };
-=======
-  function init(){ /* nothing for now */ }
-  function add(d){ return DevicesModel.add(d); }
-  function update(id, patch){ return DevicesModel.update(id, patch); }
-  function remove(id){ return DevicesModel.remove(id); }
-  return { init, add, update, remove };
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
 })();

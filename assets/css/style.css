@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-/* assets/css/style.css - ATUALIZADO */
+/* assets/css/style.css */
 :root {
   --primary-blue: #1e3a8a;
   --secondary-blue: #3b82f6;
@@ -17,7 +16,7 @@ body {
   color: var(--dark-text);
 }
 
-/* Header atualizado */
+/* Header */
 .navbar-dark.bg-dark {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
 }
@@ -26,29 +25,15 @@ body {
   background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%) !important;
 }
 
-/* Cards profissionais */
+/* Cards */
 .card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-=======
-/* assets/css/style.css */
-/* Estilos essenciais para o sistema acadêmico */
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-}
-
-/* Cards com efeito sutil */
-.card {
-  transition: transform 0.2s ease;
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
 }
 
 .card:hover {
   transform: translateY(-2px);
-<<<<<<< HEAD
   box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
 }
 
@@ -59,21 +44,14 @@ body {
   border-bottom: none;
 }
 
-/* Botões com nova paleta */
+/* Botões */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
   border: none;
-=======
-}
-
-/* Botões com bordas arredondadas */
-.btn {
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
   border-radius: 6px;
   font-weight: 500;
 }
 
-<<<<<<< HEAD
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--primary-blue) 0%, #2d4a9c 100%);
   transform: translateY(-1px);
@@ -95,7 +73,47 @@ body {
   color: white;
 }
 
-/* Badges atualizadas */
+/* Mapa */
+.map-container {
+  background: 
+    linear-gradient(45deg, #f1f5f9 25%, transparent 25%), 
+    linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #f1f5f9 75%), 
+    linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  height: 500px;
+}
+
+.marker {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  border: 3px solid white;
+  box-shadow: 0 3px 8px rgba(30, 58, 138, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: absolute;
+}
+
+.zone {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 2px dashed var(--primary-yellow);
+  border-radius: 8px;
+  background-color: rgba(245, 158, 11, 0.1);
+  pointer-events: none;
+}
+
+/* Badges */
 .badge.bg-primary {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
 }
@@ -109,78 +127,7 @@ body {
   color: white;
 }
 
-/* Mapa com cores da paleta */
-.map-container {
-  background: 
-    linear-gradient(45deg, #f1f5f9 25%, transparent 25%), 
-    linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, #f1f5f9 75%), 
-    linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  border: 2px solid #cbd5e1;
-=======
-/* Estilos específicos para o mapa */
-.map-container {
-  background: 
-    linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
-    linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
-    linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  border: 2px solid #dee2e6;
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
-  border-radius: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-.marker {
-<<<<<<< HEAD
-  width: 42px;
-  height: 42px;
-=======
-  width: 40px;
-  height: 40px;
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px;
-  border: 3px solid white;
-<<<<<<< HEAD
-  box-shadow: 0 3px 8px rgba(30, 58, 138, 0.3);
-=======
-  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  position: absolute;
-}
-
-.zone {
-  position: absolute;
-  transform: translate(-50%, -50%);
-<<<<<<< HEAD
-  border: 2px dashed var(--primary-yellow);
-  border-radius: 8px;
-  background-color: rgba(245, 158, 11, 0.1);
-  pointer-events: none;
-}
-
-/* Melhorias de tipografia */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--primary-blue);
-  font-weight: 600;
-}
-
-.text-primary {
-  color: var(--primary-blue) !important;
-}
-
-/* Formulários melhorados */
+/* Formulários */
 .form-control, .form-select {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -192,66 +139,27 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
 }
 
-/* Footer atualizado */
+/* Tipografia */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-blue);
+  font-weight: 600;
+}
+
+.text-primary {
+  color: var(--primary-blue) !important;
+}
+
+/* Footer */
 .footer {
   background: linear-gradient(135deg, var(--primary-blue) 0%, #1e3a8a 100%);
   color: white;
 }
 
-/* Ícones com cores da paleta */
+/* Ícones */
 .bi {
   color: var(--primary-blue);
 }
 
 .card-header .bi {
   color: white;
-}
-
-/* Responsividade */
-=======
-  border: 2px dashed #dc3545;
-  border-radius: 8px;
-  background-color: rgba(220, 53, 69, 0.1);
-  pointer-events: none;
-}
-
-/* Melhorias de formulário */
-.form-label {
-  font-weight: 600;
-  color: #495057;
-}
-
-.card-header {
-  font-weight: 600;
-}
-
-/* Utilitários para texto pequeno */
-.small {
-  font-size: 0.875rem;
-}
-
-/* Ajustes para badges */
-.badge {
-  font-weight: 500;
-}
-
-/* Efeito sutil para botões ativos */
-.nav-btn.active {
-  font-weight: 600;
-}
-
-/* Responsividade básica */
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
-@media (max-width: 768px) {
-  .container {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-<<<<<<< HEAD
-=======
-  
-  .btn-group-vertical .btn {
-    margin-bottom: 2px;
-  }
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
 }
