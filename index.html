@@ -3,81 +3,91 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sistema de Monitoramento de Segurança em Obras - Trabalho Acadêmico</title>
+  <title>Sistema de Monitoramento</title>
+
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
+
 <body class="bg-light">
-  <!-- Header Acadêmico -->
+
+  <!-- Cabeçalho -->
   <header class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
       <div class="d-flex align-items-center">
-        <i class="bi bi-shield-check text-warning me-2 fs-4"></i>
+        <i class="bi bi-building text-warning me-2 fs-4"></i>
         <span class="navbar-brand mb-0 h1 fw-bold">Sistema de Monitoramento de Segurança em Obras</span>
       </div>
       <div class="navbar-nav ms-auto">
-        <span class="nav-text text-light small">Trabalho Acadêmico - Engenharia de Software</span>
+        <span class="nav-text text-light small">Projeto Acadêmico — Engenharia de Software</span>
       </div>
     </div>
   </header>
 
-  <!-- Subheader com informações do trabalho -->
-  <div class="bg-primary text-white py-2">
+  <!-- Subcabeçalho com informações -->
+  <section class="bg-primary text-white py-2">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6">
           <small class="d-block"><strong>Disciplina:</strong> Desenvolvimento de Sistemas Web</small>
-          <small class="d-block"><strong>Objetivo:</strong> Simular sistema de monitoramento em tempo real</small>
+          <small class="d-block"><strong>Objetivo:</strong> Simular um sistema de monitoramento em tempo real</small>
         </div>
         <div class="col-md-6 text-md-end">
-          <small><strong>Integrantes:</strong> [Seu Nome] | [Nome do Colega]</small>
-          <small class="d-block"><strong>Professor:</strong> [Nome do Professor]</small>
+          <small><strong>Integrantes:</strong> [Nome do Aluno 1] | [Nome do Aluno 2]</small>
+          <small class="d-block"><strong>Professor Orientador:</strong> [Nome do Professor]</small>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Navegação -->
   <nav class="navbar navbar-expand navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
       <div class="navbar-nav">
         <button id="nav-map" class="nav-btn btn btn-outline-primary me-2">
-          <i class="bi bi-map me-1"></i>Monitoramento em Tempo Real
+          <i class="bi bi-geo-alt me-1"></i>Monitoramento em Tempo Real
         </button>
         <button id="nav-cadastro" class="nav-btn btn btn-outline-primary">
-          <i class="bi bi-people me-1"></i>Gestão de Recursos
+          <i class="bi bi-person-gear me-1"></i>Gestão de Recursos
         </button>
       </div>
     </div>
   </nav>
 
+  <!-- Conteúdo Principal -->
   <main class="container mt-4">
     <section id="view-root" class="row justify-content-center">
-      <!-- Views serão renderizadas aqui -->
+      <!-- As seções serão renderizadas dinamicamente -->
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-3 text-muted">Carregando sistema...</p>
+      </div>
     </section>
   </main>
 
-  <!-- Footer Acadêmico -->
+  <!-- Rodapé -->
   <footer class="footer bg-dark text-white py-4 mt-5">
     <div class="container">
       <div class="row">
         <div class="col-md-6">
           <h6 class="text-warning">Sistema de Monitoramento de Segurança em Obras</h6>
-          <p class="small mb-2">Trabalho acadêmico desenvolvido para a disciplina de Desenvolvimento de Sistemas Web</p>
-          <p class="small text-muted">Simulação local - Dados persistidos via localStorage</p>
+          <p class="small mb-2">Projeto acadêmico desenvolvido na disciplina de Desenvolvimento de Sistemas Web.</p>
+          <p class="small text-muted">Simulação local — dados persistidos via localStorage.</p>
         </div>
         <div class="col-md-6 text-md-end">
-          <p class="small mb-1"><strong>Universidade:</strong> [Nome da Universidade]</p>
+          <p class="small mb-1"><strong>Instituição:</strong> [Nome da Universidade]</p>
           <p class="small mb-1"><strong>Curso:</strong> Engenharia de Software</p>
           <p class="small mb-1"><strong>Semestre:</strong> 2024.1</p>
         </div>
       </div>
       <hr class="my-3">
       <div class="text-center small text-muted">
-        &copy; 2024 - Desenvolvido para fins acadêmicos
+        &copy; 2024 — Projeto desenvolvido exclusivamente para fins acadêmicos
       </div>
     </div>
   </footer>
@@ -85,43 +95,95 @@
   <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script src="js/models/mapModel.js"></script>
-  <script src="js/models/peopleModel.js"></script>
-  <script src="js/models/devicesModel.js"></script>
+<!-- Scripts do Projeto -->
+<!-- Models -->
+<script src="js/models/mapModel.js"></script>
+<script src="js/models/peopleModel.js"></script>
+<script src="js/models/devicesModel.js"></script>
 
-  <script src="js/views/mapView.js"></script>
-  <script src="js/views/cadastro.js"></script>
+<!-- Views -->
+<script src="js/views/mapView.js"></script>
+<script src="js/views/cadastro.js"></script>
 
-  <script src="js/controllers/mapController.js"></script>
-  <script src="js/controllers/peopleController.js"></script>
-  <script src="js/controllers/devicesController.js"></script>
+<!-- Controllers -->
+<script src="js/controllers/mapController.js"></script>
+<script src="js/controllers/peopleController.js"></script>
+<script src="js/controllers/devicesController.js"></script>
 
+  <!-- Router e Inicialização -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      MapController.init();
-      PeopleController.init();
-      DevicesController.init();
-
-      Router.show('map');
-
-      document.getElementById('nav-map').addEventListener('click', ()=>Router.show('map'));
-      document.getElementById('nav-cadastro').addEventListener('click', ()=>Router.show('cadastro'));
-    });
-
+    // Router simples
     const Router = {
-      show(name){
-        document.querySelectorAll('.nav-btn').forEach(b=>{
-          b.classList.remove('btn-primary', 'active');
-          b.classList.add('btn-outline-primary');
-        });
-        const activeBtn = document.getElementById('nav-' + name);
-        activeBtn.classList.remove('btn-outline-primary');
-        activeBtn.classList.add('btn-primary', 'active');
+      show(name) {
+        console.log('Mudando para view:', name);
         
-        if (name === 'map') MapView.render();
-        if (name === 'cadastro') CombinedView.render();
+        // Atualizar botões de navegação
+        document.querySelectorAll('.nav-btn').forEach(button => {
+          button.classList.remove('btn-primary', 'active');
+          button.classList.add('btn-outline-primary');
+        });
+        
+        const activeBtn = document.getElementById('nav-' + name);
+        if (activeBtn) {
+          activeBtn.classList.remove('btn-outline-primary');
+          activeBtn.classList.add('btn-primary', 'active');
+        }
+
+        // Carregar view apropriada
+        if (name === 'map') {
+          if (typeof MapView !== 'undefined') {
+            MapView.render();
+          } else {
+            console.error('MapView não encontrada');
+            document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: MapView não carregada</div>';
+          }
+        }
+        
+        if (name === 'cadastro') {
+          if (typeof CombinedView !== 'undefined') {
+            CombinedView.render();
+          } else {
+            console.error('CombinedView não encontrada');
+            document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: CombinedView não carregada</div>';
+          }
+        }
       }
     };
+
+    // Inicialização quando DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM carregado, inicializando sistema...');
+      
+      try {
+        // Inicializar controllers
+        if (typeof MapController !== 'undefined') MapController.init();
+        if (typeof PeopleController !== 'undefined') PeopleController.init();
+        if (typeof DevicesController !== 'undefined') DevicesController.init();
+
+        // Configurar navegação
+        document.getElementById('nav-map').addEventListener('click', () => Router.show('map'));
+        document.getElementById('nav-cadastro').addEventListener('click', () => Router.show('cadastro'));
+
+        // Carregar view inicial
+        Router.show('map');
+        
+        console.log('Sistema inicializado com sucesso');
+      } catch (error) {
+        console.error('Erro na inicialização:', error);
+        document.getElementById('view-root').innerHTML = `
+          <div class="alert alert-danger">
+            <h4>Erro na inicialização do sistema</h4>
+            <p>${error.message}</p>
+            <p class="small">Verifique o console para mais detalhes.</p>
+          </div>
+        `;
+      }
+    });
+
+    // Tratamento de erros global
+    window.addEventListener('error', function(e) {
+      console.error('Erro global:', e.error);
+    });
   </script>
 </body>
 </html>
