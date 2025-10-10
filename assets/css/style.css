@@ -1,4 +1,4 @@
-/* assets/css/style.css */
+/* assets/css/style.css - VERSÃO CORRIGIDA */
 :root {
   --primary-blue: #1e3a8a;
   --secondary-blue: #3b82f6;
@@ -73,46 +73,6 @@ body {
   color: white;
 }
 
-/* Mapa */
-.map-container {
-  background: 
-    linear-gradient(45deg, #f1f5f9 25%, transparent 25%), 
-    linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, #f1f5f9 75%), 
-    linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  border: 2px solid #cbd5e1;
-  border-radius: 8px;
-  position: relative;
-  overflow: hidden;
-  height: 500px;
-}
-
-.marker {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px;
-  border: 3px solid white;
-  box-shadow: 0 3px 8px rgba(30, 58, 138, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  position: absolute;
-}
-
-.zone {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  border: 2px dashed var(--primary-yellow);
-  border-radius: 8px;
-  background-color: rgba(245, 158, 11, 0.1);
-  pointer-events: none;
-}
-
 /* Badges */
 .badge.bg-primary {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
@@ -162,4 +122,174 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-header .bi {
   color: white;
+}
+
+/* ===== ESTILOS DO MAPA ===== */
+
+/* Container do mapa com fundo branco */
+.map-container {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  height: 500px;
+}
+
+/* Remover qualquer overlay */
+.map-container::before {
+  display: none;
+}
+
+.map-canvas {
+  z-index: 2;
+  position: relative;
+}
+
+/* Efeito de grid sutil sobre o fundo branco */
+.map-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+      linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ajustar cores para contraste no fundo branco */
+.marker {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: absolute;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.marker:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+  z-index: 20;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.zone {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 3px solid #dc3545;
+  border-radius: 6px;
+  background-color: rgba(220, 53, 69, 0.15);
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.4);
+}
+
+/* Legenda do mapa */
+.map-legend {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 15px;
+  border-radius: 8px;
+  z-index: 15;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #e2e8f0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  margin-right: 10px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.legend-title {
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+  font-size: 13px;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 4px;
+}
+
+/* Animações para alertas */
+@keyframes pulse-danger {
+  0% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+  }
+  70% {
+      box-shadow: 0 0 0 12px rgba(220, 53, 69, 0);
+  }
+  100% {
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+@keyframes pulse-safe {
+  0% {
+      box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6);
+  }
+  70% {
+      box-shadow: 0 0 0 8px rgba(25, 135, 84, 0);
+  }
+  100% {
+      box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+  }
+}
+
+/* Aplicar animação baseada no estado */
+.marker.bg-danger {
+  animation: pulse-danger 1.5s infinite;
+}
+
+.marker.bg-success {
+  animation: pulse-safe 4s infinite;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+      padding-left: 15px;
+      padding-right: 15px;
+  }
+  
+  .map-container {
+      height: 400px;
+  }
+  
+  .marker {
+      width: 36px;
+      height: 36px;
+      font-size: 10px;
+  }
+  
+  .map-legend {
+      bottom: 10px;
+      left: 10px;
+      padding: 8px 10px;
+      font-size: 11px;
+  }
 }
