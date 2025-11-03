@@ -1,54 +1,100 @@
-// js/models/devicesModel.js
+// js/models/devicesModel.js - VERSÃO COM API REST
 const DevicesModel = (function(){
-    const STORAGE_KEY = 'safety_devices';
+    const API_BASE = 'http://localhost:3000/api';
 
-    function all(){
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-    }
+    // Função auxiliar para fazer requisições
+    async function apiRequest(url, options = {}) {
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
 
-    function find(id){
-        return all().find(d => d.id === id);
-    }
+            // Adicionar token de autenticação
+            const token = AuthModel ? AuthModel.getToken() : null;
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
 
-    function save(devices){
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-    }
-
-    function add(deviceData){
-        const devices = all();
-        
-        // Verificar se ID já existe
-        if (devices.find(d => d.id === deviceData.id)) {
-            throw new Error('ID do dispositivo já existe');
+            const response = await fetch(url, {
+                headers,
+                ...options
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                // Se erro 401, limpar autenticação
+                if (response.status === 401 && AuthModel) {
+                    AuthModel.clearAuthData();
+                    window.location.reload();
+                }
+                throw new Error(data.message || 'Erro na requisição');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Erro na API:', error);
+            throw error;
         }
-        
-        const newDevice = {
-            id: deviceData.id,
-            type: deviceData.type,
-            active: true,
-            createdAt: new Date().toISOString()
-        };
-        
-        devices.push(newDevice);
-        save(devices);
-        return newDevice.id;
     }
 
-    function update(id, updates){
-        const devices = all();
-        const index = devices.findIndex(d => d.id === id);
-        if (index !== -1) {
-            devices[index] = { ...devices[index], ...updates };
-            save(devices);
+    async function all(){
+        try {
+            const result = await apiRequest(`${API_BASE}/devices`);
+            return result.data || [];
+        } catch (error) {
+            console.error('Erro ao buscar dispositivos:', error);
+            return [];
+        }
+    }
+
+    async function find(id){
+        try {
+            const result = await apiRequest(`${API_BASE}/devices/${id}`);
+            return result.data;
+        } catch (error) {
+            console.error('Erro ao buscar dispositivo:', error);
+            return null;
+        }
+    }
+
+    async function add(deviceData){
+        try {
+            const result = await apiRequest(`${API_BASE}/devices`, {
+                method: 'POST',
+                body: JSON.stringify(deviceData)
+            });
+            return result.data.id;
+        } catch (error) {
+            console.error('Erro ao adicionar dispositivo:', error);
+            throw error;
+        }
+    }
+
+    async function update(id, updates){
+        try {
+            const result = await apiRequest(`${API_BASE}/devices/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updates)
+            });
             return true;
+        } catch (error) {
+            console.error('Erro ao atualizar dispositivo:', error);
+            return false;
         }
-        return false;
     }
 
-    function remove(id){
-        const devices = all().filter(d => d.id !== id);
-        save(devices);
+    async function remove(id){
+        try {
+            await apiRequest(`${API_BASE}/devices/${id}`, {
+                method: 'DELETE'
+            });
+            return true;
+        } catch (error) {
+            console.error('Erro ao remover dispositivo:', error);
+            return false;
+        }
     }
 
     return { 
