@@ -82,7 +82,7 @@ const MapView = (function(){
         `;
     }
 
-    function renderMap(){
+    async function renderMap(){
     const canvas = document.getElementById('map-canvas');
     if (!canvas) return;
     
@@ -182,38 +182,43 @@ const MapView = (function(){
         return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     }
 
-    function renderDevicesList(){
+    async function renderDevicesList(){
         const node = document.getElementById('devices-list');
         if (!node) return;
         
-        const devices = DevicesModel.all();
-        const positions = MapModel.getDevicePositions();
-        const zones = MapModel.loadZones();
-        
-        if (devices.length === 0){ 
-            node.innerHTML = '<div class="alert alert-info py-2">Nenhum dispositivo cadastrado.</div>'; 
-            return; 
-        }
-        
-        node.innerHTML = '';
-        for (const device of devices){
-            const pos = positions[device.id];
-            const person = PeopleModel.findByDevice(device.id);
-            const inZone = pos ? zones.some(zone => MapModel.pointInZone(pos.x, pos.y, zone)) : false;
+        try {
+            const devices = await DevicesModel.all();
+            const positions = await MapModel.getDevicePositions();
+            const zones = await MapModel.loadZones();
             
-            const div = document.createElement('div');
-            div.className = `d-flex justify-content-between align-items-center p-2 mb-2 border rounded ${inZone ? 'bg-danger text-white' : 'bg-light'}`;
-            div.innerHTML = `
-                <div>
-                    <strong class="small">${device.id}</strong>
-                    <div class="extra-small">${person ? person.name : 'Sem pessoa vinculada'}</div>
-                </div>
-                <div class="text-end">
-                    <span class="badge ${inZone ? 'bg-warning' : 'bg-success'}">${inZone ? 'PERIGO' : 'SAFE'}</span>
-                    <div class="extra-small">${pos ? `x:${pos.x.toFixed(2)} y:${pos.y.toFixed(2)}` : 'Sem posição'}</div>
-                </div>
-            `;
-            node.appendChild(div);
+            if (devices.length === 0){ 
+                node.innerHTML = '<div class="alert alert-info py-2">Nenhum dispositivo cadastrado.</div>'; 
+                return; 
+            }
+            
+            node.innerHTML = '';
+            for (const device of devices){
+                const pos = positions[device.id];
+                const person = await PeopleModel.findByDevice(device.id);
+                const inZone = pos ? zones.some(zone => MapModel.pointInZone(pos.x, pos.y, zone)) : false;
+                
+                const div = document.createElement('div');
+                div.className = `d-flex justify-content-between align-items-center p-2 mb-2 border rounded ${inZone ? 'bg-danger text-white' : 'bg-light'}`;
+                div.innerHTML = `
+                    <div>
+                        <strong class="small">${device.id}</strong>
+                        <div class="extra-small">${person ? person.name : 'Sem pessoa vinculada'}</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge ${inZone ? 'bg-warning' : 'bg-success'}">${inZone ? 'PERIGO' : 'SAFE'}</span>
+                        <div class="extra-small">${pos ? `x:${pos.x.toFixed(2)} y:${pos.y.toFixed(2)}` : 'Sem posição'}</div>
+                    </div>
+                `;
+                node.appendChild(div);
+            }
+        } catch (error) {
+            console.error('Erro ao renderizar lista de dispositivos:', error);
+            node.innerHTML = '<div class="alert alert-danger py-2">Erro ao carregar dispositivos</div>';
         }
     }
 
@@ -248,7 +253,7 @@ const MapView = (function(){
 
     function bindControls(){
         // Mover dispositivo específico
-        document.getElementById('btn-sim-move').addEventListener('click', () => {
+        document.getElementById('btn-sim-move').addEventListener('click', async () => {
             const deviceId = document.getElementById('sim-device-id').value.trim().toUpperCase();
             const x = parseFloat(document.getElementById('sim-x').value);
             const y = parseFloat(document.getElementById('sim-y').value);
@@ -263,16 +268,21 @@ const MapView = (function(){
                 return;
             }
             
-            const device = DevicesModel.find(deviceId);
-            if (!device) {
-                showAlert(`Dispositivo ${deviceId} não encontrado`, 'danger');
-                return;
+            try {
+                const device = await DevicesModel.find(deviceId);
+                if (!device) {
+                    showAlert(`Dispositivo ${deviceId} não encontrado`, 'danger');
+                    return;
+                }
+                
+                await MapModel.setDevicePosition(deviceId, x, y);
+                showAlert(`Dispositivo ${deviceId} movido para (${x.toFixed(2)}, ${y.toFixed(2)})`, 'success');
+                await renderMap();
+                await renderDevicesList();
+            } catch (error) {
+                console.error('Erro ao mover dispositivo:', error);
+                showAlert('Erro ao mover dispositivo', 'danger');
             }
-            
-            MapModel.setDevicePosition(deviceId, x, y);
-            showAlert(`Dispositivo ${deviceId} movido para (${x.toFixed(2)}, ${y.toFixed(2)})`, 'success');
-            renderMap();
-            renderDevicesList();
             
             // Limpar campos
             document.getElementById('sim-device-id').value = '';
@@ -313,15 +323,15 @@ const MapView = (function(){
         });
     }
 
-    function render(){
+    async function render(){
         if (!root) {
             console.error('Elemento view-root não encontrado');
             return;
         }
         
         root.innerHTML = template();
-        renderMap();
-        renderDevicesList();
+        await renderMap();
+        await renderDevicesList();
         bindControls();
     }
 
