@@ -1,16 +1,16 @@
-// js/controllers/devicesController.js
+// js/controllers/devicesController.js - VERSÃO ASSÍNCRONA
 const DevicesController = (function(){
     function init(){
         console.log('DevicesController inicializado');
     }
 
-    function add(deviceData){
+    async function add(deviceData){
         try {
             if (!deviceData.id || deviceData.id.trim() === '') {
                 throw new Error('ID do dispositivo é obrigatório');
             }
             
-            const id = DevicesModel.add({
+            const id = await DevicesModel.add({
                 id: deviceData.id.trim().toUpperCase(),
                 type: deviceData.type || 'worker',
                 active: true
@@ -24,9 +24,9 @@ const DevicesController = (function(){
         }
     }
 
-    function update(id, updates){
+    async function update(id, updates){
         try {
-            const success = DevicesModel.update(id, updates);
+            const success = await DevicesModel.update(id, updates);
             return { success: success };
         } catch (error) {
             console.error('Erro ao atualizar dispositivo:', error);
@@ -34,15 +34,15 @@ const DevicesController = (function(){
         }
     }
 
-    function remove(id){
+    async function remove(id){
         try {
             // Verificar se o dispositivo está vinculado a alguém
-            const person = PeopleModel.findByDevice(id);
+            const person = await PeopleModel.findByDevice(id);
             if (person) {
                 throw new Error(`Dispositivo está vinculado a ${person.name}. Desvincule primeiro.`);
             }
             
-            DevicesModel.remove(id);
+            await DevicesModel.remove(id);
             return { success: true };
         } catch (error) {
             console.error('Erro ao remover dispositivo:', error);
@@ -50,8 +50,13 @@ const DevicesController = (function(){
         }
     }
 
-    function getAll(){
-        return DevicesModel.all();
+    async function getAll(){
+        try {
+            return await DevicesModel.all();
+        } catch (error) {
+            console.error('Erro ao buscar dispositivos:', error);
+            return [];
+        }
     }
 
     return { 
