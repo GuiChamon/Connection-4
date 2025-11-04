@@ -46,10 +46,13 @@ const MapModel = (function(){
                 return result.data;
             }
             
-            // Criar zonas padrão se não existirem
+            // Criar zonas padrão se não existirem - ALINHADAS com novas posições dos sensores
             const defaultZones = [
-                { id: 'z1', name: 'Área de Risco 1', x: 0.3, y: 0.3, r: 0.1 },
-                { id: 'z2', name: 'Área de Risco 2', x: 0.7, y: 0.7, r: 0.15 }
+                // Área de Guindastes: Sensor em (0.42, 0.08)
+                { id: 'z1', name: 'Área de Guindastes', x: 0.42, y: 0.08, r: 0.08 },
+                
+                // Área de Soldas: Sensor em (0.44, 0.30)
+                { id: 'z2', name: 'Área de Soldas', x: 0.44, y: 0.30, r: 0.09 }
             ];
             
             for (const zone of defaultZones) {
@@ -90,15 +93,42 @@ const MapModel = (function(){
 
     async function setDevicePosition(deviceId, x, y){
         try {
+            // Verificar se é sensor fixo - não permitir movimento
+            if (deviceId.includes('SENSOR_') || deviceId.startsWith('S0')) {
+                const device = DevicesModel.find(deviceId);
+                if (device && device.type === 'sensor') {
+                    console.warn(`🔒 Tentativa de mover sensor fixo ${deviceId} bloqueada!`);
+                    return false;
+                }
+            }
+            
             await apiRequest(`${API_BASE}/positions`, {
                 method: 'POST',
                 body: JSON.stringify({ deviceId, x, y })
             });
             return true;
         } catch (error) {
-            console.error('Erro ao definir posição:', error);
-            return false;
+            console.error('Erro ao definir posição via API, usando localStorage:', error);
+            
+            // Fallback para localStorage
+            return setDevicePositionLocal(deviceId, x, y);
         }
+    }
+
+    function setDevicePositionLocal(deviceId, x, y) {
+        // Verificar se é sensor fixo - não permitir movimento
+        if (deviceId.includes('SENSOR_') || deviceId.startsWith('S0')) {
+            const device = DevicesModel.find(deviceId);
+            if (device && device.type === 'sensor') {
+                console.warn(`🔒 Tentativa de mover sensor fixo ${deviceId} bloqueada (localStorage)!`);
+                return false;
+            }
+        }
+        
+        const positions = JSON.parse(localStorage.getItem('device_positions') || '{}');
+        positions[deviceId] = { x, y };
+        localStorage.setItem('device_positions', JSON.stringify(positions));
+        return true;
     }
 
     async function resetDevicePositions(){
@@ -123,6 +153,7 @@ const MapModel = (function(){
         loadZones,
         getDevicePositions,
         setDevicePosition,
+        setDevicePositionLocal,
         resetDevicePositions,
         pointInZone
     };
