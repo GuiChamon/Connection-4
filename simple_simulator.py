@@ -188,6 +188,12 @@ class RealisticSimulator:
                 for device in devices:
                     if isinstance(device, dict) and device.get('active'):
                         device_id = device["id"]
+                        device_type = device.get("type", "worker")
+                        
+                        # APENAS mover dispositivos do tipo 'worker' - sensores são FIXOS
+                        if device_type != "worker" or "SENSOR_" in device_id:
+                            print(f"🔒 Sensor fixo {device_id} mantido em posição estática")
+                            continue
                         
                         # Inicializar posição se não existir
                         if device_id not in self.device_positions:
