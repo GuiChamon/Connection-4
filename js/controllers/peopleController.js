@@ -1,16 +1,16 @@
-// js/controllers/peopleController.js
+// js/controllers/peopleController.js - VERSÃO ASSÍNCRONA
 const PeopleController = (function(){
     function init(){
         console.log('PeopleController inicializado');
     }
 
-    function add(personData){
+    async function add(personData){
         try {
             if (!personData.name || personData.name.trim() === '') {
                 throw new Error('Nome é obrigatório');
             }
             
-            const id = PeopleModel.add({
+            const id = await PeopleModel.add({
                 name: personData.name.trim(),
                 role: personData.role || 'Não informado',
                 deviceId: personData.deviceId || null
@@ -24,9 +24,9 @@ const PeopleController = (function(){
         }
     }
 
-    function update(id, updates){
+    async function update(id, updates){
         try {
-            const success = PeopleModel.update(id, updates);
+            const success = await PeopleModel.update(id, updates);
             return { success: success };
         } catch (error) {
             console.error('Erro ao atualizar pessoa:', error);
@@ -34,9 +34,9 @@ const PeopleController = (function(){
         }
     }
 
-    function remove(id){
+    async function remove(id){
         try {
-            PeopleModel.remove(id);
+            await PeopleModel.remove(id);
             return { success: true };
         } catch (error) {
             console.error('Erro ao remover pessoa:', error);
@@ -44,8 +44,8 @@ const PeopleController = (function(){
         }
     }
 
-    function getAll(){
-        return PeopleModel.all();
+    async function getAll(){
+        return await PeopleModel.all();
     }
 
     return { 

@@ -144,9 +144,9 @@ const CombinedView = (function(){
         `;
     }
 
-    function renderPeopleList(){
+    async function renderPeopleList(){
         const node = document.getElementById('people-list');
-        const people = PeopleController.getAll();
+        const people = await PeopleController.getAll();
         
         if (people.length === 0) { 
             node.innerHTML = `
@@ -198,10 +198,10 @@ const CombinedView = (function(){
         }
     }
 
-    function renderDevicesList(){
+    async function renderDevicesList(){
         const node = document.getElementById('devices-list');
-        const devices = DevicesController.getAll();
-        const people = PeopleController.getAll();
+        const devices = await DevicesController.getAll();
+        const people = await PeopleController.getAll();
         
         if (devices.length === 0) { 
             node.innerHTML = `
@@ -255,12 +255,12 @@ const CombinedView = (function(){
         }
     }
 
-    function populateLinkSelects(){
+    async function populateLinkSelects(){
         const personSelect = document.getElementById('link-person');
         const deviceSelect = document.getElementById('link-device');
         
-        const people = PeopleController.getAll();
-        const devices = DevicesController.getAll();
+        const people = await PeopleController.getAll();
+        const devices = await DevicesController.getAll();
         
         // Pessoas sem dispositivo
         personSelect.innerHTML = '<option value="">-- Selecione um colaborador --</option>';
@@ -286,9 +286,12 @@ const CombinedView = (function(){
         });
     }
 
-    function updateCounters(){
-        document.getElementById('people-count').textContent = PeopleController.getAll().length;
-        document.getElementById('devices-count').textContent = DevicesController.getAll().length;
+    async function updateCounters(){
+        const people = await PeopleController.getAll();
+        const devices = await DevicesController.getAll();
+        
+        document.getElementById('people-count').textContent = people.length;
+        document.getElementById('devices-count').textContent = devices.length;
     }
 
     function showAlert(message, type = 'success') {
@@ -313,39 +316,39 @@ const CombinedView = (function(){
 
     function bindEvents(){
         // Cadastrar pessoa
-        document.getElementById('person-form').addEventListener('submit', (e) => {
+        document.getElementById('person-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('person-name').value.trim();
             const role = document.getElementById('person-role').value.trim();
             
-            const result = PeopleController.add({ name, role });
+            const result = await PeopleController.add({ name, role });
             if (result.success) {
                 showAlert('Colaborador cadastrado com sucesso!');
                 document.getElementById('person-form').reset();
-                render(); // Recarrega a view
+                await render(); // Recarrega a view
             } else {
                 showAlert(`Erro: ${result.error}`, 'danger');
             }
         });
 
         // Cadastrar dispositivo
-        document.getElementById('device-form').addEventListener('submit', (e) => {
+        document.getElementById('device-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('device-id').value.trim().toUpperCase();
             const type = document.getElementById('device-type').value;
             
-            const result = DevicesController.add({ id, type });
+            const result = await DevicesController.add({ id, type });
             if (result.success) {
                 showAlert('Dispositivo cadastrado com sucesso!');
                 document.getElementById('device-form').reset();
-                render(); // Recarrega a view
+                await render(); // Recarrega a view
             } else {
                 showAlert(`Erro: ${result.error}`, 'danger');
             }
         });
 
         // Vincular dispositivo
-        document.getElementById('btn-link').addEventListener('click', () => {
+        document.getElementById('btn-link').addEventListener('click', async () => {
             const personId = document.getElementById('link-person').value;
             const deviceId = document.getElementById('link-device').value;
             
@@ -354,12 +357,12 @@ const CombinedView = (function(){
                 return;
             }
             
-            const person = PeopleModel.find(personId);
+            const person = await PeopleModel.find(personId);
             if (person) {
-                const result = PeopleController.update(personId, { deviceId: deviceId });
+                const result = await PeopleController.update(personId, { deviceId: deviceId });
                 if (result.success) {
                     showAlert('Dispositivo vinculado com sucesso!');
-                    render(); // Recarrega a view
+                    await render(); // Recarrega a view
                 } else {
                     showAlert(`Erro: ${result.error}`, 'danger');
                 }
@@ -367,17 +370,17 @@ const CombinedView = (function(){
         });
 
         // Remover pessoa
-        document.getElementById('people-list').addEventListener('click', (e) => {
+        document.getElementById('people-list').addEventListener('click', async (e) => {
             if (e.target.closest('.btn-remove-person')) {
                 const btn = e.target.closest('.btn-remove-person');
                 const id = btn.getAttribute('data-id');
-                const person = PeopleModel.find(id);
+                const person = await PeopleModel.find(id);
                 
                 if (confirm(`Tem certeza que deseja remover ${person.name}?`)) {
-                    const result = PeopleController.remove(id);
+                    const result = await PeopleController.remove(id);
                     if (result.success) {
                         showAlert('Colaborador removido com sucesso!');
-                        render();
+                        await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
                     }
@@ -385,16 +388,16 @@ const CombinedView = (function(){
             }
             
             // Desvincular dispositivo
-            if (e.target.closest('.btn-unlink')) {
-                const btn = e.target.closest('.btn-unlink');
+            if (e.target.closest('.btn-unlink-device')) {
+                const btn = e.target.closest('.btn-unlink-device');
                 const id = btn.getAttribute('data-id');
-                const person = PeopleModel.find(id);
+                const person = await PeopleModel.find(id);
                 
                 if (confirm(`Desvincular dispositivo ${person.deviceId} de ${person.name}?`)) {
-                    const result = PeopleController.update(id, { deviceId: null });
+                    const result = await PeopleController.update(id, { deviceId: null });
                     if (result.success) {
                         showAlert('Dispositivo desvinculado com sucesso!');
-                        render();
+                        await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
                     }
@@ -403,18 +406,18 @@ const CombinedView = (function(){
         });
 
         // Ações de dispositivos
-        document.getElementById('devices-list').addEventListener('click', (e) => {
+        document.getElementById('devices-list').addEventListener('click', async (e) => {
             // Remover dispositivo
             if (e.target.closest('.btn-remove-device')) {
                 const btn = e.target.closest('.btn-remove-device');
                 const id = btn.getAttribute('data-id');
-                const device = DevicesModel.find(id);
+                const device = await DevicesModel.find(id);
                 
                 if (confirm(`Tem certeza que deseja remover o dispositivo ${device.id}?`)) {
-                    const result = DevicesController.remove(id);
+                    const result = await DevicesController.remove(id);
                     if (result.success) {
                         showAlert('Dispositivo removido com sucesso!');
-                        render();
+                        await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
                     }
@@ -425,12 +428,12 @@ const CombinedView = (function(){
             if (e.target.closest('.btn-toggle-device')) {
                 const btn = e.target.closest('.btn-toggle-device');
                 const id = btn.getAttribute('data-id');
-                const device = DevicesModel.find(id);
+                const device = await DevicesModel.find(id);
                 
-                const result = DevicesController.update(id, { active: !device.active });
+                const result = await DevicesController.update(id, { active: !device.active });
                 if (result.success) {
                     showAlert(`Dispositivo ${!device.active ? 'ativado' : 'desativado'} com sucesso!`);
-                    render();
+                    await render();
                 } else {
                     showAlert(`Erro: ${result.error}`, 'danger');
                 }
@@ -438,17 +441,17 @@ const CombinedView = (function(){
         });
     }
 
-    function render(){
+    async function render(){
         if (!root) {
             console.error('Elemento view-root não encontrado');
             return;
         }
         
         root.innerHTML = template();
-        renderPeopleList();
-        renderDevicesList();
-        populateLinkSelects();
-        updateCounters();
+        await renderPeopleList();
+        await renderDevicesList();
+        await populateLinkSelects();
+        await updateCounters();
         bindEvents();
     }
 

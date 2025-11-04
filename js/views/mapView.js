@@ -71,7 +71,10 @@ const MapView = (function(){
                                     <i class="bi bi-arrow-clockwise me-1"></i>Resetar Posições
                                 </button>
                                 <button id="btn-randomize" class="btn btn-secondary btn-sm">
-                                    <i class="bi bi-shuffle me-1"></i>Posições Aleatórias
+                                    <i class="bi bi-shuffle me-1"></i>Redistribuir Inteligente
+                                </button>
+                                <button id="btn-auto-simulate" class="btn btn-success btn-sm">
+                                    <i class="bi bi-play-circle me-1"></i>Simulação Auto
                                 </button>
                             </div>
                         </div>
@@ -82,7 +85,7 @@ const MapView = (function(){
         `;
     }
 
-    function renderMap(){
+    async function renderMap(){
     const canvas = document.getElementById('map-canvas');
     if (!canvas) return;
     
@@ -182,38 +185,43 @@ const MapView = (function(){
         return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     }
 
-    function renderDevicesList(){
+    async function renderDevicesList(){
         const node = document.getElementById('devices-list');
         if (!node) return;
         
-        const devices = DevicesModel.all();
-        const positions = MapModel.getDevicePositions();
-        const zones = MapModel.loadZones();
-        
-        if (devices.length === 0){ 
-            node.innerHTML = '<div class="alert alert-info py-2">Nenhum dispositivo cadastrado.</div>'; 
-            return; 
-        }
-        
-        node.innerHTML = '';
-        for (const device of devices){
-            const pos = positions[device.id];
-            const person = PeopleModel.findByDevice(device.id);
-            const inZone = pos ? zones.some(zone => MapModel.pointInZone(pos.x, pos.y, zone)) : false;
+        try {
+            const devices = await DevicesModel.all();
+            const positions = await MapModel.getDevicePositions();
+            const zones = await MapModel.loadZones();
             
-            const div = document.createElement('div');
-            div.className = `d-flex justify-content-between align-items-center p-2 mb-2 border rounded ${inZone ? 'bg-danger text-white' : 'bg-light'}`;
-            div.innerHTML = `
-                <div>
-                    <strong class="small">${device.id}</strong>
-                    <div class="extra-small">${person ? person.name : 'Sem pessoa vinculada'}</div>
-                </div>
-                <div class="text-end">
-                    <span class="badge ${inZone ? 'bg-warning' : 'bg-success'}">${inZone ? 'PERIGO' : 'SAFE'}</span>
-                    <div class="extra-small">${pos ? `x:${pos.x.toFixed(2)} y:${pos.y.toFixed(2)}` : 'Sem posição'}</div>
-                </div>
-            `;
-            node.appendChild(div);
+            if (devices.length === 0){ 
+                node.innerHTML = '<div class="alert alert-info py-2">Nenhum dispositivo cadastrado.</div>'; 
+                return; 
+            }
+            
+            node.innerHTML = '';
+            for (const device of devices){
+                const pos = positions[device.id];
+                const person = await PeopleModel.findByDevice(device.id);
+                const inZone = pos ? zones.some(zone => MapModel.pointInZone(pos.x, pos.y, zone)) : false;
+                
+                const div = document.createElement('div');
+                div.className = `d-flex justify-content-between align-items-center p-2 mb-2 border rounded ${inZone ? 'bg-danger text-white' : 'bg-light'}`;
+                div.innerHTML = `
+                    <div>
+                        <strong class="small">${device.id}</strong>
+                        <div class="extra-small">${person ? person.name : 'Sem pessoa vinculada'}</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge ${inZone ? 'bg-warning' : 'bg-success'}">${inZone ? 'PERIGO' : 'SAFE'}</span>
+                        <div class="extra-small">${pos ? `x:${pos.x.toFixed(2)} y:${pos.y.toFixed(2)}` : 'Sem posição'}</div>
+                    </div>
+                `;
+                node.appendChild(div);
+            }
+        } catch (error) {
+            console.error('Erro ao renderizar lista de dispositivos:', error);
+            node.innerHTML = '<div class="alert alert-danger py-2">Erro ao carregar dispositivos</div>';
         }
     }
 
@@ -248,7 +256,7 @@ const MapView = (function(){
 
     function bindControls(){
         // Mover dispositivo específico
-        document.getElementById('btn-sim-move').addEventListener('click', () => {
+        document.getElementById('btn-sim-move').addEventListener('click', async () => {
             const deviceId = document.getElementById('sim-device-id').value.trim().toUpperCase();
             const x = parseFloat(document.getElementById('sim-x').value);
             const y = parseFloat(document.getElementById('sim-y').value);
@@ -263,16 +271,21 @@ const MapView = (function(){
                 return;
             }
             
-            const device = DevicesModel.find(deviceId);
-            if (!device) {
-                showAlert(`Dispositivo ${deviceId} não encontrado`, 'danger');
-                return;
+            try {
+                const device = await DevicesModel.find(deviceId);
+                if (!device) {
+                    showAlert(`Dispositivo ${deviceId} não encontrado`, 'danger');
+                    return;
+                }
+                
+                await MapModel.setDevicePosition(deviceId, x, y);
+                showAlert(`Dispositivo ${deviceId} movido para (${x.toFixed(2)}, ${y.toFixed(2)})`, 'success');
+                await renderMap();
+                await renderDevicesList();
+            } catch (error) {
+                console.error('Erro ao mover dispositivo:', error);
+                showAlert('Erro ao mover dispositivo', 'danger');
             }
-            
-            MapModel.setDevicePosition(deviceId, x, y);
-            showAlert(`Dispositivo ${deviceId} movido para (${x.toFixed(2)}, ${y.toFixed(2)})`, 'success');
-            renderMap();
-            renderDevicesList();
             
             // Limpar campos
             document.getElementById('sim-device-id').value = '';
@@ -290,19 +303,54 @@ const MapView = (function(){
             }
         });
 
-        // Posições aleatórias
+        // Posições inteligentes baseadas nas áreas do canteiro
         document.getElementById('btn-randomize').addEventListener('click', () => {
-            const devices = DevicesModel.all().filter(d => d.active);
+            // Apenas mover dispositivos do tipo 'worker', mantendo sensores fixos
+            const devices = DevicesModel.all().filter(d => d.active && d.type === 'worker');
+            
+            // Obter áreas disponíveis do AreasModel
+            const areas = AreasModel ? AreasModel.getAreas() : [];
             
             for (const device of devices) {
-                const x = Math.random() * 0.9 + 0.05; // Entre 0.05 e 0.95
-                const y = Math.random() * 0.9 + 0.05; // Entre 0.05 e 0.95
+                let x, y;
+                
+                if (areas.length > 0) {
+                    // Escolher uma área aleatória
+                    const randomArea = areas[Math.floor(Math.random() * areas.length)];
+                    
+                    // Posicionar dentro da área escolhida com margem de segurança
+                    const marginX = randomArea.w * 0.1; // 10% de margem
+                    const marginY = randomArea.h * 0.1; // 10% de margem
+                    
+                    x = randomArea.x + marginX + Math.random() * (randomArea.w - 2 * marginX);
+                    y = randomArea.y + marginY + Math.random() * (randomArea.h - 2 * marginY);
+                    
+                    // Garantir que está dentro dos limites do mapa
+                    x = Math.max(0.02, Math.min(0.98, x));
+                    y = Math.max(0.02, Math.min(0.98, y));
+                } else {
+                    // Fallback para posições aleatórias se AreasModel não estiver disponível
+                    x = Math.random() * 0.9 + 0.05;
+                    y = Math.random() * 0.9 + 0.05;
+                }
+                
                 MapModel.setDevicePosition(device.id, x, y);
             }
             
             // Atualiza silenciosamente sem mostrar alerta
             renderMap();
             renderDevicesList();
+            
+            console.log(`🎯 Colaboradores redistribuídos inteligentemente pelas ${areas.length} áreas do canteiro`);
+        });
+
+        // Simulação automática
+        document.getElementById('btn-auto-simulate').addEventListener('click', () => {
+            if (isAutoSimulating) {
+                stopAutoSimulation();
+            } else {
+                startAutoSimulation();
+            }
         });
 
         // Enter para mover dispositivo
@@ -313,15 +361,97 @@ const MapView = (function(){
         });
     }
 
-    function render(){
+    // Variáveis para controle da simulação automática
+    let autoSimulationInterval = null;
+    let isAutoSimulating = false;
+    
+    // Simulação automática inteligente
+    function startAutoSimulation() {
+        if (autoSimulationInterval) return; // Já está rodando
+        
+        isAutoSimulating = true;
+        const autoBtn = document.getElementById('btn-auto-simulate');
+        autoBtn.innerHTML = '<i class="bi bi-stop-circle me-1"></i>Parar Simulação';
+        autoBtn.className = 'btn btn-danger btn-sm';
+        
+        console.log('🎬 Iniciando simulação automática de colaboradores...');
+        
+        autoSimulationInterval = setInterval(() => {
+            const workers = DevicesModel.all().filter(d => d.active && d.type === 'worker');
+            const areas = AreasModel ? AreasModel.getAreas() : [];
+            
+            if (workers.length === 0 || areas.length === 0) return;
+            
+            // Mover cada colaborador para uma nova área ou dentro da área atual
+            workers.forEach(worker => {
+                const currentPos = MapModel.getDevicePosition(worker.id) || { x: 0.5, y: 0.5 };
+                
+                // 70% chance de se mover para área adjacente, 30% de ficar na área atual
+                const shouldChangeArea = Math.random() < 0.7;
+                
+                let targetArea;
+                if (shouldChangeArea) {
+                    // Escolher nova área (preferir áreas produtivas)
+                    const productiveAreas = areas.filter(a => 
+                        a.id.includes('construcao') || 
+                        a.id.includes('oficina') || 
+                        a.id.includes('zona_perigo') ||
+                        a.id.includes('betoneira') ||
+                        a.id.includes('almoxarifado')
+                    );
+                    const allAreas = productiveAreas.length > 0 ? productiveAreas : areas;
+                    targetArea = allAreas[Math.floor(Math.random() * allAreas.length)];
+                } else {
+                    // Encontrar área atual ou escolher aleatória
+                    targetArea = areas.find(area => 
+                        currentPos.x >= area.x && currentPos.x <= (area.x + area.w) &&
+                        currentPos.y >= area.y && currentPos.y <= (area.y + area.h)
+                    ) || areas[Math.floor(Math.random() * areas.length)];
+                }
+                
+                // Calcular nova posição dentro da área alvo
+                const marginX = targetArea.w * 0.15; // 15% de margem
+                const marginY = targetArea.h * 0.15;
+                
+                const newX = targetArea.x + marginX + Math.random() * (targetArea.w - 2 * marginX);
+                const newY = targetArea.y + marginY + Math.random() * (targetArea.h - 2 * marginY);
+                
+                // Garantir limites do mapa
+                const finalX = Math.max(0.02, Math.min(0.98, newX));
+                const finalY = Math.max(0.02, Math.min(0.98, newY));
+                
+                MapModel.setDevicePosition(worker.id, finalX, finalY);
+            });
+            
+            // Atualizar visualização
+            renderMap();
+            
+        }, 3000); // Movimento a cada 3 segundos
+    }
+    
+    function stopAutoSimulation() {
+        if (autoSimulationInterval) {
+            clearInterval(autoSimulationInterval);
+            autoSimulationInterval = null;
+        }
+        
+        isAutoSimulating = false;
+        const autoBtn = document.getElementById('btn-auto-simulate');
+        autoBtn.innerHTML = '<i class="bi bi-play-circle me-1"></i>Simulação Auto';
+        autoBtn.className = 'btn btn-success btn-sm';
+        
+        console.log('⏹️ Simulação automática parada');
+    }
+
+    async function render(){
         if (!root) {
             console.error('Elemento view-root não encontrado');
             return;
         }
         
         root.innerHTML = template();
-        renderMap();
-        renderDevicesList();
+        await renderMap();
+        await renderDevicesList();
         bindControls();
     }
 

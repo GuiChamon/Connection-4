@@ -22,12 +22,15 @@
         <span class="navbar-brand mb-0 h1 fw-bold">Sistema de Monitoramento de Segurança em Obras</span>
       </div>
       <div class="navbar-nav ms-auto">
-        <span class="nav-text text-light small">Projeto Acadêmico — Engenharia de Software</span>
+        <span class="nav-text text-light small" id="user-info">Projeto Acadêmico — Engenharia de Software</span>
+        <button class="btn btn-outline-light btn-sm ms-2" id="logout-btn" style="display: none;">
+          <i class="bi bi-box-arrow-right me-1"></i>Sair
+        </button>
       </div>
     </div>
   </header>
-
-  <!-- Subcabeçalho com informações -->
+<!-- 
+  Subcabeçalho com info
   <section class="bg-primary text-white py-2">
     <div class="container">
       <div class="row align-items-center">
@@ -42,13 +45,13 @@
       </div>
     </div>
   </section>
-
+-->
   <!-- Navegação -->
   <nav class="navbar navbar-expand navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
       <div class="navbar-nav">
-        <button id="nav-map" class="nav-btn btn btn-outline-primary me-2">
-          <i class="bi bi-geo-alt me-1"></i>Monitoramento em Tempo Real
+        <button id="nav-monitoring" class="nav-btn btn btn-outline-primary me-2">
+          <i class="bi bi-display me-1"></i>Central de Monitoramento
         </button>
         <button id="nav-cadastro" class="nav-btn btn btn-outline-primary">
           <i class="bi bi-person-gear me-1"></i>Gestão de Recursos
@@ -97,12 +100,16 @@
 
   <!-- Scripts do Projeto -->
   <!-- Models -->
+  <script src="js/models/authModel.js"></script>
+  <script src="js/models/areasModel.js"></script>
   <script src="js/models/mapModel.js"></script>
   <script src="js/models/peopleModel.js"></script>
   <script src="js/models/devicesModel.js"></script>
 
   <!-- Views (APENAS as necessárias) -->
+  <script src="js/views/authView.js"></script>
   <script src="js/views/mapView.js"></script>
+  <script src="js/views/monitoringView.js"></script>
   <script src="js/views/cadastro.js"></script>
 
   <!-- Controllers -->
@@ -114,7 +121,7 @@
   <script>
     // Router simples
     const Router = {
-      show(name) {
+      async show(name) {
         console.log('Mudando para view:', name);
         
         // Atualizar botões de navegação
@@ -130,18 +137,18 @@
         }
 
         // Carregar view apropriada
-        if (name === 'map') {
-          if (typeof MapView !== 'undefined') {
-            MapView.render();
+        if (name === 'monitoring') {
+          if (typeof MonitoringView !== 'undefined') {
+            await MonitoringView.render();
           } else {
-            console.error('MapView não encontrada');
-            document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: MapView não carregada</div>';
+            console.error('MonitoringView não encontrada');
+            document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: MonitoringView não carregada</div>';
           }
         }
         
         if (name === 'cadastro') {
           if (typeof CombinedView !== 'undefined') {
-            CombinedView.render();
+            await CombinedView.render();
           } else {
             console.error('CombinedView não encontrada');
             document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: CombinedView não carregada</div>';
@@ -151,23 +158,28 @@
     };
 
     // Inicialização quando DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       console.log('DOM carregado, inicializando sistema...');
       
       try {
-        // Inicializar controllers
-        if (typeof MapController !== 'undefined') MapController.init();
-        if (typeof PeopleController !== 'undefined') PeopleController.init();
-        if (typeof DevicesController !== 'undefined') DevicesController.init();
+        // Verificar se está autenticado
+        if (!AuthModel.isAuthenticated()) {
+          console.log('Usuário não autenticado, mostrando tela de login');
+          AuthView.renderLogin();
+          return;
+        }
 
-        // Configurar navegação
-        document.getElementById('nav-map').addEventListener('click', () => Router.show('map'));
-        document.getElementById('nav-cadastro').addEventListener('click', () => Router.show('cadastro'));
+        // Verificar se token é válido
+        const isTokenValid = await AuthModel.verifyToken();
+        if (!isTokenValid) {
+          console.log('Token inválido, mostrando tela de login');
+          AuthView.renderLogin();
+          return;
+        }
 
-        // Carregar view inicial
-        Router.show('map');
+        // Usuário autenticado - mostrar sistema principal
+        await initializeMainSystem();
         
-        console.log('Sistema inicializado com sucesso');
       } catch (error) {
         console.error('Erro na inicialização:', error);
         document.getElementById('view-root').innerHTML = `
@@ -179,6 +191,78 @@
         `;
       }
     });
+
+    // Função para inicializar o sistema principal
+    async function initializeMainSystem() {
+      console.log('Inicializando sistema principal...');
+      
+      // Mostrar informações do usuário
+      const user = AuthModel.getUser();
+      if (user) {
+        document.getElementById('user-info').innerHTML = `
+          <i class="bi bi-person-circle me-1"></i>${user.name} (${user.role})
+        `;
+        document.getElementById('logout-btn').style.display = 'inline-block';
+      }
+
+      // Verificar se a API está funcionando
+      try {
+        const response = await fetch('http://localhost:3000/api/status');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ API conectada:', data.message);
+        } else {
+          throw new Error('API não está respondendo');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao conectar com a API:', error);
+        document.getElementById('view-root').innerHTML = `
+          <div class="alert alert-warning">
+            <h4>⚠️ Problema de Conectividade</h4>
+            <p>Não foi possível conectar com o backend. Verifique se:</p>
+            <ul>
+              <li>O servidor Node.js está rodando (porta 3000)</li>
+              <li>O MongoDB está ativo</li>
+              <li>A URL da API está correta</li>
+            </ul>
+            <p><strong>Como resolver:</strong></p>
+            <ol>
+              <li>Abra um terminal na pasta backend</li>
+              <li>Execute: <code>node server.js</code></li>
+              <li>Recarregue esta página</li>
+            </ol>
+          </div>
+        `;
+        return;
+      }
+      
+      // Inicializar controllers
+      if (typeof MapController !== 'undefined') await MapController.init();
+      if (typeof PeopleController !== 'undefined') PeopleController.init();
+      if (typeof DevicesController !== 'undefined') DevicesController.init();
+
+      // Configurar navegação
+      document.getElementById('nav-monitoring').addEventListener('click', () => Router.show('monitoring'));
+      document.getElementById('nav-cadastro').addEventListener('click', () => Router.show('cadastro'));
+
+      // Configurar logout
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        try {
+          await AuthModel.logout();
+          window.location.reload();
+        } catch (error) {
+          console.error('Erro no logout:', error);
+          // Mesmo com erro, fazer logout local
+          AuthModel.clearAuthData();
+          window.location.reload();
+        }
+      });
+
+      // Carregar view inicial - Central de Monitoramento
+      await Router.show('monitoring');
+      
+      console.log('Sistema inicializado com sucesso');
+    }
 
     // Tratamento de erros global
     window.addEventListener('error', function(e) {
