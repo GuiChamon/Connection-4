@@ -13,23 +13,17 @@ const AreasModel = (function(){
             
             // LINHA 2 - ÁREA PRODUTIVA (y: 0.22 - 0.42)  
             { id: 'area_construcao', x: 0.02, y: 0.22, w: 0.28, h: 0.20, name: 'Construção Principal', color: '#fd7e14', icon: '🏗️' },
-            { id: 'zona_perigo_2', x: 0.32, y: 0.22, w: 0.24, h: 0.20, name: 'Área de Soldas', color: '#dc3545', icon: '⚡' },
-            { id: 'oficina', x: 0.58, y: 0.22, w: 0.20, h: 0.20, name: 'Oficina Mecânica', color: '#20c997', icon: '🔧' },
+            { id: 'zona_perigo_2', x: 0.35, y: 0.22, w: 0.34, h: 0.20, name: 'Área de Soldas', color: '#dc3545', icon: '⚡' },
             { id: 'deposito', x: 0.80, y: 0.22, w: 0.18, h: 0.20, name: 'Depósito Material', color: '#6f42c1', icon: '📋' },
             
             // LINHA 3 - ÁREA SOCIAL E SERVIÇOS (y: 0.46 - 0.66)
             { id: 'betoneira', x: 0.02, y: 0.46, w: 0.22, h: 0.20, name: 'Central de Concreto', color: '#e83e8c', icon: '🚚' },
             { id: 'refeitorio', x: 0.26, y: 0.46, w: 0.26, h: 0.20, name: 'Refeitório', color: '#ffc107', icon: '🍽️' },
-            { id: 'enfermaria', x: 0.54, y: 0.46, w: 0.18, h: 0.20, name: 'Enfermaria', color: '#f8d7da', icon: '🏥' },
-            { id: 'laboratorio', x: 0.74, y: 0.46, w: 0.24, h: 0.20, name: 'Lab. Qualidade', color: '#d1ecf1', icon: '🔬' },
-            
+        
             // LINHA 4 - APOIO E VESTIÁRIOS (y: 0.70 - 0.88)
             { id: 'vestiario_masc', x: 0.02, y: 0.70, w: 0.18, h: 0.18, name: 'Vestiário Masculino', color: '#0dcaf0', icon: '👔' },
             { id: 'vestiario_fem', x: 0.22, y: 0.70, w: 0.18, h: 0.18, name: 'Vestiário Feminino', color: '#f8d7da', icon: '👗' },
-            { id: 'limpeza', x: 0.42, y: 0.70, w: 0.16, h: 0.18, name: 'Área de Limpeza', color: '#d4edda', icon: '🧽' },
-            { id: 'manutencao', x: 0.60, y: 0.70, w: 0.20, h: 0.18, name: 'Manutenção', color: '#fff3cd', icon: '⚙️' },
-            { id: 'guarita', x: 0.82, y: 0.70, w: 0.16, h: 0.18, name: 'Guarita Saída', color: '#f1f3f4', icon: '�️' }
-        ];
+            ];
     }
 
     function getAreaById(id){

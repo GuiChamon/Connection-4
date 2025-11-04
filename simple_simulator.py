@@ -22,18 +22,33 @@ class RealisticSimulator:
         self.device_targets = {}    # Armazenar destinos
         self.device_routes = {}     # Armazenar rotas
         
-        # Definir áreas de trabalho no canteiro
+        # Definir áreas de trabalho no canteiro - ATUALIZADO para o novo layout profissional
         self.work_areas = {
-            "entrada": {"x": 0.06, "y": 0.08, "name": "Portaria/Entrada"},
-            "escritorio": {"x": 0.20, "y": 0.12, "name": "Escritório de Obras"},
-            "almoxarifado": {"x": 0.80, "y": 0.08, "name": "Almoxarifado"},
-            "area_construcao": {"x": 0.45, "y": 0.34, "name": "Área de Construção Principal"},
-            "betoneira": {"x": 0.25, "y": 0.52, "name": "Central de Concreto"},
-            "oficina": {"x": 0.72, "y": 0.54, "name": "Oficina de Manutenção"},
-            "refeitorio": {"x": 0.06, "y": 0.72, "name": "Refeitório"},
-            "vestiario": {"x": 0.16, "y": 0.84, "name": "Vestiário"},
-            "zona_perigo_1": {"x": 0.36, "y": 0.16, "name": "Zona de Risco - Guindastes"},
-            "zona_perigo_2": {"x": 0.64, "y": 0.32, "name": "Zona de Risco - Soldas"},
+            # LINHA 1 - ADMINISTRAÇÃO (y: 0.02-0.18)
+            "entrada": {"x": 0.08, "y": 0.10, "name": "Portaria Principal"},
+            "escritorio": {"x": 0.26, "y": 0.10, "name": "Escritório de Obras"},
+            "zona_perigo_1": {"x": 0.49, "y": 0.10, "name": "Área de Guindastes"},
+            "almoxarifado": {"x": 0.71, "y": 0.10, "name": "Almoxarifado Geral"},
+            "estacionamento": {"x": 0.90, "y": 0.10, "name": "Estacionamento"},
+            
+            # LINHA 2 - PRODUÇÃO (y: 0.22-0.42)
+            "area_construcao": {"x": 0.16, "y": 0.32, "name": "Construção Principal"},
+            "zona_perigo_2": {"x": 0.44, "y": 0.32, "name": "Área de Soldas"},
+            "oficina": {"x": 0.68, "y": 0.32, "name": "Oficina Mecânica"},
+            "deposito": {"x": 0.89, "y": 0.32, "name": "Depósito Material"},
+            
+            # LINHA 3 - SERVIÇOS (y: 0.46-0.66)
+            "betoneira": {"x": 0.13, "y": 0.56, "name": "Central de Concreto"},
+            "refeitorio": {"x": 0.39, "y": 0.56, "name": "Refeitório"},
+            "enfermaria": {"x": 0.63, "y": 0.56, "name": "Enfermaria"},
+            "laboratorio": {"x": 0.86, "y": 0.56, "name": "Lab. Qualidade"},
+            
+            # LINHA 4 - APOIO (y: 0.70-0.88)
+            "vestiario_masc": {"x": 0.11, "y": 0.79, "name": "Vestiário Masculino"},
+            "vestiario_fem": {"x": 0.31, "y": 0.79, "name": "Vestiário Feminino"},
+            "limpeza": {"x": 0.50, "y": 0.79, "name": "Área de Limpeza"},
+            "manutencao": {"x": 0.70, "y": 0.79, "name": "Manutenção"},
+            "guarita": {"x": 0.90, "y": 0.79, "name": "Guarita Saída"},
         }
 
     def login(self):
@@ -85,15 +100,30 @@ class RealisticSimulator:
         """Cria dados de teste"""
         print("🏗️ Criando dados de teste...")
         
-        # Criar alguns dispositivos e pessoas com posições iniciais específicas
+        # Criar dispositivos e pessoas com posições nas novas áreas profissionais
         test_data = [
-            {"device": "DEV001", "name": "João Silva", "role": "Pedreiro", "area": "area_construcao"},
-            {"device": "DEV002", "name": "Maria Santos", "role": "Engenheira", "area": "escritorio"},
-            {"device": "DEV003", "name": "Carlos Lima", "role": "Eletricista", "area": "oficina"},
-            {"device": "DEV004", "name": "Ana Costa", "role": "Soldadora", "area": "zona_perigo_2"},
-            {"device": "DEV005", "name": "Pedro Souza", "role": "Operador", "area": "betoneira"},
-            {"device": "DEV006", "name": "Luiza Ferreira", "role": "Almoxarife", "area": "almoxarifado"},
-            {"device": "DEV007", "name": "Roberto Oliveira", "role": "Guincheiro", "area": "zona_perigo_1"},
+            # LINHA 1 - ADMINISTRAÇÃO
+            {"device": "DEV001", "name": "Maria Santos", "role": "Engenheira Civil", "area": "escritorio"},
+            {"device": "DEV002", "name": "João Silva", "role": "Operador de Guindaste", "area": "zona_perigo_1"},
+            {"device": "DEV003", "name": "Luiza Ferreira", "role": "Almoxarife", "area": "almoxarifado"},
+            {"device": "DEV004", "name": "Carlos Porteiro", "role": "Porteiro", "area": "entrada"},
+            
+            # LINHA 2 - PRODUÇÃO
+            {"device": "DEV005", "name": "Pedro Construção", "role": "Pedreiro", "area": "area_construcao"},
+            {"device": "DEV006", "name": "Ana Costa", "role": "Soldadora", "area": "zona_perigo_2"},
+            {"device": "DEV007", "name": "Roberto Mecânico", "role": "Mecânico", "area": "oficina"},
+            {"device": "DEV008", "name": "José Estoque", "role": "Auxiliar de Depósito", "area": "deposito"},
+            
+            # LINHA 3 - SERVIÇOS
+            {"device": "DEV009", "name": "Carlos Lima", "role": "Operador de Betoneira", "area": "betoneira"},
+            {"device": "DEV010", "name": "Fernanda Nutrição", "role": "Cozinheira", "area": "refeitorio"},
+            {"device": "DEV011", "name": "Dra. Silva", "role": "Enfermeira", "area": "enfermaria"},
+            {"device": "DEV012", "name": "Eng. Qualidade", "role": "Técnico em Qualidade", "area": "laboratorio"},
+            
+            # LINHA 4 - APOIO
+            {"device": "DEV013", "name": "Marcos Manutenção", "role": "Técnico de Manutenção", "area": "manutencao"},
+            {"device": "DEV014", "name": "Silvia Limpeza", "role": "Auxiliar de Limpeza", "area": "limpeza"},
+            {"device": "DEV015", "name": "Antônio Segurança", "role": "Vigilante", "area": "guarita"},
         ]
 
         for data in test_data:
@@ -149,15 +179,53 @@ class RealisticSimulator:
         }
 
     def assign_new_target(self, device_id):
-        """Atribui novo destino para um dispositivo"""
-        area_keys = list(self.work_areas.keys())
-        target_area = random.choice(area_keys)
+        """Atribui novo destino inteligente baseado no tipo de colaborador"""
+        
+        # Definir áreas preferenciais por tipo de colaborador
+        role_preferences = {
+            "Engenheira Civil": ["escritorio", "area_construcao", "laboratorio"],
+            "Operador de Guindaste": ["zona_perigo_1", "area_construcao", "deposito"],
+            "Almoxarife": ["almoxarifado", "deposito", "entrada"],
+            "Porteiro": ["entrada", "guarita", "estacionamento"],
+            "Pedreiro": ["area_construcao", "betoneira", "almoxarifado"],
+            "Soldadora": ["zona_perigo_2", "oficina", "almoxarifado"],
+            "Mecânico": ["oficina", "manutencao", "deposito"],
+            "Auxiliar de Depósito": ["deposito", "almoxarifado", "area_construcao"],
+            "Operador de Betoneira": ["betoneira", "area_construcao", "laboratorio"],
+            "Cozinheira": ["refeitorio", "limpeza"],
+            "Enfermeira": ["enfermaria", "refeitorio", "escritorio"],
+            "Técnico em Qualidade": ["laboratorio", "area_construcao", "escritorio"],
+            "Técnico de Manutenção": ["manutencao", "oficina", "deposito"],
+            "Auxiliar de Limpeza": ["limpeza", "refeitorio", "vestiario_masc", "vestiario_fem"],
+            "Vigilante": ["guarita", "entrada", "estacionamento"],
+        }
+        
+        # Buscar role do colaborador (simplificado - usar device_id)
+        device_num = device_id.replace("DEV", "").zfill(3)
+        
+        # Mapear device para role baseado na ordem dos test_data
+        role_map = {
+            "001": "Engenheira Civil", "002": "Operador de Guindaste", "003": "Almoxarife", "004": "Porteiro",
+            "005": "Pedreiro", "006": "Soldadora", "007": "Mecânico", "008": "Auxiliar de Depósito",
+            "009": "Operador de Betoneira", "010": "Cozinheira", "011": "Enfermeira", "012": "Técnico em Qualidade",
+            "013": "Técnico de Manutenção", "014": "Auxiliar de Limpeza", "015": "Vigilante"
+        }
+        
+        role = role_map.get(device_num, "Pedreiro")  # Default para Pedreiro
+        preferred_areas = role_preferences.get(role, list(self.work_areas.keys()))
+        
+        # 80% chance de ir para área preferencial, 20% para qualquer área
+        if random.random() < 0.8:
+            target_area = random.choice(preferred_areas)
+        else:
+            target_area = random.choice(list(self.work_areas.keys()))
+        
         area = self.work_areas[target_area]
         
-        # Adicionar pequena variação na posição da área
+        # Adicionar variação realista na posição da área
         target = {
-            "x": area["x"] + random.uniform(-0.04, 0.04),
-            "y": area["y"] + random.uniform(-0.04, 0.04),
+            "x": area["x"] + random.uniform(-0.06, 0.06),
+            "y": area["y"] + random.uniform(-0.06, 0.06),
             "area_name": area["name"]
         }
         
@@ -166,7 +234,9 @@ class RealisticSimulator:
         target["y"] = max(0.05, min(0.95, target["y"]))
         
         self.device_targets[device_id] = target
-        print(f"   🎯 {device_id} direcionado para {target['area_name']}")
+        print(f"   🎯 {device_id} ({role}) → {target['area_name']}")
+        
+        return target
 
     def move_devices(self):
         """Move dispositivos de forma realista"""
@@ -201,13 +271,19 @@ class RealisticSimulator:
                         
                         # Atribuir novo alvo se não tiver ou chegou ao destino
                         if (device_id not in self.device_targets or 
-                            self.calculate_distance(self.device_positions[device_id], self.device_targets[device_id]) < 0.02):
+                            self.calculate_distance(self.device_positions[device_id], self.device_targets[device_id]) < 0.03):
                             self.assign_new_target(device_id)
                         
-                        # Calcular próxima posição
+                        # Calcular próxima posição com velocidade variável
                         current_pos = self.device_positions[device_id]
                         target_pos = self.device_targets[device_id]
-                        next_pos = self.get_next_position(current_pos, target_pos, speed=0.008)  # Velocidade realista
+                        
+                        # Velocidade baseada na distância (mais lento perto do destino)
+                        distance = self.calculate_distance(current_pos, target_pos)
+                        base_speed = 0.012  # Velocidade base aumentada
+                        speed = base_speed * min(1.0, distance * 10)  # Desacelera perto do destino
+                        
+                        next_pos = self.get_next_position(current_pos, target_pos, speed=speed)
                         
                         # Atualizar posição
                         self.device_positions[device_id] = next_pos
@@ -259,12 +335,35 @@ def main():
     # Criar dados de teste
     sim.create_test_data()
     
-    print(f"\n�️ Áreas de trabalho definidas:")
-    for area_id, area in sim.work_areas.items():
-        print(f"   📍 {area['name']} - ({area['x']:.2f}, {area['y']:.2f})")
+    print(f"\n🏗️ Layout Profissional do Canteiro ({len(sim.work_areas)} áreas):")
+    print("   📍 LINHA 1 - ADMINISTRAÇÃO:")
+    for area_id in ["entrada", "escritorio", "zona_perigo_1", "almoxarifado", "estacionamento"]:
+        if area_id in sim.work_areas:
+            area = sim.work_areas[area_id]
+            print(f"      • {area['name']} - ({area['x']:.2f}, {area['y']:.2f})")
     
-    print("\n�💡 Iniciando simulação realista em 3 segundos...")
-    print("💡 Os colaboradores se moverão entre as áreas de trabalho")
+    print("   📍 LINHA 2 - PRODUÇÃO:")
+    for area_id in ["area_construcao", "zona_perigo_2", "oficina", "deposito"]:
+        if area_id in sim.work_areas:
+            area = sim.work_areas[area_id]
+            print(f"      • {area['name']} - ({area['x']:.2f}, {area['y']:.2f})")
+    
+    print("   � LINHA 3 - SERVIÇOS:")
+    for area_id in ["betoneira", "refeitorio", "enfermaria", "laboratorio"]:
+        if area_id in sim.work_areas:
+            area = sim.work_areas[area_id]
+            print(f"      • {area['name']} - ({area['x']:.2f}, {area['y']:.2f})")
+    
+    print("   📍 LINHA 4 - APOIO:")
+    for area_id in ["vestiario_masc", "vestiario_fem", "limpeza", "manutencao", "guarita"]:
+        if area_id in sim.work_areas:
+            area = sim.work_areas[area_id]
+            print(f"      • {area['name']} - ({area['x']:.2f}, {area['y']:.2f})")
+    
+    print("\n🎯 Simulação Inteligente:")
+    print("💡 15 colaboradores especializados se movendo por suas áreas preferenciais")
+    print("💡 Movimentação baseada na função de cada trabalhador")
+    print("💡 Velocidade variável e comportamento realista")
     print("💡 Pressione Ctrl+C para parar")
     time.sleep(3)
     
