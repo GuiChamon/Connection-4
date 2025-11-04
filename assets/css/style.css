@@ -14,7 +14,73 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--light-bg);
   color: var(--dark-text);
+  cursor: default !important;
 }
+
+/* ================================================
+   CORREÇÃO DE CURSOR - FORÇAR CURSOR CORRETO
+   ================================================ */
+
+/* FORÇA cursor default para body e elementos gerais */
+body, 
+html, 
+.container, 
+.container-fluid, 
+.row, 
+.col, 
+[class*="col-"], 
+.card, 
+.card-body, 
+.card-header, 
+.navbar, 
+.nav, 
+.alert, 
+div, 
+span, 
+p, 
+h1, h2, h3, h4, h5, h6 {
+  cursor: default !important;
+}
+
+/* Garantir cursor correto em todos os elementos */
+*, *::before, *::after {
+  cursor: inherit;
+}
+
+/* Apenas inputs e elementos editáveis devem ter cursor text */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="search"], 
+input[type="tel"], 
+input[type="url"], 
+input[type="number"],
+textarea, 
+[contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* Botões e elementos clicáveis devem ter cursor pointer */
+button, 
+.btn, 
+a, 
+[role="button"],
+.clickable,
+.badge,
+.nav-link,
+.navbar-brand {
+  cursor: pointer !important;
+}
+
+/* Elementos desabilitados */
+:disabled,
+.disabled {
+  cursor: not-allowed !important;
+}
+
+/* ================================================
+   STYLES ORIGINAIS
+   ================================================ */
 
 /* Header */
 .navbar-dark.bg-dark {
