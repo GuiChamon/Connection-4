@@ -85,12 +85,23 @@ const MonitoringView = (function(){
                             <div id="safety-alerts" class="alerts-list"></div>
                         </div>
 
+                        <!-- Alertas de Controle de Acesso -->
+                        <div class="mb-3">
+                            <h6 class="text-warning mb-2 small">
+                                <i class="bi bi-shield-exclamation me-1"></i>Controle de Acesso
+                            </h6>
+                            <div id="access-alerts" class="alerts-list" style="max-height: 150px; overflow-y: auto;"></div>
+                        </div>
+
                         <!-- Controles -->
                         <div class="mb-2">
                             <h6 class="text-success mb-2 small">
                                 <i class="bi bi-gear-fill me-1"></i>Controles
                             </h6>
                             <div class="d-grid gap-1">
+                                <button id="btn-show-restricted-areas" class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-shield-lock me-1"></i>Áreas Restritas
+                                </button>
                                 <button class="btn btn-success btn-sm" onclick="location.reload()">
                                     <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
                                 </button>
@@ -98,6 +109,23 @@ const MonitoringView = (function(){
                                     <i class="bi bi-person-gear me-1"></i>Gestão
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Áreas Restritas -->
+            <div class="modal fade" id="restrictedAreasModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title">
+                                <i class="bi bi-shield-lock me-2"></i>Áreas Restritas e Permissões de Acesso
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" id="restricted-areas-content">
+                            <!-- Conteúdo será preenchido dinamicamente -->
                         </div>
                     </div>
                 </div>
@@ -355,6 +383,57 @@ const MonitoringView = (function(){
         return nearbySensors.sort((a, b) => a.distance - b.distance);
     }
 
+    /**
+     * Verifica se o colaborador tem acesso à área atual e registra alerta se necessário
+     * @param {object} person - Dados do colaborador
+     * @param {object} position - Posição atual
+     * @returns {object} - {hasAccess: boolean, alert: object|null, areaInfo: object}
+     */
+    function checkAccessAuthorization(person, position) {
+        if (!AccessControlModel) {
+            return { hasAccess: true, alert: null, areaInfo: null };
+        }
+
+        // Detectar em qual área o colaborador está
+        const areas = AreasModel.getAreas();
+        let currentArea = null;
+        
+        for (const area of areas) {
+            if (position.x >= area.x && position.x <= (area.x + area.w) &&
+                position.y >= area.y && position.y <= (area.y + area.h)) {
+                currentArea = area;
+                break;
+            }
+        }
+
+        if (!currentArea) {
+            return { hasAccess: true, alert: null, areaInfo: null };
+        }
+
+        // Verificar permissão de acesso
+        const accessCheck = AccessControlModel.checkAccess(person.role, currentArea.id);
+        
+        // Se não tem acesso e está em área restrita, registrar alerta
+        if (!accessCheck.authorized && accessCheck.restricted) {
+            const alert = AccessControlModel.registerAlert({
+                type: 'UNAUTHORIZED_ACCESS',
+                severity: 'HIGH',
+                workerName: person.name,
+                workerRole: person.role,
+                deviceId: person.deviceId,
+                areaId: currentArea.id,
+                areaName: currentArea.name,
+                riskLevel: accessCheck.riskLevel,
+                position: position,
+                reason: accessCheck.reason
+            });
+            
+            return { hasAccess: false, alert: alert, areaInfo: currentArea };
+        }
+
+        return { hasAccess: true, alert: null, areaInfo: currentArea };
+    }
+
     async function renderWorkers(){
         const canvas = document.getElementById('map-canvas');
         const workersList = document.getElementById('workers-list');
@@ -386,10 +465,15 @@ const MonitoringView = (function(){
 
                 workersCount++;
 
+                // Verificar autorização de acesso à área atual
+                const accessAuth = checkAccessAuthorization(person, position);
+                const unauthorizedAccess = !accessAuth.hasAccess;
+                
                 // Verificar se está em zona de perigo usando AreasModel
                 const inDangerZone = checkIfInRiskArea(position);
                 
-                if (inDangerZone) alertsCount++;
+                // Contabilizar alertas (zona de perigo OU acesso não autorizado)
+                if (inDangerZone || unauthorizedAccess) alertsCount++;
 
                 // Verificar proximidade com sensores fixos
                 const sensorPositions = {};
@@ -403,39 +487,72 @@ const MonitoringView = (function(){
 
                 // Criar marker no mapa (estilo original)
                 const worker = document.createElement('div');
-                worker.className = `worker-marker position-absolute ${inDangerZone ? 'worker-danger' : 'worker-safe'}`;
+                // Adicionar classe especial se acesso não autorizado
+                const accessClass = unauthorizedAccess ? 'worker-unauthorized' : '';
+                worker.className = `worker-marker position-absolute ${inDangerZone ? 'worker-danger' : 'worker-safe'} ${accessClass}`;
                 worker.style.left = (position.x * 100) + '%';
                 worker.style.top = (position.y * 100) + '%';
                 worker.style.transform = 'translate(-50%, -50%)';
+                
+                // Determinar cor do ícone baseado no status
+                let iconColor = '#198754'; // Verde padrão (seguro)
+                if (unauthorizedAccess) {
+                    iconColor = '#ff6b00'; // Laranja para acesso não autorizado
+                } else if (inDangerZone) {
+                    iconColor = '#dc3545'; // Vermelho para zona de perigo
+                }
+                
                 worker.innerHTML = `
                     <div class="worker-icon" style="width: 35px; height: 35px; border-radius: 50%; 
-                         background: ${inDangerZone ? '#dc3545' : '#198754'}; color: white; 
+                         background: ${iconColor}; color: white; 
                          display: flex; align-items: center; justify-content: center; 
                          border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                         ${detectedBySensor ? 'box-shadow: 0 0 15px rgba(111, 66, 193, 0.6);' : ''}">
+                         ${detectedBySensor ? 'box-shadow: 0 0 15px rgba(111, 66, 193, 0.6);' : ''}
+                         ${unauthorizedAccess ? 'animation: pulse-warning 1.5s infinite;' : ''}">
                         <i class="bi bi-person-fill"></i>
                         ${detectedBySensor ? '<div style="position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; background: #6f42c1; border-radius: 50%; border: 2px solid white;"></div>' : ''}
+                        ${unauthorizedAccess ? '<div style="position: absolute; top: -3px; left: -3px; width: 12px; height: 12px; background: #ff6b00; border-radius: 50%; border: 2px solid white;"><i class="bi bi-exclamation-triangle-fill" style="font-size: 8px;"></i></div>' : ''}
                     </div>
                 `;
                 
+                // Tooltip melhorado com informação de acesso
+                let statusText = inDangerZone ? 'EM RISCO' : 'SEGURO';
+                if (unauthorizedAccess) {
+                    statusText = '🚫 ACESSO NÃO AUTORIZADO';
+                }
+                const areaText = accessAuth.areaInfo ? `\nÁrea: ${accessAuth.areaInfo.name}` : '';
+                const accessText = unauthorizedAccess ? `\n⚠️ ${accessAuth.alert.reason}` : '';
                 const sensorInfo = detectedBySensor ? `\nDetectado por: ${nearbySensors[0].id} (${(nearbySensors[0].distance * 100).toFixed(1)}m)` : '';
-                worker.title = `${person.name} - ${person.role}\nDispositivo: ${device.id}\nStatus: ${inDangerZone ? 'EM RISCO' : 'SEGURO'}${sensorInfo}`;
+                
+                worker.title = `${person.name} - ${person.role}\nDispositivo: ${device.id}\nStatus: ${statusText}${areaText}${accessText}${sensorInfo}`;
                 canvas.appendChild(worker);
 
                 // Adicionar na lista lateral
                 const workerItem = document.createElement('div');
-                workerItem.className = `worker-item border rounded p-2 mb-2 ${inDangerZone ? 'border-danger bg-light' : 'border-success bg-white'}`;
+                const itemBorderClass = unauthorizedAccess ? 'border-warning' : (inDangerZone ? 'border-danger' : 'border-success');
+                const itemBgClass = unauthorizedAccess ? 'bg-warning-subtle' : (inDangerZone ? 'bg-light' : 'bg-white');
+                workerItem.className = `worker-item border rounded p-2 mb-2 ${itemBorderClass} ${itemBgClass}`;
+                
+                let badgeContent = '';
+                if (unauthorizedAccess) {
+                    badgeContent = '<span class="badge bg-warning text-dark small">🚫 SEM ACESSO</span>';
+                } else if (inDangerZone) {
+                    badgeContent = '<span class="badge bg-danger small">⚠️ RISCO</span>';
+                } else {
+                    badgeContent = '<span class="badge bg-success small">✅ OK</span>';
+                }
+                
                 workerItem.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="fw-bold small">${person.name} ${detectedBySensor ? '<i class="bi bi-broadcast text-purple"></i>' : ''}</div>
                             <div class="text-muted small">${person.role}</div>
                             <div class="text-muted small">ID: ${device.id}</div>
+                            ${accessAuth.areaInfo ? `<div class="text-muted small">📍 ${accessAuth.areaInfo.name}</div>` : ''}
                             ${detectedBySensor ? `<div class="text-muted small">📡 Sensor: ${nearbySensors[0].id}</div>` : ''}
+                            ${unauthorizedAccess ? `<div class="text-danger small fw-bold">⚠️ Acesso não autorizado!</div>` : ''}
                         </div>
-                        <span class="badge ${inDangerZone ? 'bg-danger' : 'bg-success'} small">
-                            ${inDangerZone ? '⚠️ RISCO' : '✅ OK'}
-                        </span>
+                        ${badgeContent}
                     </div>
                 `;
                 workersList.appendChild(workerItem);
@@ -505,10 +622,57 @@ const MonitoringView = (function(){
             document.getElementById('risk-alerts').textContent = alertsCount;
 
             await renderSafetyAlerts(alertsCount);
+            await renderAccessAlerts();
 
         } catch (error) {
             console.error('Erro ao renderizar workers:', error);
         }
+    }
+
+    async function renderAccessAlerts() {
+        const alertsContainer = document.getElementById('access-alerts');
+        if (!alertsContainer || !AccessControlModel) return;
+
+        const alerts = AccessControlModel.getAlerts();
+        
+        if (alerts.length === 0) {
+            alertsContainer.innerHTML = `
+                <div class="alert alert-success alert-sm mb-0 py-2">
+                    <i class="bi bi-check-circle me-1"></i>
+                    <small>Todos os acessos autorizados</small>
+                </div>
+            `;
+            return;
+        }
+
+        // Mostrar apenas os últimos 5 alertas mais recentes
+        const recentAlerts = alerts.slice(0, 5);
+        
+        alertsContainer.innerHTML = recentAlerts.map(alert => {
+            const timeAgo = getTimeAgo(new Date(alert.timestamp));
+            return `
+                <div class="alert alert-warning alert-sm mb-2 py-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold small">🚫 ${alert.workerName}</div>
+                            <div class="text-muted small">${alert.workerRole}</div>
+                            <div class="text-danger small">${alert.areaName}</div>
+                            <div class="text-muted small">${timeAgo}</div>
+                        </div>
+                        <span class="badge bg-warning text-dark small">${alert.riskLevel}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        if (seconds < 60) return `${seconds}s atrás`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}min atrás`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h atrás`;
+        return `${Math.floor(seconds / 86400)}d atrás`;
     }
 
     async function renderSafetyAlerts(alertsCount) {
@@ -533,6 +697,62 @@ const MonitoringView = (function(){
         }
     }
 
+    function showRestrictedAreasModal() {
+        const modalContent = document.getElementById('restricted-areas-content');
+        if (!modalContent || !AccessControlModel) return;
+
+        const restrictedAreas = AccessControlModel.getRestrictedAreas();
+        
+        let html = `
+            <div class="alert alert-warning">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Sistema de Controle de Acesso Ativo</strong>
+                <p class="mb-0 small">Apenas colaboradores autorizados podem acessar áreas restritas. Acessos não autorizados geram alertas automáticos.</p>
+            </div>
+            
+            <h6 class="text-danger mb-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Áreas de Alto Risco (${restrictedAreas.length})
+            </h6>
+        `;
+
+        restrictedAreas.forEach(area => {
+            html += `
+                <div class="card mb-3 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">${area.icon} ${area.name}</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Nível de Risco:</strong> <span class="badge bg-danger">${area.riskLevel}</span></p>
+                        <p class="mb-2"><strong>Funções Autorizadas:</strong></p>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${area.authorizedRoles.map(role => 
+                                `<span class="badge bg-success">${role}</span>`
+                            ).join('')}
+                        </div>
+                        <div class="alert alert-warning mt-2 mb-0 py-2">
+                            <small><i class="bi bi-shield-exclamation me-1"></i> Acesso restrito - EPIs obrigatórios</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+            <div class="alert alert-info mt-3">
+                <h6 class="mb-2">📋 Outras Áreas</h6>
+                <p class="mb-1 small"><strong>Áreas Produtivas:</strong> Requerem funções específicas (Pedreiro, Mecânico, etc.)</p>
+                <p class="mb-1 small"><strong>Áreas Administrativas e Sociais:</strong> Acesso livre para todos os colaboradores</p>
+                <p class="mb-0 small"><i class="bi bi-check-circle me-1"></i> Sistema monitora acessos em tempo real</p>
+            </div>
+        `;
+
+        modalContent.innerHTML = html;
+        
+        // Abrir modal usando Bootstrap 5
+        const modal = new bootstrap.Modal(document.getElementById('restrictedAreasModal'));
+        modal.show();
+    }
+
     async function render(){
         if (!root) {
             console.error('Elemento view-root não encontrado');
@@ -541,6 +761,12 @@ const MonitoringView = (function(){
         
         root.innerHTML = template();
         await renderMap();
+        
+        // Event listener para botão de áreas restritas
+        const btnRestrictedAreas = document.getElementById('btn-show-restricted-areas');
+        if (btnRestrictedAreas) {
+            btnRestrictedAreas.addEventListener('click', showRestrictedAreasModal);
+        }
         
         // Atualizar a cada 3 segundos
         setInterval(async () => {
