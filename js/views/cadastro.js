@@ -454,6 +454,11 @@ const CombinedView = (function(){
         await updateCounters();
         bindEvents();
     }
+    
+    // Função de cleanup (mesmo sem intervalos, mantém consistência)
+    function cleanup() {
+        console.log('🧹 CombinedView cleanup (sem operações pendentes)');
+    }
 
-    return { render };
+    return { render, cleanup };
 })();

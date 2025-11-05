@@ -1,6 +1,7 @@
 // js/views/monitoringView.js - SISTEMA DE MONITORAMENTO ESTILO ORIGINAL EM FULLSCREEN
 const MonitoringView = (function(){
     const root = document.getElementById('view-root');
+    let monitoringInterval = null; // Controla o intervalo único
 
     function template(){
         return `
@@ -768,11 +769,28 @@ const MonitoringView = (function(){
             btnRestrictedAreas.addEventListener('click', showRestrictedAreasModal);
         }
         
-        // Atualizar a cada 3 segundos
-        setInterval(async () => {
+        // Limpar intervalo anterior se existir
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            console.log('🛑 Intervalo anterior limpo');
+        }
+        
+        // Atualizar a cada 3 segundos - APENAS UM INTERVALO
+        monitoringInterval = setInterval(async () => {
             await renderWorkers();
         }, 3000);
+        
+        console.log('✅ Monitoramento iniciado - Atualização a cada 3 segundos');
+    }
+    
+    // Função para limpar o monitoramento ao sair da view
+    function cleanup() {
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
+            console.log('🧹 Monitoramento limpo');
+        }
     }
 
-    return { render };
+    return { render, cleanup };
 })();

@@ -120,10 +120,20 @@
 
   <!-- Router e Inicialização -->
   <script>
+    // Variável para armazenar a view atual
+    let currentView = null;
+    
     // Router simples
     const Router = {
       async show(name) {
         console.log('Mudando para view:', name);
+        
+        // IMPORTANTE: Limpar a view anterior antes de carregar nova
+        if (currentView && typeof currentView.cleanup === 'function') {
+          console.log('🧹 Limpando view anterior...');
+          currentView.cleanup();
+          currentView = null;
+        }
         
         // Atualizar botões de navegação
         document.querySelectorAll('.nav-btn').forEach(button => {
@@ -141,6 +151,7 @@
         if (name === 'monitoring') {
           if (typeof MonitoringView !== 'undefined') {
             await MonitoringView.render();
+            currentView = MonitoringView; // Armazenar referência
           } else {
             console.error('MonitoringView não encontrada');
             document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: MonitoringView não carregada</div>';
@@ -150,6 +161,7 @@
         if (name === 'cadastro') {
           if (typeof CombinedView !== 'undefined') {
             await CombinedView.render();
+            currentView = CombinedView; // Armazenar referência
           } else {
             console.error('CombinedView não encontrada');
             document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: CombinedView não carregada</div>';
