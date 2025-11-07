@@ -16,9 +16,9 @@ node server.js
 cd c:\projetos\Connection-4
 # Use o Live Server do VS Code (clique direito no index.html > Open with Live Server)
 # OU execute um servidor simples:
-python -m http.server 5500
+python -m http.server 8000
 ```
-✅ **Resultado esperado**: Frontend em http://localhost:5500
+✅ **Resultado esperado**: Frontend em http://localhost:8000
 
 ---
 
@@ -38,10 +38,9 @@ python simple_simulator.py
 1. **Abra 3 terminais no VS Code** (Terminal > New Terminal)
 2. **Execute cada comando em um terminal diferente**
 3. **Aguarde cada serviço iniciar** antes do próximo
-4. **Acesse http://localhost:5500** no navegador
-5. **Faça login** (admin/123456)
-6. **Vá para "Central de Monitoramento"**
-7. **Execute o simulador** para ver movimento
+4. **Acesse http://localhost:8000** no navegador
+5. **Vá para "Central de Monitoramento"**
+6. **Execute o simulador** para ver movimento
 
 ---
 
