@@ -53,10 +53,10 @@ const MapView = (function(){
                                         <input type="text" class="form-control form-control-sm" id="sim-device-id" placeholder="ID do dispositivo (ex: D123)">
                                     </div>
                                     <div class="col-6">
-                                        <input type="number" class="form-control form-control-sm" id="sim-x" placeholder="Coordenada X (0-1)" step="0.01" min="0" max="1">
+                                        <input type="number" class="form-control form-control-sm" id="sim-x" placeholder="Coordenada X (0-1)" step="any" min="0" max="1" inputmode="decimal">
                                     </div>
                                     <div class="col-6">
-                                        <input type="number" class="form-control form-control-sm" id="sim-y" placeholder="Coordenada Y (0-1)" step="0.01" min="0" max="1">
+                                        <input type="number" class="form-control form-control-sm" id="sim-y" placeholder="Coordenada Y (0-1)" step="any" min="0" max="1" inputmode="decimal">
                                     </div>
                                     <div class="col-12">
                                         <button id="btn-sim-move" class="btn btn-primary btn-sm w-100">
@@ -116,39 +116,86 @@ const MapView = (function(){
     `;
     canvas.appendChild(legend);
     
-    // Carregar zonas do MapModel
-    const zones = MapModel.loadZones();
+    // Carregar zonas do MapModel com await
+    const zones = await MapModel.loadZones();
     
-    // Desenhar zonas de risco
+    // Desenhar zonas de risco (suporta polígonos)
     for (const zone of zones){
-        const el = document.createElement('div');
-        el.className = 'zone position-absolute';
-        el.style.left = (zone.x * 100) + '%';
-        el.style.top = (zone.y * 100) + '%';
-        el.style.width = (zone.r * 2 * 100) + '%';
-        el.style.height = (zone.r * 2 * 100) + '%';
-        
-        // Adicionar label da zona
-        const label = document.createElement('div');
-        label.className = 'position-absolute text-white fw-bold small';
-        label.style.left = '50%';
-        label.style.top = '50%';
-        label.style.transform = 'translate(-50%, -50%)';
-        label.style.background = 'rgba(220, 53, 69, 0.9)';
-        label.style.padding = '2px 8px';
-        label.style.borderRadius = '4px';
-        label.style.whiteSpace = 'nowrap';
-        label.textContent = zone.name;
-        label.title = `Raio: ${(zone.r * 100).toFixed(0)}% da área`;
-        
-        el.appendChild(label);
-        el.title = `${zone.name}\nCentro: (${zone.x.toFixed(2)}, ${zone.y.toFixed(2)})\nRaio: ${zone.r.toFixed(2)}`;
-        canvas.appendChild(el);
+        if (zone.coordinates && zone.coordinates.length > 0) {
+            // Zona tipo polígono - renderizar como DIV com bordas
+            const coords = zone.coordinates;
+            
+            // Calcular bounding box
+            const minX = Math.min(...coords.map(c => c.x));
+            const maxX = Math.max(...coords.map(c => c.x));
+            const minY = Math.min(...coords.map(c => c.y));
+            const maxY = Math.max(...coords.map(c => c.y));
+            
+            const width = maxX - minX;
+            const height = maxY - minY;
+            const centerX = minX + width / 2;
+            const centerY = minY + height / 2;
+            
+            const el = document.createElement('div');
+            el.className = 'zone position-absolute border';
+            el.style.left = (minX * 100) + '%';
+            el.style.top = (minY * 100) + '%';
+            el.style.width = (width * 100) + '%';
+            el.style.height = (height * 100) + '%';
+            el.style.backgroundColor = zone.color || (zone.isRiskZone ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 255, 0, 0.2)');
+            el.style.borderColor = zone.color || (zone.isRiskZone ? '#ff0000' : '#00ff00');
+            el.style.borderWidth = '2px';
+            el.style.borderStyle = 'solid';
+            el.style.borderRadius = '8px';
+            
+            // Adicionar label da zona
+            const label = document.createElement('div');
+            label.className = 'position-absolute text-white fw-bold small';
+            label.style.left = '50%';
+            label.style.top = '50%';
+            label.style.transform = 'translate(-50%, -50%)';
+            label.style.background = zone.isRiskZone ? 'rgba(220, 53, 69, 0.9)' : 'rgba(0, 128, 0, 0.9)';
+            label.style.padding = '4px 12px';
+            label.style.borderRadius = '6px';
+            label.style.whiteSpace = 'nowrap';
+            label.style.fontSize = '14px';
+            label.style.fontWeight = 'bold';
+            label.textContent = zone.name;
+            
+            el.appendChild(label);
+            el.title = `${zone.name}\nTipo: ${zone.isRiskZone ? 'Zona de Risco' : 'Zona Segura'}\nÁrea: ${(width * height * 100).toFixed(1)}%`;
+            canvas.appendChild(el);
+            
+        } else if (zone.r) {
+            // Zona tipo círculo (compatibilidade antiga)
+            const el = document.createElement('div');
+            el.className = 'zone position-absolute';
+            el.style.left = (zone.x * 100) + '%';
+            el.style.top = (zone.y * 100) + '%';
+            el.style.width = (zone.r * 2 * 100) + '%';
+            el.style.height = (zone.r * 2 * 100) + '%';
+            
+            const label = document.createElement('div');
+            label.className = 'position-absolute text-white fw-bold small';
+            label.style.left = '50%';
+            label.style.top = '50%';
+            label.style.transform = 'translate(-50%, -50%)';
+            label.style.background = 'rgba(220, 53, 69, 0.9)';
+            label.style.padding = '2px 8px';
+            label.style.borderRadius = '4px';
+            label.style.whiteSpace = 'nowrap';
+            label.style.fontSize = '14px';
+            label.textContent = zone.name;
+            
+            el.appendChild(label);
+            el.title = `${zone.name}\nRaio: ${(zone.r * 100).toFixed(0)}%`;
+            canvas.appendChild(el);
+        }
     }
 
-    // Carregar dispositivos e posições
-    const devices = DevicesModel.all();
-    const positions = MapModel.getDevicePositions();
+    // Carregar dispositivos e posições com await
+    const devices = await DevicesModel.all();
+    const positions = await MapModel.getDevicePositions();
 
     // Desenhar marcadores dos colaboradores
     for (const device of devices){
@@ -157,7 +204,7 @@ const MapView = (function(){
         const pos = positions[device.id];
         if (!pos) continue;
         
-        const person = PeopleModel.findByDevice(device.id);
+        const person = await PeopleModel.findByDevice(device.id);
         const el = document.createElement('div');
         el.className = 'marker position-absolute d-flex align-items-center justify-content-center';
         el.style.left = (pos.x * 100) + '%';
@@ -258,8 +305,8 @@ const MapView = (function(){
         // Mover dispositivo específico
         document.getElementById('btn-sim-move').addEventListener('click', async () => {
             const deviceId = document.getElementById('sim-device-id').value.trim().toUpperCase();
-            const x = parseFloat(document.getElementById('sim-x').value);
-            const y = parseFloat(document.getElementById('sim-y').value);
+            const x = parseFloat(String(document.getElementById('sim-x').value).replace(',', '.'));
+            const y = parseFloat(String(document.getElementById('sim-y').value).replace(',', '.'));
             
             if (!deviceId) {
                 showAlert('Informe o ID do dispositivo', 'warning');
