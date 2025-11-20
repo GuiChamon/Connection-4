@@ -408,7 +408,7 @@ const MonitoringView = (function(){
         }
 
         // Verificar permissão de acesso
-        const accessCheck = AccessControlModel.checkAccess(person.role, currentArea.id);
+        const accessCheck = AccessControlModel.checkAccess(person, currentArea.id);
         
         // Se não tem acesso e está em área restrita, registrar alerta
         if (!accessCheck.authorized && accessCheck.restricted) {
