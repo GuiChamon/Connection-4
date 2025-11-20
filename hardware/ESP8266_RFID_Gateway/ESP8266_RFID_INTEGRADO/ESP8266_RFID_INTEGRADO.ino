@@ -778,12 +778,23 @@ void loop() {
   if (distance > 0) {
     lastDistanceReading = distance;
   }
-  
-  if (isWithinRiskDistance(distance) && lastCardValid && lastCardUIDStr.length() > 0) {
+
+  // Se o ultrassom detectar presença dentro do limite de risco, logamos no Serial
+  if (isWithinRiskDistance(distance)) {
     if (millis() - lastUltrasonicCheck > ULTRASONIC_DEBOUNCE) {
-      Serial.println("👋 Presença detectada pelo ultrassom (<=1m). Registrando alerta no backend...");
-      sendPosition(lastCardUIDStr, true, true);
-      logRiskZoneEntry(lastCardUIDStr, distance, lastPersonName);
+      if (lastCardValid && lastCardUIDStr.length() > 0) {
+        Serial.println("👋 Presença detectada pelo ultrassom (<=1m). Verificando cartão na área...");
+        Serial.println("   Distância: " + String(distance) + " cm");
+        Serial.println("   Cartão válido: SIM  UID: " + lastCardUIDStr + "  Nome: " + lastPersonName);
+        Serial.println("   Enviando posição e registrando notificação de risco.");
+
+        sendPosition(lastCardUIDStr, true, true);
+        logRiskZoneEntry(lastCardUIDStr, distance, lastPersonName);
+      } else {
+        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas nenhum cartão válido presente.");
+        Serial.println("   Distância: " + String(distance) + " cm");
+      }
+
       lastUltrasonicCheck = millis();
     }
   }
