@@ -1,7 +1,8 @@
 // js/views/monitoringView.js - SISTEMA DE MONITORAMENTO ESTILO ORIGINAL EM FULLSCREEN
 const MonitoringView = (function(){
     const root = document.getElementById('view-root');
-    let monitoringInterval = null; // Controla o intervalo único
+    let monitoringInterval = null; // Controla o intervalo de atualização de trabalhadores
+    let mapRefreshInterval = null; // Controla o intervalo de atualização do mapa (áreas)
 
     function template(){
         return `
@@ -12,21 +13,19 @@ const MonitoringView = (function(){
                     <h2 class="h4 text-dark mb-1">
                         <i class="bi bi-building text-primary me-2"></i>Sistema de Monitoramento - Canteiro de Obras
                     </h2>
-                    <p class="text-muted mb-0">Monitoramento em tempo real de colaboradores e equipamentos de segurança</p>
+                    <p class="text-muted mb-0"></p>
                 </div>
                 <div class="text-end">
                     <span class="badge bg-primary fs-6">Sistema Acadêmico</span>
                 </div>
             </div>
 
-            <!-- Mapa Fullwidth com Header -->
+            <!-- Layout com Mapa e Painel Lateral -->
             <div class="row">
-                <div class="col-12">
+                <!-- Mapa Principal -->
+                <div class="col-lg-9">
                     <div class="card shadow-sm border-0">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-geo-alt me-2"></i>Mapa de Monitoramento em Tempo Real
-                            </h5>
                             <!-- Indicadores no header do mapa -->
                             <div class="d-flex gap-3 text-white">
                                 <div class="text-center">
@@ -59,17 +58,16 @@ const MonitoringView = (function(){
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Painel de Controle Flutuante -->
-            <div class="control-panel-floating position-fixed" style="top: 120px; right: 20px; width: 300px; z-index: 1000;">
-                <div class="card shadow border-0">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0 text-white">
-                            <i class="bi bi-people-fill me-2"></i>Painel de Controle
-                        </h6>
-                    </div>
-                    <div class="card-body">
+                <!-- Painel de Controle Lateral -->
+                <div class="col-lg-3">
+                    <div class="card shadow-sm border-0" style="height: calc(100vh - 300px); overflow-y: auto;">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0 text-white">
+                                <i class="bi bi-sliders me-2"></i>Painel de Controle
+                            </h6>
+                        </div>
+                        <div class="card-body">
                         <!-- Lista de Colaboradores -->
                         <div class="mb-3">
                             <h6 class="text-primary mb-2 small">
@@ -114,6 +112,7 @@ const MonitoringView = (function(){
                     </div>
                 </div>
             </div>
+            <!-- Fim do Row -->
 
             <!-- Modal de Áreas Restritas -->
             <div class="modal fade" id="restrictedAreasModal" tabindex="-1">
@@ -146,43 +145,24 @@ const MonitoringView = (function(){
         grid.className = 'map-grid';
         canvas.appendChild(grid);
         
-        // Áreas completas do canteiro de obras (tentar carregar de AreasModel se disponível)
-        let workAreas = [];
-        try {
-            if (typeof AreasModel !== 'undefined' && AreasModel.getAreas) {
-                workAreas = AreasModel.getAreas();
-            }
-        } catch (e) {
-            console.warn('AreasModel não disponível, usando áreas internas');
-        }
-
+        // ✅ CARREGAR ÁREAS DO BACKEND (assíncrono)
+        let workAreas = await AreasModel.loadAreas();
+        console.log('📍 Áreas carregadas do backend:', workAreas.length);
+        
         if (!workAreas || workAreas.length === 0) {
-            // Fallback atualizado para corresponder ao AreasModel
-            workAreas = [
-                // LINHA 1 - PARTE SUPERIOR
-                { x: 0.05, y: 0.05, w: 0.15, h: 0.12, name: 'Portaria/Entrada', color: '#28a745', icon: '🚪' },
-                { x: 0.22, y: 0.05, w: 0.18, h: 0.12, name: 'Escritório de Obras', color: '#17a2b8', icon: '🏢' },
-                { x: 0.42, y: 0.05, w: 0.16, h: 0.12, name: 'Zona de Risco - Guindastes', color: '#dc3545', icon: '⚠️' },
-                { x: 0.80, y: 0.05, w: 0.15, h: 0.12, name: 'Almoxarifado', color: '#6c757d', icon: '📦' },
-                
-                // LINHA 2 - PARTE MÉDIA
-                { x: 0.05, y: 0.30, w: 0.25, h: 0.18, name: 'Área de Construção Principal', color: '#fd7e14', icon: '🏗️' },
-                { x: 0.35, y: 0.30, w: 0.18, h: 0.18, name: 'Zona de Risco - Soldas', color: '#dc3545', icon: '⚠️' },
-                { x: 0.58, y: 0.30, w: 0.20, h: 0.18, name: 'Oficina de Manutenção', color: '#20c997', icon: '🔧' },
-                
-                // LINHA 3 - PARTE INFERIOR
-                { x: 0.05, y: 0.55, w: 0.18, h: 0.15, name: 'Central de Concreto', color: '#6f42c1', icon: '🚚' },
-                { x: 0.28, y: 0.55, w: 0.22, h: 0.15, name: 'Refeitório', color: '#ffc107', icon: '🍽️' },
-                
-                // LINHA 4 - PARTE MAIS INFERIOR
-                { x: 0.05, y: 0.80, w: 0.15, h: 0.12, name: 'Vestiário', color: '#e83e8c', icon: '👔' }
-            ];
+            console.warn('⚠️ Nenhuma área encontrada no banco de dados');
+            const message = document.createElement('div');
+            message.className = 'alert alert-warning m-3';
+            message.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Nenhuma área cadastrada. Acesse "Gestão de Recursos" para criar áreas.';
+            canvas.appendChild(message);
+            return;
         }
         
-        // Desenhar todas as áreas de trabalho
+        // Desenhar todas as áreas de trabalho COM DRAG & DROP
         for (const area of workAreas) {
             const areaEl = document.createElement('div');
             areaEl.className = 'work-area position-absolute';
+            areaEl.dataset.areaId = area.id;
             areaEl.style.left = (area.x * 100) + '%';
             areaEl.style.top = (area.y * 100) + '%';
             areaEl.style.width = (area.w * 100) + '%';
@@ -191,6 +171,8 @@ const MonitoringView = (function(){
             areaEl.style.border = `2px solid ${area.color}`;
             areaEl.style.borderRadius = '8px';
             areaEl.style.zIndex = '1';
+            areaEl.style.cursor = 'move';
+            areaEl.draggable = true;
             
             // Label da área
             const label = document.createElement('div');
@@ -206,59 +188,89 @@ const MonitoringView = (function(){
             label.style.borderRadius = '6px';
             label.style.flexDirection = 'column';
             label.style.gap = '2px';
+            
+            // ✅ DETERMINAR STATUS DE CONEXÃO (igual ao zonesManagement.js)
+            const isOnline = area.currentlyActive === true && area.connectionStatus === 'online';
+            const statusIcon = area.deviceId ? (
+                isOnline 
+                    ? '<div style="font-size: 13px; font-weight:600; color:#fff; background: rgba(40, 167, 69, 0.95); padding: 6px 10px; border-radius: 14px; margin-top: 6px; display:inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">🟢 CONECTADA</div>'
+                    : '<div style="font-size: 13px; font-weight:600; color:#fff; background: rgba(108, 117, 125, 0.95); padding: 6px 10px; border-radius: 14px; margin-top: 6px; display:inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">⚪ DESCONNECTADA</div>'
+            ) : '';
+            
+            console.log(`🗺️ Área "${area.name}": currentlyActive=${area.currentlyActive}, status=${area.connectionStatus}, isOnline=${isOnline}`);
+            
+            label.style.fontSize = '14px';
             label.innerHTML = `
-                <div style="font-size: 16px;">${area.icon}</div>
-                <div style="line-height: 1.1;">${area.name}</div>
+                <div style="font-size: 18px;">${area.icon}</div>
+                <div style="line-height: 1.1; font-size: 14px;">${area.name}</div>
+                ${area.deviceId ? `<div style="font-size: 11px; opacity: 0.9;">📡 ${area.deviceId}</div>` : ''}
+                ${statusIcon}
             `;
             
             areaEl.appendChild(label);
+            
+            // DRAG & DROP IMPLEMENTATION
+            areaEl.addEventListener('dragstart', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left - (area.x * rect.width);
+                const offsetY = e.clientY - rect.top - (area.y * rect.height);
+                e.dataTransfer.setData('areaId', area.id);
+                e.dataTransfer.setData('offsetX', offsetX);
+                e.dataTransfer.setData('offsetY', offsetY);
+                areaEl.style.opacity = '0.5';
+            });
+            
+            areaEl.addEventListener('dragend', function(e) {
+                areaEl.style.opacity = '1';
+            });
+            
             canvas.appendChild(areaEl);
         }
         
-    // Legenda estilo original melhorada
-        const legend = document.createElement('div');
-        legend.className = 'map-legend-enhanced';
-        legend.innerHTML = `
-            <div class="legend-title">🗺️ MAPA DO CANTEIRO DE OBRAS</div>
-            <div class="legend-section">
-                <div class="legend-subtitle">👥 Colaboradores</div>
-                <div class="legend-item">
-                    <div class="legend-color bg-success"></div>
-                    <span>Colaborador Seguro</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color bg-danger"></div>
-                    <span>Colaborador em Risco</span>
-                </div>
-            </div>
-            <div class="legend-section">
-                <div class="legend-subtitle">🔧 Sensores</div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #6f42c1; border-radius: 4px;"></div>
-                    <span>Sensor Fixo (Área Segura)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #dc3545; border-radius: 4px;"></div>
-                    <span>Sensor Fixo (Zona de Risco)</span>
-                </div>
-            </div>
-            <div class="legend-section">
-                <div class="legend-subtitle">🏗️ Áreas de Trabalho</div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #28a745;"></div>
-                    <span>Áreas Administrativas</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #fd7e14;"></div>
-                    <span>Área de Construção</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #dc3545;"></div>
-                    <span>Zonas de Perigo</span>
-                </div>
-            </div>
-        `;
-        canvas.appendChild(legend);
+        // Permitir drop no canvas
+        canvas.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        
+        canvas.addEventListener('drop', async function(e) {
+            e.preventDefault();
+            const areaId = e.dataTransfer.getData('areaId');
+            const offsetX = parseFloat(e.dataTransfer.getData('offsetX'));
+            const offsetY = parseFloat(e.dataTransfer.getData('offsetY'));
+            
+            const rect = canvas.getBoundingClientRect();
+            let newX = (e.clientX - rect.left - offsetX) / rect.width;
+            let newY = (e.clientY - rect.top - offsetY) / rect.height;
+            
+            // Limitar entre 0 e 1
+            newX = Math.max(0, Math.min(1, newX));
+            newY = Math.max(0, Math.min(1, newY));
+            
+            console.log(`🎯 Movendo área ${areaId} para (${newX.toFixed(2)}, ${newY.toFixed(2)})`);
+            
+            // Atualizar posição no backend
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/api/zones/${areaId}/position`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ x: newX, y: newY })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Posição salva no backend');
+                    await AreasModel.refreshAreas();
+                    await renderMap();  // Re-renderizar mapa
+                } else {
+                    console.error('❌ Erro ao salvar posição');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao atualizar posição:', error);
+            }
+        });
         
         // Carregar zonas de perigo adicionais do MapModel - DESABILITADO
         /* CÍRCULOS VERMELHOS REMOVIDOS A PEDIDO DO USUÁRIO
@@ -310,12 +322,24 @@ const MonitoringView = (function(){
         await renderWorkers();
     }
 
-    function checkProximityToRiskAreas(position) {
-        // Função legada - atualizada com as novas coordenadas
-        const riskAreas = [
-            { x: 0.42, y: 0.05, w: 0.16, h: 0.12, name: 'Zona de Guindastes' },
-            { x: 0.35, y: 0.30, w: 0.18, h: 0.18, name: 'Zona de Soldas' }
-        ];
+    function getSensorLocation(position) {
+        // Usar APENAS AreasModel (3 áreas ESP8266)
+        const areas = AreasModel.getAreas();
+        
+        for (const area of areas) {
+            if (position.x >= area.x && position.x <= (area.x + area.w) &&
+                position.y >= area.y && position.y <= (area.y + area.h)) {
+                return area.name;
+            }
+        }
+        
+        return "Área não mapeada";
+    }
+
+    function checkIfInRiskArea(position) {
+        // Usar propriedade isRiskZone das áreas
+        const areas = AreasModel.getAreas();
+        const riskAreas = areas.filter(area => area.isRiskZone === true);
         
         for (const area of riskAreas) {
             if (position.x >= area.x && position.x <= (area.x + area.w) &&
@@ -324,47 +348,6 @@ const MonitoringView = (function(){
             }
         }
         return false;
-    }
-
-    function getSensorLocation(position) {
-        // Usar AreasModel se disponível
-        if (typeof AreasModel !== 'undefined' && AreasModel.getAreas) {
-            const areas = AreasModel.getAreas();
-            
-            for (const area of areas) {
-                if (position.x >= area.x && position.x <= (area.x + area.w) &&
-                    position.y >= area.y && position.y <= (area.y + area.h)) {
-                    return area.name;
-                }
-            }
-        }
-        
-        // Fallback para novas coordenadas das áreas de risco
-        if (position.x >= 0.38 && position.x <= 0.60 && position.y >= 0.02 && position.y <= 0.18) {
-            return "Área de Guindastes";
-        } else if (position.x >= 0.32 && position.x <= 0.56 && position.y >= 0.22 && position.y <= 0.42) {
-            return "Área de Soldas";
-        }
-        
-        return "Área Geral";
-    }
-
-    function checkIfInRiskArea(position) {
-        // Usar AreasModel se disponível, senão fallback para função legada
-        if (typeof AreasModel !== 'undefined' && AreasModel.getAreas) {
-            const areas = AreasModel.getAreas();
-            const riskAreas = areas.filter(area => area.id.includes('zona_perigo'));
-            
-            for (const area of riskAreas) {
-                if (position.x >= area.x && position.x <= (area.x + area.w) &&
-                    position.y >= area.y && position.y <= (area.y + area.h)) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            return checkProximityToRiskAreas(position);
-        }
     }
 
     function calculateDistance(pos1, pos2) {
@@ -775,12 +758,21 @@ const MonitoringView = (function(){
             console.log('🛑 Intervalo anterior limpo');
         }
         
-        // Atualizar a cada 3 segundos - APENAS UM INTERVALO
+        // Atualizar trabalhadores a cada 3 segundos
         monitoringInterval = setInterval(async () => {
             await renderWorkers();
         }, 3000);
         
-        console.log('✅ Monitoramento iniciado - Atualização a cada 3 segundos');
+        // ✅ ATUALIZAR MAPA A CADA 5 SEGUNDOS (status das áreas)
+        if (mapRefreshInterval) {
+            clearInterval(mapRefreshInterval);
+        }
+        mapRefreshInterval = setInterval(async () => {
+            console.log('🗺️ Atualizando status das áreas...');
+            await renderMap();
+        }, 5000);
+        
+        console.log('✅ Monitoramento iniciado - Trabalhadores: 3s | Áreas: 5s');
     }
     
     // Função para limpar o monitoramento ao sair da view
@@ -788,8 +780,12 @@ const MonitoringView = (function(){
         if (monitoringInterval) {
             clearInterval(monitoringInterval);
             monitoringInterval = null;
-            console.log('🧹 Monitoramento limpo');
         }
+        if (mapRefreshInterval) {
+            clearInterval(mapRefreshInterval);
+            mapRefreshInterval = null;
+        }
+        console.log('🧹 Monitoramento limpo');
     }
 
     return { render, cleanup };
