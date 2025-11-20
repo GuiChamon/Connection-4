@@ -5,7 +5,7 @@ const Device = require('../models/Device');
 // GET /api/devices - Listar todos os dispositivos
 router.get('/', async (req, res) => {
   try {
-    const devices = await Device.find({ active: true }).sort({ createdAt: -1 });
+    const devices = await Device.find({}).sort({ createdAt: -1 });
     res.json({
       success: true,
       data: devices,
@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
 // GET /api/devices/:id - Buscar dispositivo por ID
 router.get('/:id', async (req, res) => {
   try {
-    const device = await Device.findOne({ id: req.params.id, active: true });
+    const device = await Device.findOne({ id: req.params.id });
     if (!device) {
       return res.status(404).json({
         success: false,
@@ -82,6 +82,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { type, active } = req.body;
+    console.log(`\n🔧 PUT /api/devices/${req.params.id} body:`, req.body);
     
     const device = await Device.findOne({ id: req.params.id });
     if (!device) {
@@ -90,12 +91,21 @@ router.put('/:id', async (req, res) => {
         message: 'Dispositivo não encontrado'
       });
     }
+    console.log('🔍 Dispositivo antes da atualização:', device);
     
     // Atualizar dados
     if (type) device.type = type;
-    if (active !== undefined) device.active = active;
+    if (active !== undefined) {
+      device.active = active;
+      // Ajustar connectionStatus quando ativado manualmente
+      if (active === true) {
+        device.connectionStatus = 'online';
+        device.lastSeen = new Date();
+      }
+    }
     
-    await device.updateLastSeen();
+    await device.save();
+    console.log('✅ Dispositivo após atualização:', device);
     
     res.json({
       success: true,
@@ -139,7 +149,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// POST /api/devices/:id/ping - Atualizar último acesso
+// POST /api/devices/:id/ping - Atualizar último acesso (manter compatibilidade)
 router.post('/:id/ping', async (req, res) => {
   try {
     const device = await Device.findOne({ id: req.params.id, active: true });
@@ -161,6 +171,36 @@ router.post('/:id/ping', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao registrar ping',
+      error: error.message
+    });
+  }
+});
+
+// POST /api/devices/:id/heartbeat - Heartbeat para ESP (mesmo que ping)
+router.post('/:id/heartbeat', async (req, res) => {
+  try {
+    const device = await Device.findOne({ id: req.params.id, active: true });
+    if (!device) {
+      return res.status(404).json({
+        success: false,
+        message: 'Dispositivo não encontrado'
+      });
+    }
+    
+    await device.updateLastSeen();
+    
+    res.json({
+      success: true,
+      message: 'Heartbeat registrado',
+      data: { 
+        lastSeen: device.lastSeen,
+        deviceId: device.id 
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao registrar heartbeat',
       error: error.message
     });
   }
