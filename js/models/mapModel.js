@@ -46,27 +46,9 @@ const MapModel = (function(){
                 return result.data;
             }
             
-            // Criar zonas padrão se não existirem - ALINHADAS com novas posições dos sensores
-            const defaultZones = [
-                // Área de Guindastes: Sensor em (0.42, 0.08)
-                { id: 'z1', name: 'Área de Guindastes', x: 0.42, y: 0.08, r: 0.08 },
-                
-                // Área de Soldas: Sensor em (0.44, 0.30)
-                { id: 'z2', name: 'Área de Soldas', x: 0.44, y: 0.30, r: 0.09 }
-            ];
-            
-            for (const zone of defaultZones) {
-                try {
-                    await apiRequest(`${API_BASE}/zones`, {
-                        method: 'POST',
-                        body: JSON.stringify(zone)
-                    });
-                } catch (error) {
-                    console.warn('Zona já existe:', zone.id);
-                }
-            }
-            
-            return defaultZones;
+            // Retornar array vazio - cadastre zonas manualmente
+            console.log('ℹ️ Nenhuma zona cadastrada. Cadastre zonas através da interface web.');
+            return [];
         } catch (error) {
             console.error('Erro ao carregar zonas:', error);
             return [];
@@ -144,9 +126,31 @@ const MapModel = (function(){
     }
 
     function pointInZone(x, y, zone){
-        const dx = x - zone.x;
-        const dy = y - zone.y;
-        return Math.sqrt(dx*dx + dy*dy) <= zone.r;
+        // Suporta tanto polígonos quanto círculos
+        if (zone.coordinates && zone.coordinates.length > 0) {
+            // Zona tipo polígono - usar algoritmo ray-casting
+            return pointInPolygon(x, y, zone.coordinates);
+        } else if (zone.r) {
+            // Zona tipo círculo (compatibilidade antiga)
+            const dx = x - zone.x;
+            const dy = y - zone.y;
+            return Math.sqrt(dx*dx + dy*dy) <= zone.r;
+        }
+        return false;
+    }
+
+    function pointInPolygon(x, y, vertices) {
+        // Algoritmo Ray-casting para verificar se ponto está dentro do polígono
+        let inside = false;
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+            const xi = vertices[i].x, yi = vertices[i].y;
+            const xj = vertices[j].x, yj = vertices[j].y;
+            
+            const intersect = ((yi > y) !== (yj > y)) &&
+                (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
     }
 
     return {
@@ -155,6 +159,7 @@ const MapModel = (function(){
         setDevicePosition,
         setDevicePositionLocal,
         resetDevicePositions,
-        pointInZone
+        pointInZone,
+        pointInPolygon
     };
 })();
