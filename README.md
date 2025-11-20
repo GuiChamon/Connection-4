@@ -61,16 +61,6 @@ python -m http.server 8000
 
 ---
 
-### 🐍 TERMINAL 3 - SIMULADOR
-```powershell
-cd c:\projetos\Connection-4
-python simple_simulator.py
-```
-✅ Resultado esperado: Colaboradores se movendo no mapa
-
-⚠️ IMPORTANTE: O simulador precisa que o backend esteja rodando primeiro!
-
----
 
 ## 🎯 COMO EXECUTAR
 1. Abra 3 terminais no VS Code (Terminal > New Terminal)
@@ -105,11 +95,6 @@ python simple_simulator.py
 
 ---
 
-## 🎮 SIMULADOR AVANÇADO (Opcional)
-```powershell
-cd c:\projetos\Connection-4
-python simulator.py --workers 8 --duration 30 --speed 2
-```
 
 ---
 
