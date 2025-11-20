@@ -38,6 +38,15 @@ const CombinedView = (function(){
                                     <label for="person-role" class="form-label">Função/Cargo *</label>
                                     <input type="text" class="form-control" id="person-role" placeholder="Ex: Engenheiro Civil, Mestre de Obras" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="person-access-level" class="form-label">Nível de Acesso *</label>
+                                    <select class="form-select" id="person-access-level" required>
+                                        <option value="1" selected>Nível 1 - Portaria e áreas comuns</option>
+                                        <option value="2">Nível 2 - Áreas comuns + Risco 1</option>
+                                        <option value="3">Nível 3 - Todas as áreas</option>
+                                    </select>
+                                    <small class="text-muted">Defina quais zonas RFID este colaborador pode acessar</small>
+                                </div>
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="bi bi-check-lg me-1"></i>Cadastrar Colaborador
                                 </button>
@@ -173,6 +182,7 @@ const CombinedView = (function(){
                             <h6 class="card-title mb-1">${person.name}</h6>
                             <p class="card-text small text-muted mb-1">
                                 <i class="bi bi-briefcase me-1"></i>${person.role}
+                                <span class="badge bg-dark ms-2">Nível ${person.accessLevel || 1}</span>
                             </p>
                             <div class="d-flex align-items-center">
                                 <span class="badge ${person.deviceId ? 'bg-success' : 'bg-secondary'} me-2">
@@ -360,11 +370,13 @@ const CombinedView = (function(){
             e.preventDefault();
             const name = document.getElementById('person-name').value.trim();
             const role = document.getElementById('person-role').value.trim();
+            const accessLevel = Number(document.getElementById('person-access-level').value) || 1;
             
-            const result = await PeopleController.add({ name, role });
+            const result = await PeopleController.add({ name, role, accessLevel });
             if (result.success) {
                 showAlert('Colaborador cadastrado com sucesso!');
                 document.getElementById('person-form').reset();
+                document.getElementById('person-access-level').value = '1';
                 await render(); // Recarrega a view
             console.log(`📱 [cadastro] Device ${device.id}: full=`, device, 'deviceZone=', deviceZone, 'isPhysicallyActive=', isPhysicallyActive, 'zoneOnline=', zoneOnline, 'isOnline=', isOnline);
                 showAlert(`Erro: ${result.error}`, 'danger');
