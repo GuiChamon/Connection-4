@@ -177,7 +177,7 @@ const ZonesManagementView = (function(){
             const result = await response.json();
             
             if (result.success && result.data) {
-                renderZonesList(result.data);
+                await renderZonesList(result.data);
                 document.getElementById('zones-count').textContent = result.data.length;
             }
         } catch (error) {
@@ -190,8 +190,16 @@ const ZonesManagementView = (function(){
         }
     }
 
-    function renderZonesList(zones) {
+    async function renderZonesList(zones) {
         const container = document.getElementById('zones-list');
+        // Buscar devices para avaliar `device.active` quando houver deviceId
+        let devices = [];
+        try {
+            devices = await DevicesController.getAll();
+        } catch (err) {
+            console.warn('Não foi possível obter dispositivos para avaliação de status:', err);
+            devices = [];
+        }
         
         if (!zones || zones.length === 0) {
             container.innerHTML = `
@@ -208,7 +216,13 @@ const ZonesManagementView = (function(){
 
         container.innerHTML = zones.map(zone => {
             // Determinar status de conexão
-            const isOnline = zone.currentlyActive && zone.connectionStatus === 'online';
+            let deviceActiveFlag = true;
+            if (zone.deviceId) {
+                const linked = devices.find(d => d.id && d.id.toLowerCase() === String(zone.deviceId).toLowerCase());
+                deviceActiveFlag = linked ? (linked.active === true) : true;
+            }
+
+            const isOnline = deviceActiveFlag && zone.currentlyActive && zone.connectionStatus === 'online';
             const statusBadge = zone.deviceId ? (
                 isOnline 
                     ? '<span class="badge bg-success ms-2" style="font-size:0.95rem; padding:.45rem .6rem; border-radius:12px; font-weight:600;"><i class="bi bi-circle-fill me-1"></i> CONECTADA</span>'
