@@ -65,7 +65,7 @@ WiFiClient wifiClient;
 
 // ========== VARIÁVEIS DE CONTROLE ==========
 unsigned long lastHeartbeat = 0;
-const unsigned long HEARTBEAT_INTERVAL = 30000;  // 30 segundos
+const unsigned long HEARTBEAT_INTERVAL = 5000;  // 30 segundos
 
 unsigned long lastUltrasonicCheck = 0;
 const unsigned long ULTRASONIC_DEBOUNCE = 3000;  // 3 segundos
@@ -348,6 +348,37 @@ void sendHeartbeat() {
   http.end();
 }
 
+// Enviar 'graceful disconnect' informando ao backend que o dispositivo ficará inativo
+bool sendDisconnect(String deviceId) {
+  if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
+
+  HTTPClient http;
+  String url = String(SERVER_URL) + "/api/devices/" + deviceId;
+  http.begin(wifiClient, url);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  StaticJsonDocument<200> doc;
+  doc["active"] = false;
+
+  String body;
+  serializeJson(doc, body);
+
+  int httpCode = http.PUT(body);
+  if (httpCode == 200) {
+    Serial.println("🔌 Dispositivo marcado como INATIVO (graceful)");
+    http.end();
+    return true;
+  } else {
+    Serial.println("❌ Falha ao marcar dispositivo inativo: " + String(httpCode));
+    if (httpCode > 0) {
+      Serial.println("📥 " + http.getString());
+    }
+  }
+  http.end();
+  return false;
+}
+
 // ========== ALTERNAR ÁREA ==========
 void switchArea() {
   // Ciclo: Portaria (0) -> Risco1 (1) -> Risco2 (2) -> Portaria (0)
@@ -554,9 +585,20 @@ void loop() {
     btnPressed = false;
     unsigned long pressDuration = millis() - btnPressStart;
     
-    if (pressDuration >= 3000) {
-      // Pressão longa (3+ segundos) - Registrar novo cartão
-      Serial.println("⏱️ Pressão longa detectada (3+ seg)");
+    if (pressDuration >= 7000) {
+      // Pressão muito longa (7+ segundos) - Marcar disconnect gracioso
+      Serial.println("⏱️ Pressão muito longa detectada (7+ seg) - Enviando disconnect gracioso...");
+      if (sendDisconnect(String(getCurrentAreaId()))) {
+        Serial.println("✅ Disconnect enviado com sucesso");
+        // Feedback visual
+        for (int i = 0; i < 3; i++) { digitalWrite(LED_PIN, HIGH); delay(150); digitalWrite(LED_PIN, LOW); delay(150); }
+      } else {
+        Serial.println("❌ Falha ao enviar disconnect");
+        ledError();
+      }
+    } else if (pressDuration >= 3000) {
+      // Pressão longa (3-7 segundos) - Registrar novo cartão
+      Serial.println("⏱️ Pressão longa detectada (3-7 seg)");
       Serial.println("🆕 Modo: REGISTRAR NOVO CARTÃO");
       Serial.println("📋 Aproxime o cartão do leitor RFID...");
       
