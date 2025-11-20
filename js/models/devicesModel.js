@@ -41,10 +41,12 @@ const DevicesModel = (function(){
 
     async function all(){
         try {
+            console.log('🌐 [DevicesModel.all] Fazendo requisição GET /api/devices');
             const result = await apiRequest(`${API_BASE}/devices`);
+            console.log('📡 [DevicesModel.all] Resposta recebida:', result);
             return result.data || [];
         } catch (error) {
-            console.error('Erro ao buscar dispositivos:', error);
+            console.error('❌ [DevicesModel.all] Erro ao buscar dispositivos:', error);
             return [];
         }
     }
