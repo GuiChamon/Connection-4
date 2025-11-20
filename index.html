@@ -29,23 +29,7 @@
       </div>
     </div>
   </header>
-<!-- 
-  Subcabeçalho com info
-  <section class="bg-primary text-white py-2">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <small class="d-block"><strong>Disciplina:</strong> Desenvolvimento de Sistemas Web</small>
-          <small class="d-block"><strong>Objetivo:</strong> Simular um sistema de monitoramento em tempo real</small>
-        </div>
-        <div class="col-md-6 text-md-end">
-          <small><strong>Integrantes:</strong> [Nome do Aluno 1] | [Nome do Aluno 2]</small>
-          <small class="d-block"><strong>Professor Orientador:</strong> [Nome do Professor]</small>
-        </div>
-      </div>
-    </div>
-  </section>
--->
+
   <!-- Navegação -->
   <nav class="navbar navbar-expand navbar-light bg-white border-bottom shadow-sm">
     <div class="container">
@@ -53,16 +37,19 @@
         <button id="nav-monitoring" class="nav-btn btn btn-outline-primary me-2">
           <i class="bi bi-display me-1"></i>Central de Monitoramento
         </button>
-        <button id="nav-cadastro" class="nav-btn btn btn-outline-primary">
+        <button id="nav-cadastro" class="nav-btn btn btn-outline-primary me-2">
           <i class="bi bi-person-gear me-1"></i>Gestão de Recursos
+        </button>
+        <button id="nav-zones" class="nav-btn btn btn-outline-success">
+          <i class="bi bi-map me-1"></i>Gestão de Áreas
         </button>
       </div>
     </div>
   </nav>
 
   <!-- Conteúdo Principal -->
-  <main class="container mt-4">
-    <section id="view-root" class="row justify-content-center">
+  <main class="container-fluid px-3 mt-4">
+    <section id="view-root" class="row">
       <!-- As seções serão renderizadas dinamicamente -->
       <div class="col-12 text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -75,7 +62,7 @@
 
   <!-- Rodapé -->
   <footer class="footer bg-dark text-white py-4 mt-5">
-    <div class="container">
+    <div class="container-fluid px-4">
       <div class="row">
         <div class="col-md-6">
           <h6 class="text-warning">Sistema de Monitoramento de Segurança em Obras</h6>
@@ -112,6 +99,7 @@
   <script src="js/views/mapView.js"></script>
   <script src="js/views/monitoringView.js"></script>
   <script src="js/views/cadastro.js"></script>
+  <script src="js/views/zonesManagement.js"></script>
 
   <!-- Controllers -->
   <script src="js/controllers/mapController.js"></script>
@@ -167,6 +155,16 @@
             document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: CombinedView não carregada</div>';
           }
         }
+
+        if (name === 'zones') {
+          if (typeof ZonesManagementView !== 'undefined') {
+            await ZonesManagementView.render();
+            currentView = ZonesManagementView;
+          } else {
+            console.error('ZonesManagementView não encontrada');
+            document.getElementById('view-root').innerHTML = '<div class="alert alert-danger">Erro: ZonesManagementView não carregada</div>';
+          }
+        }
       }
     };
 
@@ -175,20 +173,56 @@
       console.log('DOM carregado, inicializando sistema...');
       
       try {
-        // Verificar se está autenticado
-        if (!AuthModel.isAuthenticated()) {
-          console.log('Usuário não autenticado, mostrando tela de login');
-          AuthView.renderLogin();
+        // GARANTIR LOGIN ANTES DE QUALQUER COISA
+        let token = localStorage.getItem('token');
+        
+        if (!token || !AuthModel.isAuthenticated()) {
+          console.log('🔐 Fazendo login automático...');
+          
+          // LOGIN AUTOMÁTICO PARA DESENVOLVIMENTO/DISPOSITIVOS
+          try {
+            const autoLoginResponse = await fetch('http://localhost:3000/api/auth/device-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                deviceId: 'web_admin',
+                deviceSecret: 'device_secret_web_admin'
+              })
+            });
+            
+            if (autoLoginResponse.ok) {
+              const result = await autoLoginResponse.json();
+              if (result.success && result.token) {
+                localStorage.setItem('token', result.token);
+                token = result.token;
+                console.log('✅ Login automático realizado - Token salvo');
+              } else {
+                throw new Error('Token não retornado');
+              }
+            } else {
+              const errorText = await autoLoginResponse.text();
+              console.error('❌ Login falhou:', errorText);
+              AuthView.renderLogin();
+              return;
+            }
+          } catch (error) {
+            console.error('❌ Erro no login automático:', error);
+            AuthView.renderLogin();
+            return;
+          }
+        }
+
+        // Verificar se token é válido (pode ser que o token antigo exista mas esteja expirado)
+        console.log('🔍 Verificando validade do token...');
+        const isTokenValid = await AuthModel.verifyToken();
+        if (!isTokenValid) {
+          console.log('⚠️ Token inválido, removendo e fazendo novo login...');
+          localStorage.removeItem('token');
+          location.reload();
           return;
         }
 
-        // Verificar se token é válido
-        const isTokenValid = await AuthModel.verifyToken();
-        if (!isTokenValid) {
-          console.log('Token inválido, mostrando tela de login');
-          AuthView.renderLogin();
-          return;
-        }
+        console.log('✅ Token válido, inicializando sistema...');
 
         // Usuário autenticado - mostrar sistema principal
         await initializeMainSystem();
@@ -257,6 +291,7 @@
       // Configurar navegação
       document.getElementById('nav-monitoring').addEventListener('click', () => Router.show('monitoring'));
       document.getElementById('nav-cadastro').addEventListener('click', () => Router.show('cadastro'));
+      document.getElementById('nav-zones').addEventListener('click', () => Router.show('zones'));
 
       // Configurar logout
       document.getElementById('logout-btn').addEventListener('click', async () => {
