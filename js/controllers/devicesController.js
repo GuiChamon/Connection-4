@@ -52,9 +52,12 @@ const DevicesController = (function(){
 
     async function getAll(){
         try {
-            return await DevicesModel.all();
+            console.log('🔍 [DevicesController.getAll] Buscando devices do backend...');
+            const devices = await DevicesModel.all();
+            console.log('📦 [DevicesController.getAll] Retornado:', devices);
+            return devices;
         } catch (error) {
-            console.error('Erro ao buscar dispositivos:', error);
+            console.error('❌ [DevicesController.getAll] Erro ao buscar dispositivos:', error);
             return [];
         }
     }
