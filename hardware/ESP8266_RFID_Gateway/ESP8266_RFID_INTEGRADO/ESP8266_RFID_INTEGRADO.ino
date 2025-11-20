@@ -72,11 +72,27 @@ const unsigned long ULTRASONIC_DEBOUNCE = 3000;  // 3 segundos
 
 byte lastCardUID[4] = {0, 0, 0, 0};
 bool lastCardValid = false;
+String lastCardUIDStr = "";
+String lastPersonName = "";
+long lastDistanceReading = -1;
 
 // Controle de botão
 unsigned long btnPressStart = 0;
 bool btnPressed = false;
 bool configMode = false;
+
+// Thresholds de interação
+const unsigned long SHORT_PRESS_THRESHOLD = 1000;   // <1s
+const unsigned long MEDIUM_PRESS_THRESHOLD = 3000;  // 1-3s
+const unsigned long DISCONNECT_PRESS_THRESHOLD = 7000; // >7s mantém disconnect gracioso
+const unsigned long MODE_TIMEOUT = 10000; // 10 segundos para concluir modos especiais
+
+// Sensor de risco (ultrassônico) - alcance de 1 metro (100 cm)
+const unsigned int RISK_DISTANCE_CM = 100;
+
+// Estados para modos especiais
+bool changeLevelModeActive = false;
+unsigned long changeLevelModeStarted = 0;
 
 // ========== FUNÇÕES LED ==========
 void ledSuccess() {
@@ -241,7 +257,7 @@ bool registerDevice() {
 }
 
 // ========== ENVIO DE POSIÇÃO ==========
-bool sendPosition(String deviceId, bool inRiskZone) {
+bool sendPosition(const String& deviceId, bool inRiskZone, bool alertGenerated) {
   if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
   
   HTTPClient http;
@@ -255,8 +271,8 @@ bool sendPosition(String deviceId, bool inRiskZone) {
   doc["y"] = getCurrentAreaY();
   doc["areaId"] = getCurrentAreaId();
   doc["areaName"] = getCurrentAreaName();
-  doc["inRiskZone"] = isCurrentAreaRisk();
-  doc["alertGenerated"] = isCurrentAreaRisk();
+  doc["inRiskZone"] = inRiskZone;
+  doc["alertGenerated"] = alertGenerated;
   
   String jsonString;
   serializeJson(doc, jsonString);
@@ -276,6 +292,102 @@ bool sendPosition(String deviceId, bool inRiskZone) {
   }
   http.end();
   return false;
+}
+
+bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& personName) {
+  if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
+
+  HTTPClient http;
+  http.begin(wifiClient, String(SERVER_URL) + "/api/notifications");
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  StaticJsonDocument<512> doc;
+  doc["type"] = "RISK_ZONE_ENTRY";
+  doc["severity"] = "HIGH";
+  doc["title"] = "Entrada em zona de risco";
+  doc["message"] = String("Cartão ") + cardUid + " detectado a " + distanceCm + "cm (<=1m).";
+  doc["deviceId"] = getCurrentAreaId();
+  doc["areaId"] = getCurrentAreaId();
+  doc["areaName"] = getCurrentAreaName();
+  doc["workerName"] = personName;
+  
+  JsonObject position = doc.createNestedObject("position");
+  position["x"] = getCurrentAreaX();
+  position["y"] = getCurrentAreaY();
+
+  JsonObject metadata = doc.createNestedObject("metadata");
+  metadata["cardUid"] = cardUid;
+  metadata["distanceCm"] = distanceCm;
+  metadata["sensor"] = "HC-SR04";
+
+  String payload;
+  serializeJson(doc, payload);
+  int httpCode = http.POST(payload);
+  if (httpCode == 201 || httpCode == 200) {
+    http.end();
+    return true;
+  }
+
+  if (httpCode > 0) {
+    Serial.println("❌ Falha ao registrar notificação de risco: " + String(httpCode));
+    Serial.println("📥 " + http.getString());
+  }
+  http.end();
+  return false;
+}
+
+bool logCardLevelChangeRequest(const String& cardUid, const String& personName) {
+  if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
+
+  HTTPClient http;
+  http.begin(wifiClient, String(SERVER_URL) + "/api/notifications");
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  StaticJsonDocument<512> doc;
+  doc["type"] = "INFO";
+  doc["severity"] = "LOW";
+  doc["title"] = "Solicitação de alteração de nível";
+  doc["message"] = String("Cartão ") + cardUid + " (" + personName + ") solicitou alteração de nível na área " + getCurrentAreaName();
+  doc["deviceId"] = getCurrentAreaId();
+  doc["areaId"] = getCurrentAreaId();
+  doc["areaName"] = getCurrentAreaName();
+  doc["workerName"] = personName;
+
+  JsonObject metadata = doc.createNestedObject("metadata");
+  metadata["cardUid"] = cardUid;
+  metadata["requestedBy"] = personName;
+  metadata["area"] = getCurrentAreaName();
+
+  String payload;
+  serializeJson(doc, payload);
+  int httpCode = http.POST(payload);
+  if (httpCode == 201 || httpCode == 200) {
+    http.end();
+    return true;
+  }
+
+  if (httpCode > 0) {
+    Serial.println("❌ Falha ao registrar solicitação de nível: " + String(httpCode));
+    Serial.println("📥 " + http.getString());
+  }
+  http.end();
+  return false;
+}
+
+bool isWithinRiskDistance(long distanceCm) {
+  return (distanceCm > 0 && distanceCm <= RISK_DISTANCE_CM);
+}
+
+void startChangeLevelMode() {
+  changeLevelModeActive = true;
+  changeLevelModeStarted = millis();
+  Serial.println("🟡 Modo ALTERAR NÍVEL ativado. Aproxime o cartão em até 10s.");
+  for (int i = 0; i < 2; i++) {
+    ledBlink();
+    delay(150);
+  }
 }
 
 // ========== BUSCAR PESSOA POR DEVICE ==========
@@ -309,24 +421,59 @@ String getPersonByDevice(String deviceId) {
 void validateCard(byte *uid) {
   String uidStr = formatUID(uid);
   Serial.println("🔍 Validando cartão: " + uidStr);
+  long measuredDistance = readDistance();
+  if (measuredDistance > 0) {
+    lastDistanceReading = measuredDistance;
+  }
+  bool sensorRisk = isWithinRiskDistance(measuredDistance);
+  bool zoneRisk = isCurrentAreaRisk();
+  bool finalRisk = sensorRisk || zoneRisk;
   
   // Buscar pessoa associada ao device
   String personName = getPersonByDevice(uidStr);
   
+  if (changeLevelModeActive) {
+    changeLevelModeActive = false;
+    Serial.println("🟡 Processando alteração de nível...");
+    if (personName == "") {
+      Serial.println("❌ Cartão não cadastrado. Não é possível alterar nível.");
+      ledError();
+      return;
+    }
+
+    if (logCardLevelChangeRequest(uidStr, personName)) {
+      Serial.println("✅ Solicitação de alteração registrada no backend");
+      ledSuccess();
+    } else {
+      Serial.println("❌ Falha ao registrar alteração de nível");
+      ledError();
+    }
+    return;
+  }
+
   if (personName != "") {
     Serial.println("✅ ACESSO PERMITIDO: " + personName);
     
-    // Enviar posição para backend
-    sendPosition(uidStr, false);
+    // Enviar posição para backend com flag de risco
+    sendPosition(uidStr, finalRisk, finalRisk);
+    
+    // Registrar notificação se risco detectado por sensor
+    if (finalRisk && sensorRisk) {
+      logRiskZoneEntry(uidStr, measuredDistance, personName);
+    }
     
     // Armazenar último cartão válido
     copyUID(lastCardUID, uid);
     lastCardValid = true;
+    lastCardUIDStr = uidStr;
+    lastPersonName = personName;
     
     ledSuccess();
   } else {
     Serial.println("❌ ACESSO NEGADO: Cartão não cadastrado");
     lastCardValid = false;
+    lastCardUIDStr = "";
+    lastPersonName = "";
     ledError();
   }
 }
@@ -571,6 +718,12 @@ void loop() {
     sendHeartbeat();
     lastHeartbeat = millis();
   }
+
+  // Timeout do modo alterar nível
+  if (changeLevelModeActive && (millis() - changeLevelModeStarted > MODE_TIMEOUT)) {
+    changeLevelModeActive = false;
+    Serial.println("⏹️ Tempo do modo ALTERAR NÍVEL expirou");
+  }
   
   // ========== CONTROLE DE BOTÃO ==========
   bool btnState = digitalRead(BTN_PIN) == LOW;
@@ -585,51 +738,52 @@ void loop() {
     btnPressed = false;
     unsigned long pressDuration = millis() - btnPressStart;
     
-    if (pressDuration >= 7000) {
-      // Pressão muito longa (7+ segundos) - Marcar disconnect gracioso
-      Serial.println("⏱️ Pressão muito longa detectada (7+ seg) - Enviando disconnect gracioso...");
+    if (pressDuration >= DISCONNECT_PRESS_THRESHOLD) {
+      Serial.println("⏱️ Pressão muito longa detectada (>=7s) - Enviando disconnect gracioso...");
       if (sendDisconnect(String(getCurrentAreaId()))) {
         Serial.println("✅ Disconnect enviado com sucesso");
-        // Feedback visual
         for (int i = 0; i < 3; i++) { digitalWrite(LED_PIN, HIGH); delay(150); digitalWrite(LED_PIN, LOW); delay(150); }
       } else {
         Serial.println("❌ Falha ao enviar disconnect");
         ledError();
       }
-    } else if (pressDuration >= 3000) {
-      // Pressão longa (3-7 segundos) - Registrar novo cartão
-      Serial.println("⏱️ Pressão longa detectada (3-7 seg)");
+    } else if (pressDuration >= MEDIUM_PRESS_THRESHOLD) {
+      Serial.println("⏱️ Pressão longa detectada (>3s e <7s)");
       Serial.println("🆕 Modo: REGISTRAR NOVO CARTÃO");
-      Serial.println("📋 Aproxime o cartão do leitor RFID...");
+      Serial.println("📋 Aproxime o cartão do leitor RFID em até 10s...");
       
-      // Aguardar cartão por 10 segundos
       unsigned long registerStart = millis();
       while (millis() - registerStart < 10000) {
         if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
           String newUID = formatUID(mfrc522.uid.uidByte);
           Serial.println("✅ Novo cartão detectado: " + newUID);
-          Serial.println("📝 Registre este UID no sistema backend!");
+          Serial.println("📝 Registre este UID no backend!");
           ledSuccess();
           mfrc522.PICC_HaltA();
           break;
         }
         delay(100);
       }
-      
-    } else if (pressDuration >= 1000) {
-      // Pressão curta (1-3 segundos) - Alternar área
-      Serial.println("⏱️ Pressão curta detectada (1-3 seg)");
+    } else if (pressDuration >= SHORT_PRESS_THRESHOLD) {
+      Serial.println("⏱️ Pressão média detectada (1-3s): entrando em modo ALTERAR NÍVEL");
+      startChangeLevelMode();
+    } else {
+      Serial.println("⏱️ Pressão rápida (<1s): alternando área");
       switchArea();
     }
   }
   
   // Leitura do sensor ultrassônico
   long distance = readDistance();
+  if (distance > 0) {
+    lastDistanceReading = distance;
+  }
   
-  if (distance > 0 && distance < 15 && lastCardValid) {
+  if (isWithinRiskDistance(distance) && lastCardValid && lastCardUIDStr.length() > 0) {
     if (millis() - lastUltrasonicCheck > ULTRASONIC_DEBOUNCE) {
-      Serial.println("👋 Presença detectada! Validando último cartão...");
-      validateCard(lastCardUID);
+      Serial.println("👋 Presença detectada pelo ultrassom (<=1m). Registrando alerta no backend...");
+      sendPosition(lastCardUIDStr, true, true);
+      logRiskZoneEntry(lastCardUIDStr, distance, lastPersonName);
       lastUltrasonicCheck = millis();
     }
   }
