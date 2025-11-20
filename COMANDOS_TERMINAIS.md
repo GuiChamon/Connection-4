@@ -56,7 +56,7 @@ node server.js
 Use o Live Server do VS Code ou:
 ```powershell
 cd c:\projetos\Connection-4
-python -m http.server 5500
+python -m http.server 8000
 ```
 
 ### Terminal 3:
@@ -83,7 +83,7 @@ python simulator.py --workers 8 --duration 30 --speed 2
 ## ✅ **VERIFICAÇÃO DE STATUS:**
 
 - **Backend**: http://localhost:3000/api/status
-- **Frontend**: http://localhost:5500
+- **Frontend**: http://localhost:8000
 - **MongoDB**: Deve estar rodando localmente
 
 ---
