@@ -72,6 +72,53 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// POST /api/auth/device-login - Login para dispositivos ESP
+router.post('/device-login', async (req, res) => {
+  try {
+    const { deviceId, deviceSecret } = req.body;
+    
+    // Validar credenciais do dispositivo
+    if (!deviceId || !deviceSecret) {
+      return res.status(400).json({
+        success: false,
+        message: 'deviceId e deviceSecret são obrigatórios'
+      });
+    }
+    
+    // Validar secret (em produção, usar hash e banco de dados)
+    const expectedSecret = 'device_secret_' + deviceId;
+    
+    if (deviceSecret !== expectedSecret) {
+      return res.status(401).json({
+        success: false,
+        message: 'Credenciais inválidas'
+      });
+    }
+    
+    // Gerar token JWT para dispositivo
+    const token = jwt.sign(
+      { deviceId, type: 'device' },
+      JWT_SECRET,
+      { expiresIn: '30d' }  // Dispositivos têm token de longa duração
+    );
+    
+    res.json({
+      success: true,
+      message: 'Dispositivo autenticado',
+      token,
+      deviceId
+    });
+    
+  } catch (error) {
+    console.error('Erro no login do dispositivo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao autenticar dispositivo',
+      error: error.message
+    });
+  }
+});
+
 // POST /api/auth/login - Login do usuário
 router.post('/login', async (req, res) => {
   try {
