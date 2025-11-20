@@ -11,6 +11,7 @@ const peopleRoutes = require('./routes/people');
 const devicesRoutes = require('./routes/devices');
 const zonesRoutes = require('./routes/zones');
 const positionsRoutes = require('./routes/positions');
+const notificationsRoutes = require('./routes/notifications');
 
 // Importar middlewares
 const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
@@ -57,6 +58,7 @@ app.use('/api/people', authenticate, peopleRoutes);
 app.use('/api/devices', authenticate, devicesRoutes);
 app.use('/api/zones', authenticate, zonesRoutes);
 app.use('/api/positions', authenticate, positionsRoutes);
+app.use('/api/notifications', authenticate, notificationsRoutes);
 
 // Rota de status da API
 app.get('/api/status', (req, res) => {
@@ -127,8 +129,10 @@ app.listen(PORT, () => {
   console.log('   - POST /api/devices (🔒 protegida)');
   console.log('   - GET  /api/zones (🔒 protegida)');
   console.log('   - POST /api/zones (🔒 protegida)');
+  console.log('   - POST /api/zones/activate-device (🔒 protegida) 🆕');
   console.log('   - GET  /api/positions (🔒 protegida)');
   console.log('   - POST /api/positions (🔒 protegida)');
+  console.log('   - GET  /api/notifications (🔒 protegida)');
   console.log('==========================================\n');
 });
 
