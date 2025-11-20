@@ -22,6 +22,14 @@ const authenticate = async (req, res, next) => {
     // Verificar e decodificar token
     const decoded = jwt.verify(token, JWT_SECRET);
     
+    // Verificar se é um token de dispositivo ESP
+    if (decoded.type === 'device') {
+      // Token de dispositivo ESP8266/ESP32
+      req.deviceId = decoded.deviceId;
+      req.isDevice = true;
+      return next();
+    }
+    
     // Buscar usuário
     const user = await User.findById(decoded.userId);
     if (!user || !user.active) {
@@ -34,6 +42,7 @@ const authenticate = async (req, res, next) => {
     // Adicionar dados do usuário à requisição
     req.userId = user._id;
     req.user = user;
+    req.isDevice = false;
     
     next();
     
