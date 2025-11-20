@@ -5,6 +5,32 @@
  * Integra com o sistema de alertas para monitorar acessos não autorizados.
  */
 
+const COMMON_AREAS = [
+  'entrada','escritorio','almoxarifado','deposito','estacionamento','refeitorio',
+  'enfermaria','vestiario_masc','vestiario_fem','limpeza','manutencao','guarita',
+  'laboratorio','area_construcao','oficina','betoneira'
+];
+const RISK1_AREAS = ['zona_perigo_1','risco1'];
+const RISK2_AREAS = ['zona_perigo_2','risco2'];
+
+const LEVEL_RULES = {
+  1: {
+    name: 'Nível 1',
+    description: 'Portaria e áreas comuns',
+    allowedAreas: COMMON_AREAS
+  },
+  2: {
+    name: 'Nível 2',
+    description: 'Comuns + Área de Risco 1',
+    allowedAreas: [...COMMON_AREAS, ...RISK1_AREAS]
+  },
+  3: {
+    name: 'Nível 3',
+    description: 'Acesso total',
+    allowedAreas: ['*']
+  }
+};
+
 // Mapeamento de permissões por área
 const areaPermissions = {
   // ZONAS DE ALTO RISCO - Acesso Restrito
@@ -196,36 +222,38 @@ const areaPermissions = {
   }
 };
 
-/**
- * Verifica se uma função tem permissão para acessar uma área
- * @param {string} role - Função do trabalhador
- * @param {string} areaId - ID da área
- * @returns {boolean} - true se autorizado, false caso contrário
- */
-function checkAccess(role, areaId) {
-  // Validar parâmetros
-  if (!role || !areaId) {
+function hasLevelAccess(accessLevel = 1, areaId) {
+  if (!areaId) return false;
+  const rule = LEVEL_RULES[accessLevel] || LEVEL_RULES[1];
+  if (!rule) return false;
+  if (rule.allowedAreas.includes('*')) return true;
+  return rule.allowedAreas.includes(areaId);
+}
+
+function checkAccess(role, areaId, accessLevel = 1) {
+  if (!areaId) {
     return false;
   }
-  
-  // Buscar configuração da área
+
   const area = areaPermissions[areaId];
-  
-  // Se área não está configurada, negar acesso por segurança
   if (!area) {
     console.warn(`⚠️ Área não configurada: ${areaId}`);
     return false;
   }
-  
-  // Se área permite acesso a todos
+
+  if (hasLevelAccess(accessLevel, areaId)) {
+    return true;
+  }
+
   if (area.allowedRoles === '*') {
     return true;
   }
-  
-  // Verificar se a função está na lista de permitidos
-  const hasAccess = area.allowedRoles.includes(role);
-  
-  return hasAccess;
+
+  if (!role) {
+    return false;
+  }
+
+  return area.allowedRoles.includes(role);
 }
 
 /**
@@ -273,7 +301,7 @@ function getAllowedAreasForRole(role) {
  * Middleware Express para validar acesso
  */
 function validateAccess(req, res, next) {
-  const { role, areaId } = req.body;
+  const { role, areaId, accessLevel = 1 } = req.body;
   
   if (!role || !areaId) {
     return res.status(400).json({
@@ -282,7 +310,7 @@ function validateAccess(req, res, next) {
     });
   }
   
-  const hasAccess = checkAccess(role, areaId);
+  const hasAccess = checkAccess(role, areaId, Number(accessLevel) || 1);
   const area = getAreaInfo(areaId);
   
   if (!hasAccess) {
