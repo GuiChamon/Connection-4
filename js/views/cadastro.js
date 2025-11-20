@@ -1,6 +1,7 @@
 // js/views/cadastro.js - VERSÃO FINAL CORRIGIDA
 const CombinedView = (function(){
     const root = document.getElementById('view-root');
+    let refreshInterval = null; // Controla o intervalo de atualização automática
 
     function template(){
         return `
@@ -199,9 +200,21 @@ const CombinedView = (function(){
     }
 
     async function renderDevicesList(){
+        console.log('🔄 [renderDevicesList] Iniciando...');
         const node = document.getElementById('devices-list');
         const devices = await DevicesController.getAll();
         const people = await PeopleController.getAll();
+        
+        console.log('📦 [renderDevicesList] Devices:', devices.map(d => ({id: d.id, active: d.active, connectionStatus: d.connectionStatus})));
+        
+        // ✅ BUSCAR ZONAS PARA VERIFICAR currentlyActive
+        const zonesResponse = await fetch('http://localhost:3000/api/zones', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const zonesData = await zonesResponse.json();
+        const zones = zonesData.success ? zonesData.data : [];
+        
+        console.log('🗺️ [renderDevicesList] Zones:', zones.map(z => ({id: z.id, name: z.name, deviceId: z.deviceId, currentlyActive: z.currentlyActive, connectionStatus: z.connectionStatus})));
         
         if (devices.length === 0) { 
             node.innerHTML = `
@@ -216,24 +229,49 @@ const CombinedView = (function(){
         node.innerHTML = '';
         for (const device of devices){
             const person = people.find(p => p.deviceId === device.id);
+            
+            // ✅ VERIFICAR SE A ÁREA DESTE DISPOSITIVO ESTÁ currentlyActive
+            const deviceZone = zones.find(z => z.deviceId && z.deviceId.toLowerCase() === device.id.toLowerCase());
+            // Primeiro respeitar o flag device.active: se false => considerado offline/desativado
+            const isPhysicallyActive = device.active === true;
+            const zoneOnline = deviceZone ? (deviceZone.currentlyActive === true && deviceZone.connectionStatus === 'online') : false;
+            const isOnline = isPhysicallyActive && zoneOnline;
+
+            const statusIcon = isOnline ? 'bi-circle-fill' : 'bi-circle';
+            const statusColor = isOnline ? 'bg-success' : (isPhysicallyActive ? 'bg-secondary' : 'bg-dark');
+            const statusText = !isPhysicallyActive ? 'DESATIVADO' : (isOnline ? 'ONLINE' : 'Offline');
+
+            console.log(`📱 [renderDevicesList] Device ${device.id}:`, {
+                'device.active': device.active,
+                'isPhysicallyActive': isPhysicallyActive,
+                'deviceZone': deviceZone?.name,
+                'zone.currentlyActive': deviceZone?.currentlyActive,
+                'zone.connectionStatus': deviceZone?.connectionStatus,
+                'zoneOnline': zoneOnline,
+                'isOnline': isOnline,
+                'statusText': statusText
+            });
+            
             const card = document.createElement('div');
             card.className = 'card mb-3 border';
             card.innerHTML = `
                 <div class="card-body">
                     <div class="d-flex align-items-start">
-                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
+                        <div class="${isOnline ? 'bg-success' : 'bg-secondary'} text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 45px; height: 45px;">
                             <i class="bi bi-tablet"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="card-title mb-1">${device.id}</h6>
+                            <h6 class="card-title mb-1">
+                                ${device.id}
+                                <span class="badge ${statusColor} ms-2">
+                                    <i class="bi ${statusIcon} me-1"></i>${statusText}
+                                </span>
+                            </h6>
                             <p class="card-text small text-muted mb-1">
                                 <span class="badge ${device.type === 'worker' ? 'bg-info' : 'bg-warning'} me-1">
                                     ${device.type === 'worker' ? 'Colaborador' : 'Sensor'}
                                 </span>
-                                <span class="badge ${device.active ? 'bg-success' : 'bg-secondary'}">
-                                    <i class="bi ${device.active ? 'bi-check-circle' : 'bi-x-circle'} me-1"></i>
-                                    ${device.active ? 'Ativo' : 'Inativo'}
-                                </span>
+                                ${deviceZone ? `<span class="badge bg-primary">Área: ${deviceZone.name}</span>` : ''}
                             </p>
                             <p class="card-text small text-muted mb-0">
                                 <i class="bi bi-person me-1"></i>
@@ -305,6 +343,8 @@ const CombinedView = (function(){
         // Insere no início do conteúdo principal
         const main = document.querySelector('main');
         main.insertBefore(alertDiv, main.firstChild);
+        console.log('🔍 [cadastro] devices fetched:', devices);
+        console.log('🔍 [cadastro] zones fetched:', zones.map(z=>({id:z.id,name:z.name,currentlyActive:z.currentlyActive,connectionStatus:z.connectionStatus})));
         
         // Remove automaticamente após 5 segundos
         setTimeout(() => {
@@ -326,7 +366,7 @@ const CombinedView = (function(){
                 showAlert('Colaborador cadastrado com sucesso!');
                 document.getElementById('person-form').reset();
                 await render(); // Recarrega a view
-            } else {
+            console.log(`📱 [cadastro] Device ${device.id}: full=`, device, 'deviceZone=', deviceZone, 'isPhysicallyActive=', isPhysicallyActive, 'zoneOnline=', zoneOnline, 'isOnline=', isOnline);
                 showAlert(`Erro: ${result.error}`, 'danger');
             }
         });
@@ -429,8 +469,9 @@ const CombinedView = (function(){
                 const btn = e.target.closest('.btn-toggle-device');
                 const id = btn.getAttribute('data-id');
                 const device = await DevicesModel.find(id);
-                
+                console.log(`🔁 [cadastro] Toggle requested for device ${id} (current active=${device.active})`);
                 const result = await DevicesController.update(id, { active: !device.active });
+                console.log(`🔁 [cadastro] Toggle result for device ${id}:`, result);
                 if (result.success) {
                     showAlert(`Dispositivo ${!device.active ? 'ativado' : 'desativado'} com sucesso!`);
                     await render();
@@ -453,11 +494,35 @@ const CombinedView = (function(){
         await populateLinkSelects();
         await updateCounters();
         bindEvents();
+        
+        // ✅ Iniciar auto-refresh a cada 3 segundos
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+        
+        console.log('🚀 [render] Configurando auto-refresh...');
+        refreshInterval = setInterval(async () => {
+            console.log('🔄 [auto-refresh] Executando atualização automática...');
+            try {
+                await renderPeopleList();
+                await renderDevicesList();
+                await updateCounters();
+                console.log('✅ [auto-refresh] Atualização concluída');
+            } catch (error) {
+                console.error('❌ [auto-refresh] Erro:', error);
+            }
+        }, 3000);
+        console.log('✅ Auto-refresh iniciado (3s) para Gestão de Recursos');
     }
     
-    // Função de cleanup (mesmo sem intervalos, mantém consistência)
+    // Função de cleanup - parar auto-refresh ao sair da view
     function cleanup() {
-        console.log('🧹 CombinedView cleanup (sem operações pendentes)');
+        console.log('🧹 Limpando CombinedView...');
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+            console.log('⏹️ Auto-refresh parado');
+        }
     }
 
     return { render, cleanup };
