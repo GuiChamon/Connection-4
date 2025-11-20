@@ -119,7 +119,7 @@ router.post('/', async (req, res) => {
       const accessControl = require('../middleware/accessControl');
       
       // Verificar se tem autorização para a área
-      hasAccess = accessControl.checkAccess(person.role, areaId);
+      hasAccess = accessControl.checkAccess(person.role, areaId, person.accessLevel || 1);
       
       if (!hasAccess && inRiskZone) {
         alertType = 'UNAUTHORIZED_ACCESS';
