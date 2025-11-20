@@ -147,6 +147,14 @@ const MonitoringView = (function(){
         
         // ✅ CARREGAR ÁREAS DO BACKEND (assíncrono)
         let workAreas = await AreasModel.loadAreas();
+        // Também carregar devices para verificar `device.active` quando necessário
+        let devices = [];
+        try {
+            devices = await DevicesController.getAll();
+        } catch (err) {
+            console.warn('⚠️ Não foi possível carregar dispositivos ao renderizar mapa:', err);
+            devices = [];
+        }
         console.log('📍 Áreas carregadas do backend:', workAreas.length);
         
         if (!workAreas || workAreas.length === 0) {
@@ -189,8 +197,13 @@ const MonitoringView = (function(){
             label.style.flexDirection = 'column';
             label.style.gap = '2px';
             
-            // ✅ DETERMINAR STATUS DE CONEXÃO (igual ao zonesManagement.js)
-            const isOnline = area.currentlyActive === true && area.connectionStatus === 'online';
+            // ✅ DETERMINAR STATUS DE CONEXÃO (respeitar também Device.active quando houver deviceId)
+            let deviceActiveFlag = true;
+            if (area.deviceId) {
+                const linked = devices.find(d => d.id && d.id.toLowerCase() === String(area.deviceId).toLowerCase());
+                deviceActiveFlag = linked ? (linked.active === true) : true;
+            }
+            const isOnline = deviceActiveFlag && area.currentlyActive === true && area.connectionStatus === 'online';
             const statusIcon = area.deviceId ? (
                 isOnline 
                     ? '<div style="font-size: 13px; font-weight:600; color:#fff; background: rgba(40, 167, 69, 0.95); padding: 6px 10px; border-radius: 14px; margin-top: 6px; display:inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">🟢 CONECTADA</div>'
