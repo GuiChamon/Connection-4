@@ -136,6 +136,51 @@ app.listen(PORT, () => {
   console.log('==========================================\n');
 });
 
+// ===== Background sweeper: marcar dispositivos offline automaticamente =====
+const Device = require('./models/Device');
+const Zone = require('./models/Zone');
+
+// Tempo limite em segundos sem heartbeat para considerar device OFFLINE
+const OFFLINE_THRESHOLD_SECONDS = Number(process.env.OFFLINE_THRESHOLD_SECONDS) || 20;
+// Intervalo do sweeper em segundos
+const SWEEPER_INTERVAL_SECONDS = Number(process.env.SWEEPER_INTERVAL_SECONDS) || 10;
+
+async function checkOfflineDevices() {
+  try {
+    const cutoff = new Date(Date.now() - OFFLINE_THRESHOLD_SECONDS * 1000);
+    // Buscar dispositivos que estão marcados como online, mas com lastSeen anterior ao cutoff
+    const candidates = await Device.find({ connectionStatus: 'online' });
+
+    for (const dev of candidates) {
+      if (!dev.lastSeen || dev.lastSeen < cutoff) {
+        console.log(`⚠️ Device ${dev.id} parece estar offline (lastSeen=${dev.lastSeen}). Marcando offline.`);
+        try {
+          await dev.markOffline();
+
+          // Atualizar zonas vinculadas a esse device (se houver)
+          const zones = await Zone.find({ deviceId: dev.id });
+          for (const z of zones) {
+            z.currentlyActive = false;
+            z.connectionStatus = 'offline';
+            await z.save();
+            console.log(`   → Zona ${z.id} atualizada para offline por causa do device ${dev.id}`);
+          }
+        } catch (err) {
+          console.error(`Erro ao marcar device ${dev.id} offline:`, err);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erro no sweeper de devices offline:', error);
+  }
+}
+
+// Iniciar sweeper em background
+setInterval(() => {
+  checkOfflineDevices();
+}, SWEEPER_INTERVAL_SECONDS * 1000);
+
+
 // Tratamento de sinais para graceful shutdown
 process.on('SIGTERM', () => {
   console.log('🛑 SIGTERM recebido, encerrando servidor...');
