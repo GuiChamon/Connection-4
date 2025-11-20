@@ -13,7 +13,8 @@ const PeopleController = (function(){
             const id = await PeopleModel.add({
                 name: personData.name.trim(),
                 role: personData.role || 'Não informado',
-                deviceId: personData.deviceId || null
+                deviceId: personData.deviceId || null,
+                accessLevel: Number(personData.accessLevel) || 1
             });
             
             console.log('Pessoa adicionada:', id);
