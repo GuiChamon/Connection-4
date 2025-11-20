@@ -146,6 +146,31 @@ router.post('/', async (req, res) => {
     
     await position.save();
     
+    // Atualizar status do dispositivo (lastSeen / connectionStatus)
+    try {
+      const Device = require('../models/Device');
+      const deviceRecord = await Device.findOne({ id: deviceId.toUpperCase() });
+      if (deviceRecord) {
+        deviceRecord.lastSeen = new Date();
+        deviceRecord.connectionStatus = 'online';
+        deviceRecord.active = true;
+        if (currentZone && currentZone.id) deviceRecord.areaId = currentZone.id;
+        await deviceRecord.save();
+        console.log(`🔌 Device ${deviceRecord.id} atualizado: lastSeen=${deviceRecord.lastSeen}`);
+      }
+
+      // Se a zona atual estiver vinculada a esse device, marcar zona como ativa/online
+      if (currentZone && currentZone.deviceId && currentZone.deviceId.toUpperCase() === deviceId.toUpperCase()) {
+        currentZone.currentlyActive = true;
+        currentZone.lastConnection = new Date();
+        currentZone.connectionStatus = 'online';
+        await currentZone.save();
+        console.log(`📶 Zona ${currentZone.id} marcada como ATIVA via posição do device ${deviceId}`);
+      }
+    } catch (err) {
+      console.error('Erro ao atualizar status do device a partir da posição:', err);
+    }
+    
     // Log detalhado
     console.log('\n📍 Nova posição recebida:');
     console.log(`   Device: ${deviceId}`);
