@@ -27,53 +27,96 @@ Simulação — Segurança em Obras (frontend)
 
 Projeto em estrutura MVC para simular sensores de proximidade, cadastro de pessoas e associação de chips.
 
-Como usar (rápido):
-
-1. Abra um terminal na pasta do projeto (onde está este README).
-2. Rode: `npx http-server -p 8001` (ou instale `http-server` globalmente).
-3. Abra: `http://127.0.0.1:8001/view/map.html`
-
-Notas:
-- Dados de teste são persistidos no localStorage.
-- As páginas usam WebAudio e Vibration APIs para simular alertas.
-
-Este commit restaura arquivos apagados localmente e organiza os assets.<<<<<<< HEAD
-
-Simulação - Segurança em Obras (Frontend)
-Estrutura MVC (apenas frontend).
-
-Como usar:
-1. Extraia e abra index.html no navegador (ou sirva via servidor estático).
-2. Navegue entre 'Mapa', 'Cadastro Pessoas' e 'Cadastro Dispositivos'.
-3. Cadastre dispositivos e pessoas; associe devices a pessoas.
-4. No mapa, movimente devices manualmente para simular entrada/saída de zonas de risco.
-
-Observações:
-- Dados persistem no localStorage do navegador.
-- Mapa é simulado (coordenadas relativas 0..1).
-=======
-```markdown
 # Connection-4
 
-Projeto minimal para monitoramento de sensores de proximidade em canteiros de obra.
+Projeto de simulação para monitoramento de segurança em canteiros de obra.
 
-Estrutura recomendada:
-- `model/` — modelos e persistência
-- `view/` — páginas estáticas (mapa e cadastro)
-- `controller/` — endpoints / integração com hardware
-- `assets/` — CSS, JS e imagens compartilhadas
+Este repositório contém o frontend (páginas estáticas e scripts) e o backend (Node/Express + MongoDB) usados para demonstrar rastreamento de dispositivos, zonas e simulação de colaboradores.
 
-Como rodar localmente (requer Node.js/npm):
+## Visão Rápida
+- Frontend: páginas em `index.html` e `js/views/*` (MVC simples em JS vanilla)
+- Backend: `backend/server.js` com rotas em `backend/routes/*`
+- Simulador: `simple_simulator.py` para movimentar dispositivos no mapa
 
-1. Abrir terminal na raiz do projeto (onde está este README)
-2. Instalar http-server (opcional): `npm i -g http-server` ou usar `npx http-server` para rodar sem instalar.
-3. Rodar: `npx http-server -p 8001` e abrir `http://127.0.0.1:8001/view/map.html`
+## 📋 INSTRUÇÕES DE EXECUÇÃO (PowerShell)
+Execute cada comando em um terminal separado do VS Code.
 
-Obs: as páginas usam APIs de navegador (WebAudio e Vibration). Teste em um navegador moderno.
+### 🖥️ TERMINAL 1 - BACKEND
+```powershell
+cd c:\projetos\Connection-4\backend
+node server.js
+```
+✅ Resultado esperado: Backend rodando na porta 3000
 
-Commit de limpeza: arquivos duplicados removidos e `assets/` centralizado.
+---
 
-``` 
-# Connection-4
->>>>>>> origin/main
->>>>>>> a5381eaa66b4b6bec5de2fee1078cebd06da2871
+### 🌐 TERMINAL 2 - FRONTEND
+```powershell
+cd c:\projetos\Connection-4
+# Use o Live Server do VS Code (clique direito no index.html > Open with Live Server)
+# OU execute um servidor simples:
+python -m http.server 8000
+```
+✅ Resultado esperado: Frontend em http://localhost:8000
+
+---
+
+### 🐍 TERMINAL 3 - SIMULADOR
+```powershell
+cd c:\projetos\Connection-4
+python simple_simulator.py
+```
+✅ Resultado esperado: Colaboradores se movendo no mapa
+
+⚠️ IMPORTANTE: O simulador precisa que o backend esteja rodando primeiro!
+
+---
+
+## 🎯 COMO EXECUTAR
+1. Abra 3 terminais no VS Code (Terminal > New Terminal)
+2. Execute cada comando em um terminal diferente
+3. Aguarde cada serviço iniciar antes do próximo
+4. Acesse http://localhost:8000 no navegador
+5. Vá para "Central de Monitoramento"
+6. Execute o simulador para ver movimento
+
+---
+
+## 🔧 ALTERNATIVA - COMANDOS INDIVIDUAIS
+
+### Terminal 1:
+```powershell
+cd c:\projetos\Connection-4\backend
+node server.js
+```
+
+### Terminal 2:
+Use o Live Server do VS Code ou:
+```powershell
+cd c:\projetos\Connection-4
+python -m http.server 8000
+```
+
+### Terminal 3:
+```powershell
+cd c:\projetos\Connection-4
+python simple_simulator.py
+```
+
+---
+
+## 🎮 SIMULADOR AVANÇADO (Opcional)
+```powershell
+cd c:\projetos\Connection-4
+python simulator.py --workers 8 --duration 30 --speed 2
+```
+
+---
+
+## Observações
+- Se você estiver usando MongoDB local, verifique a string de conexão em `backend/config/database.js`.
+- Para desenvolvimento rápido use `Live Server` no VS Code.
+
+----
+
+Arquivo atualizado com instruções de execução (PowerShell). 
