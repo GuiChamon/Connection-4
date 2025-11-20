@@ -2,182 +2,55 @@
 // Sistema de Controle de Acesso às Áreas do Canteiro
 
 const AccessControlModel = (function() {
-    
-    // Definir permissões de acesso por área
-    const areaPermissions = {
-        // Áreas de Risco - Acesso Restrito
-        'zona_perigo_1': {
-            name: 'Área de Guindastes',
-            restricted: true,
-            authorizedRoles: [
-                'Operador de Guindaste',
-                'Guincheiro',
-                'Operador de Torre',
-                'Engenheiro',
-                'Engenheira Civil',
-                'Engenheiro de Segurança',
-                'Técnico de Segurança',
-                'Supervisor'
-            ],
-            riskLevel: 'ALTO'
+    const COMMON_AREAS = [
+        'entrada','escritorio','almoxarifado','deposito','estacionamento','refeitorio',
+        'enfermaria','vestiario_masc','vestiario_fem','limpeza','manutencao','guarita',
+        'laboratorio','area_construcao','oficina','betoneira'
+    ];
+    const RISK1_AREAS = ['zona_perigo_1','risco1'];
+    const RISK2_AREAS = ['zona_perigo_2','risco2'];
+
+    const LEVEL_RULES = {
+        1: {
+            name: 'Nível 1',
+            description: 'Portaria e áreas comuns',
+            allowedAreas: COMMON_AREAS
         },
-        
-        'zona_perigo_2': {
-            name: 'Área de Soldas',
-            restricted: true,
-            authorizedRoles: [
-                'Soldador',
-                'Soldadora',
-                'Auxiliar de Solda',
-                'Engenheiro',
-                'Engenheira Civil',
-                'Engenheiro de Segurança',
-                'Técnico de Segurança',
-                'Supervisor'
-            ],
-            riskLevel: 'ALTO'
+        2: {
+            name: 'Nível 2',
+            description: 'Comuns + Área de Risco 1',
+            allowedAreas: [...COMMON_AREAS, ...RISK1_AREAS]
         },
-        
-        // Áreas Produtivas - Acesso Controlado
-        'area_construcao': {
-            name: 'Construção Principal',
-            restricted: false,
-            authorizedRoles: [
-                'Pedreiro',
-                'Servente',
-                'Armador',
-                'Carpinteiro',
-                'Encarregado',
-                'Engenheiro',
-                'Engenheira Civil',
-                'Mestre de Obras',
-                'Supervisor'
-            ],
-            riskLevel: 'MÉDIO'
-        },
-        
-        'oficina': {
-            name: 'Oficina Mecânica',
-            restricted: false,
-            authorizedRoles: [
-                'Mecânico',
-                'Eletricista',
-                'Técnico de Manutenção',
-                'Auxiliar de Manutenção',
-                'Engenheiro',
-                'Supervisor'
-            ],
-            riskLevel: 'MÉDIO'
-        },
-        
-        'betoneira': {
-            name: 'Central de Concreto',
-            restricted: false,
-            authorizedRoles: [
-                'Operador de Betoneira',
-                'Operador de Bomba',
-                'Motorista',
-                'Engenheiro',
-                'Técnico em Qualidade',
-                'Supervisor'
-            ],
-            riskLevel: 'MÉDIO'
-        },
-        
-        // Áreas Administrativas - Acesso Livre
-        'entrada': {
-            name: 'Portaria Principal',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'escritorio': {
-            name: 'Escritório de Obras',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'almoxarifado': {
-            name: 'Almoxarifado Geral',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'deposito': {
-            name: 'Depósito Material',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'estacionamento': {
-            name: 'Estacionamento',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        // Áreas Sociais - Acesso Livre
-        'refeitorio': {
-            name: 'Refeitório',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'enfermaria': {
-            name: 'Enfermaria',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'vestiario_masc': {
-            name: 'Vestiário Masculino',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'vestiario_fem': {
-            name: 'Vestiário Feminino',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'limpeza': {
-            name: 'Área de Limpeza',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'manutencao': {
-            name: 'Manutenção',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'guarita': {
-            name: 'Guarita Saída',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
-        },
-        
-        'laboratorio': {
-            name: 'Lab. Qualidade',
-            restricted: false,
-            authorizedRoles: ['Todos'],
-            riskLevel: 'BAIXO'
+        3: {
+            name: 'Nível 3',
+            description: 'Acesso total',
+            allowedAreas: ['*']
         }
     };
     
+  
+    
+    function hasLevelAccess(accessLevel = 1, areaId) {
+        if (!areaId) return false;
+        const rule = LEVEL_RULES[accessLevel] || LEVEL_RULES[1];
+        if (!rule) return false;
+        if (rule.allowedAreas.includes('*')) return true;
+        return rule.allowedAreas.includes(areaId);
+    }
+
+    function normalizePerson(input) {
+        if (typeof input === 'object' && input !== null) {
+            return {
+                role: input.role || '',
+                accessLevel: Number(input.accessLevel) || 1
+            };
+        }
+        return {
+            role: input || '',
+            accessLevel: 1
+        };
+    }
+
     // Armazenar alertas de acesso não autorizado
     let accessAlerts = [];
     
@@ -187,9 +60,10 @@ const AccessControlModel = (function() {
      * @param {string} areaId - ID da área
      * @returns {object} - {authorized: boolean, reason: string, riskLevel: string}
      */
-    function checkAccess(role, areaId) {
+    function checkAccess(personOrRole, areaId) {
+        const { role, accessLevel } = normalizePerson(personOrRole);
         const areaPermission = areaPermissions[areaId];
-        
+
         if (!areaPermission) {
             return {
                 authorized: true,
@@ -197,8 +71,17 @@ const AccessControlModel = (function() {
                 riskLevel: 'DESCONHECIDO'
             };
         }
+
+        if (hasLevelAccess(accessLevel, areaId)) {
+            return {
+                authorized: true,
+                reason: `${LEVEL_RULES[accessLevel]?.name || 'Nível 1'} autorizado`,
+                riskLevel: areaPermission.riskLevel,
+                areaName: areaPermission.name,
+                restricted: areaPermission.restricted
+            };
+        }
         
-        // Se a área permite "Todos", está autorizado
         if (areaPermission.authorizedRoles.includes('Todos')) {
             return {
                 authorized: true,
@@ -208,15 +91,14 @@ const AccessControlModel = (function() {
             };
         }
         
-        // Verificar se o cargo está na lista de autorizados
-        const isAuthorized = areaPermission.authorizedRoles.some(authorizedRole => 
+        const isAuthorizedByRole = areaPermission.authorizedRoles.some(authorizedRole => 
             role.toLowerCase().includes(authorizedRole.toLowerCase()) ||
             authorizedRole.toLowerCase().includes(role.toLowerCase())
         );
         
         return {
-            authorized: isAuthorized,
-            reason: isAuthorized 
+            authorized: isAuthorizedByRole,
+            reason: isAuthorizedByRole 
                 ? 'Colaborador autorizado para esta área'
                 : `Acesso não autorizado! Apenas: ${areaPermission.authorizedRoles.join(', ')}`,
             riskLevel: areaPermission.riskLevel,
