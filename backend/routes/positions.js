@@ -76,10 +76,10 @@ router.get('/:deviceId/history', async (req, res) => {
   }
 });
 
-// POST /api/positions - Atualizar posição de um dispositivo
+// POST /api/positions - Atualizar posição de um dispositivo (endpoint para ESP32)
 router.post('/', async (req, res) => {
   try {
-    const { deviceId, x, y } = req.body;
+    const { deviceId, x, y, areaId, areaName } = req.body;
     
     if (!deviceId || x === undefined || y === undefined) {
       return res.status(400).json({
@@ -88,17 +88,51 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Verificar se está em zona de risco
+    // Buscar pessoa associada ao dispositivo (Tag RFID)
+    const People = require('../models/People');
+    const person = await People.findOne({ deviceId: deviceId.toUpperCase() });
+    
+    // Verificar se está em zona de risco (verificação retangular)
     const zones = await Zone.find({ active: true });
     let inRiskZone = false;
-    let alertGenerated = false;
+    let currentZone = null;
     
     for (const zone of zones) {
-      if (zone.containsPoint(x, y)) {
-        inRiskZone = true;
-        alertGenerated = true; // Gerar alerta quando entrar em zona de risco
+      // Verificar se o ponto está dentro do retângulo da zona
+      if (x >= zone.x && x <= (zone.x + zone.width) &&
+          y >= zone.y && y <= (zone.y + zone.height)) {
+        currentZone = zone;
+        if (zone.isRiskZone && (zone.riskLevel === 'high' || zone.riskLevel === 'critical')) {
+          inRiskZone = true;
+        }
         break;
       }
+    }
+    
+    // Verificar controle de acesso se pessoa estiver cadastrada
+    let hasAccess = true;
+    let alertMessage = null;
+    let alertType = null;
+    
+    if (person && areaId) {
+      // Importar lógica de controle de acesso
+      const accessControl = require('../middleware/accessControl');
+      
+      // Verificar se tem autorização para a área
+      hasAccess = accessControl.checkAccess(person.role, areaId);
+      
+      if (!hasAccess && inRiskZone) {
+        alertType = 'UNAUTHORIZED_ACCESS';
+        alertMessage = `ACESSO NÃO AUTORIZADO: ${person.name} (${person.role}) em ${areaName || areaId}`;
+      } else if (inRiskZone && hasAccess) {
+        alertType = 'RISK_ZONE_AUTHORIZED';
+        alertMessage = `${person.name} entrou em zona de risco (autorizado)`;
+      }
+    } else if (!person) {
+      // Dispositivo não cadastrado
+      alertType = 'UNREGISTERED_DEVICE';
+      alertMessage = `Dispositivo não cadastrado: ${deviceId}`;
+      hasAccess = false;
     }
     
     // Criar nova posição
@@ -107,23 +141,49 @@ router.post('/', async (req, res) => {
       x,
       y,
       inRiskZone,
-      alertGenerated
+      alertGenerated: !hasAccess
     });
     
     await position.save();
     
+    // Log detalhado
+    console.log('\n📍 Nova posição recebida:');
+    console.log(`   Device: ${deviceId}`);
+    console.log(`   Pessoa: ${person ? person.name : 'Não cadastrado'}`);
+    console.log(`   Função: ${person ? person.role : 'N/A'}`);
+    console.log(`   Área: ${areaName || areaId || 'N/A'}`);
+    console.log(`   Posição: (${x.toFixed(4)}, ${y.toFixed(4)})`);
+    console.log(`   Zona de Risco: ${inRiskZone ? '⚠️ SIM' : '✅ NÃO'}`);
+    console.log(`   Autorizado: ${hasAccess ? '✅ SIM' : '🚫 NÃO'}`);
+    if (alertMessage) {
+      console.log(`   🚨 ALERTA: ${alertMessage}`);
+    }
+    
+    // Resposta para ESP32
     res.status(201).json({
       success: true,
-      message: 'Posição atualizada com sucesso',
-      data: position,
-      alert: inRiskZone ? {
-        type: 'risk_zone_entry',
-        message: `Dispositivo ${deviceId} entrou em zona de risco!`,
-        deviceId,
-        coordinates: { x, y }
-      } : null
+      message: 'Posição registrada com sucesso',
+      data: {
+        position,
+        person: person ? {
+          name: person.name,
+          role: person.role
+        } : null,
+        area: areaName || areaId,
+        authorized: hasAccess
+      },
+      alert: !hasAccess || alertType ? {
+        generated: true,
+        type: alertType,
+        message: alertMessage,
+        severity: !hasAccess && inRiskZone ? 'HIGH' : 'MEDIUM'
+      } : {
+        generated: false
+      },
+      alertMessage: alertMessage // Para compatibilidade com ESP32
     });
   } catch (error) {
+    console.error('❌ Erro ao processar posição:', error);
     res.status(400).json({
       success: false,
       message: 'Erro ao atualizar posição',
@@ -145,15 +205,19 @@ router.put('/:deviceId', async (req, res) => {
       });
     }
     
-    // Verificar se está em zona de risco
+    // Verificar se está em zona de risco (verificação retangular)
     const zones = await Zone.find({ active: true });
     let inRiskZone = false;
     let alertGenerated = false;
     
     for (const zone of zones) {
-      if (zone.containsPoint(x, y)) {
-        inRiskZone = true;
-        alertGenerated = true;
+      // Verificar se o ponto está dentro do retângulo da zona
+      if (x >= zone.x && x <= (zone.x + zone.width) &&
+          y >= zone.y && y <= (zone.y + zone.height)) {
+        if (zone.isRiskZone) {
+          inRiskZone = true;
+          alertGenerated = true;
+        }
         break;
       }
     }
