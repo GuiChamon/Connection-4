@@ -69,7 +69,7 @@ router.get('/device/:deviceId', async (req, res) => {
 // POST /api/people - Criar nova pessoa
 router.post('/', async (req, res) => {
   try {
-    const { name, role, deviceId } = req.body;
+    const { name, role, deviceId, accessLevel = 1 } = req.body;
     
     // Validar se deviceId já está em uso
     if (deviceId) {
@@ -85,7 +85,8 @@ router.post('/', async (req, res) => {
     const person = new People({
       name,
       role,
-      deviceId: deviceId || null
+      deviceId: deviceId || null,
+      accessLevel: [1, 2, 3].includes(Number(accessLevel)) ? Number(accessLevel) : 1
     });
     
     await person.save();
@@ -107,7 +108,7 @@ router.post('/', async (req, res) => {
 // PUT /api/people/:id - Atualizar pessoa
 router.put('/:id', async (req, res) => {
   try {
-    const { name, role, deviceId } = req.body;
+    const { name, role, deviceId, accessLevel } = req.body;
     
     // Verificar se pessoa existe
     const person = await People.findById(req.params.id);
@@ -133,6 +134,15 @@ router.put('/:id', async (req, res) => {
     person.name = name || person.name;
     person.role = role || person.role;
     person.deviceId = deviceId !== undefined ? deviceId : person.deviceId;
+    if (accessLevel !== undefined) {
+      if (![1, 2, 3].includes(Number(accessLevel))) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nível de acesso inválido. Use 1, 2 ou 3.'
+        });
+      }
+      person.accessLevel = Number(accessLevel);
+    }
     
     await person.save();
     
