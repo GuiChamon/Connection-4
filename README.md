@@ -87,13 +87,6 @@ cd c:\projetos\Connection-4
 python -m http.server 8000
 ```
 
-### Terminal 3:
-```powershell
-cd c:\projetos\Connection-4
-python simple_simulator.py
-```
-
----
 
 
 ---
