@@ -13,6 +13,14 @@ const peopleSchema = new mongoose.Schema({
     trim: true,
     maxlength: [50, 'Função não pode ter mais de 50 caracteres']
   },
+  accessLevel: {
+    type: Number,
+    enum: {
+      values: [1, 2, 3],
+      message: 'Nível de acesso deve ser 1, 2 ou 3'
+    },
+    default: 1
+  },
   deviceId: {
     type: String,
     default: null,
