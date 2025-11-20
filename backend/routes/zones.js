@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const Zone = require('../models/Zone');
 
+// Helper: normaliza coordenadas x/y para 2 casas decimais e limita entre 0 e 1
+function normalizeCoord(value) {
+  if (value === undefined || value === null) return value;
+  const n = Number(parseFloat(value));
+  if (Number.isNaN(n)) return 0;
+  // Limita entre 0 e 1
+  const clamped = Math.min(1, Math.max(0, n));
+  // Arredonda para 2 casas decimais
+  return Number(clamped.toFixed(2));
+}
+
 // GET /api/zones - Listar todas as zonas
 router.get('/', async (req, res) => {
   try {
@@ -46,11 +57,31 @@ router.get('/:id', async (req, res) => {
 // POST /api/zones - Criar nova zona
 router.post('/', async (req, res) => {
   try {
-    const { id, name, x, y, r, riskLevel } = req.body;
+    console.log('📥 POST /api/zones - Body recebido:', JSON.stringify(req.body, null, 2));
+    
+    let { id, name, x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, description } = req.body;
+    // normalizar coordenadas recebidas
+    x = normalizeCoord(x);
+    y = normalizeCoord(y);
+    
+    // Validar campos obrigatórios
+    if (!id || !name) {
+      console.log('❌ Validação falhou:', { id, name });
+      return res.status(400).json({
+        success: false,
+        message: 'ID e Nome são obrigatórios',
+        details: { 
+          id: !id ? 'ID ausente' : 'OK', 
+          name: !name ? 'Nome ausente' : 'OK',
+          receivedBody: req.body 
+        }
+      });
+    }
     
     // Verificar se ID já existe
     const existingZone = await Zone.findOne({ id });
     if (existingZone) {
+      console.log('❌ ID já existe:', id);
       return res.status(400).json({
         success: false,
         message: 'ID da zona já existe'
@@ -62,8 +93,14 @@ router.post('/', async (req, res) => {
       name,
       x,
       y,
-      r,
-      riskLevel: riskLevel || 'medium'
+      width: width || 0.10,
+      height: height || 0.10,
+      color: color || '#28a745',
+      icon: icon || '📍',
+      deviceId: deviceId || null,
+      isRiskZone: isRiskZone || false,
+      riskLevel: riskLevel || 'none',
+      description: description || ''
     });
     
     await zone.save();
@@ -85,7 +122,11 @@ router.post('/', async (req, res) => {
 // PUT /api/zones/:id - Atualizar zona
 router.put('/:id', async (req, res) => {
   try {
-    const { name, x, y, r, riskLevel, active } = req.body;
+    const { name } = req.body;
+    let { x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, active, description } = req.body;
+    // normalizar coordenadas quando atualizando
+    if (x !== undefined) x = normalizeCoord(x);
+    if (y !== undefined) y = normalizeCoord(y);
     
     const zone = await Zone.findOne({ id: req.params.id });
     if (!zone) {
@@ -99,9 +140,15 @@ router.put('/:id', async (req, res) => {
     if (name) zone.name = name;
     if (x !== undefined) zone.x = x;
     if (y !== undefined) zone.y = y;
-    if (r !== undefined) zone.r = r;
+    if (width !== undefined) zone.width = width;
+    if (height !== undefined) zone.height = height;
+    if (color) zone.color = color;
+    if (icon) zone.icon = icon;
+    if (deviceId !== undefined) zone.deviceId = deviceId;
+    if (isRiskZone !== undefined) zone.isRiskZone = isRiskZone;
     if (riskLevel) zone.riskLevel = riskLevel;
     if (active !== undefined) zone.active = active;
+    if (description !== undefined) zone.description = description;
     
     await zone.save();
     
@@ -114,6 +161,70 @@ router.put('/:id', async (req, res) => {
     res.status(400).json({
       success: false,
       message: 'Erro ao atualizar zona',
+      error: error.message
+    });
+  }
+});
+
+// PATCH /api/zones/:id/position - Atualizar apenas posição (para drag & drop)
+router.patch('/:id/position', async (req, res) => {
+  try {
+    let { x, y } = req.body;
+    // normalizar coordenadas da posição
+    x = normalizeCoord(x);
+    y = normalizeCoord(y);
+
+    const zone = await Zone.findOne({ id: req.params.id, active: true });
+    if (!zone) {
+      return res.status(404).json({
+        success: false,
+        message: 'Zona não encontrada'
+      });
+    }
+    
+    zone.x = x;
+    zone.y = y;
+    await zone.save();
+    
+    res.json({
+      success: true,
+      message: 'Posição atualizada',
+      data: { id: zone.id, x: zone.x, y: zone.y }
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Erro ao atualizar posição',
+      error: error.message
+    });
+  }
+});
+
+// POST /api/zones/:id/link-device - Vincular dispositivo à zona
+router.post('/:id/link-device', async (req, res) => {
+  try {
+    const { deviceId } = req.body;
+    
+    const zone = await Zone.findOne({ id: req.params.id, active: true });
+    if (!zone) {
+      return res.status(404).json({
+        success: false,
+        message: 'Zona não encontrada'
+      });
+    }
+    
+    zone.deviceId = deviceId;
+    await zone.save();
+    
+    res.json({
+      success: true,
+      message: 'Dispositivo vinculado com sucesso',
+      data: zone
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao vincular dispositivo',
       error: error.message
     });
   }
@@ -163,7 +274,9 @@ router.post('/check-point', async (req, res) => {
     const zonesContainingPoint = [];
     
     for (const zone of zones) {
-      if (zone.containsPoint(x, y)) {
+      // Verificar se ponto está dentro da área retangular
+      if (x >= zone.x && x <= (zone.x + zone.width) &&
+          y >= zone.y && y <= (zone.y + zone.height)) {
         zonesContainingPoint.push(zone);
       }
     }
@@ -171,7 +284,7 @@ router.post('/check-point', async (req, res) => {
     res.json({
       success: true,
       data: {
-        inRiskZone: zonesContainingPoint.length > 0,
+        inRiskZone: zonesContainingPoint.some(z => z.isRiskZone),
         zones: zonesContainingPoint,
         count: zonesContainingPoint.length
       }
@@ -180,6 +293,146 @@ router.post('/check-point', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao verificar ponto',
+      error: error.message
+    });
+  }
+});
+
+// POST /api/zones/activate-device - Marcar área como "em uso" pelo ESP8266
+router.post('/activate-device', async (req, res) => {
+  try {
+    const { deviceId } = req.body;
+    
+    console.log('\n🔄 ===== ATIVAÇÃO DE ÁREA =====');
+    console.log('Body recebido:', JSON.stringify(req.body));
+    console.log('Device ID:', deviceId);
+    
+    if (!deviceId) {
+      console.log('❌ deviceId ausente!');
+      return res.status(400).json({
+        success: false,
+        message: 'deviceId é obrigatório'
+      });
+    }
+
+    console.log(`🔍 Buscando zonas com deviceId vinculado...`);
+
+    // Buscar TODAS as zonas (não apenas as com deviceId)
+    const allZones = await Zone.find({});
+    console.log(`📦 Total de zonas no banco: ${allZones.length}`);
+    
+    // Filtrar zonas com deviceId vinculado
+    const deviceZones = allZones.filter(z => z.deviceId !== null && z.deviceId !== undefined);
+    console.log(`📡 Zonas com dispositivos: ${deviceZones.length}`);
+    deviceZones.forEach(z => {
+      console.log(`   - ${z.name} (${z.id}): deviceId="${z.deviceId}"`);
+    });
+    
+    // ✅ PRIMEIRO: Desativar dispositivos das outras áreas
+    const Device = require('../models/Device');
+    const otherDeviceIds = deviceZones
+      .filter(z => z.deviceId !== deviceId)
+      .map(z => z.deviceId);
+    
+    for (const otherDeviceId of otherDeviceIds) {
+      const otherDevice = await Device.findOne({ id: otherDeviceId.toUpperCase() });
+      if (otherDevice) {
+        otherDevice.active = false;
+        otherDevice.connectionStatus = 'offline';
+        await otherDevice.save();
+        console.log(`⚪ Dispositivo "${otherDeviceId}" marcado como OFFLINE`);
+      }
+    }
+    
+    let zoneAtivada = null;
+    let countAtivadas = 0;
+    let countDesativadas = 0;
+    
+    // Atualizar cada zona com deviceId
+    for (const zone of deviceZones) {
+      if (zone.deviceId === deviceId) {
+        zone.currentlyActive = true;
+        zone.lastConnection = new Date();
+        zone.connectionStatus = 'online';
+        zoneAtivada = zone;
+        countAtivadas++;
+        console.log(`✅ Área "${zone.name}" marcada como ATIVA`);
+      } else {
+        zone.currentlyActive = false;
+        // Não altera connectionStatus das outras (mantém como estava)
+        countDesativadas++;
+        console.log(`⚪ Área "${zone.name}" marcada como INATIVA`);
+      }
+      await zone.save();
+    }
+    
+    if (!zoneAtivada) {
+      console.log(`❌ Nenhuma zona encontrada com deviceId="${deviceId}"`);
+      return res.status(404).json({
+        success: false,
+        message: `Zona com deviceId "${deviceId}" não encontrada`,
+        hint: 'Verifique se a zona existe no banco e se o deviceId está correto'
+      });
+    }
+
+    // ✅ ATUALIZAR STATUS DO DISPOSITIVO NA TABELA DEVICES
+    let device = await Device.findOne({ id: deviceId.toUpperCase() });
+    
+    if (!device) {
+      // Criar dispositivo se não existe
+      device = new Device({
+        id: deviceId.toUpperCase(),
+        type: 'sensor',
+        active: true,
+        connectionStatus: 'online',
+        areaId: zoneAtivada.id
+      });
+      await device.save();
+      console.log(`✅ Dispositivo "${deviceId}" criado e marcado como ONLINE`);
+    } else {
+      device.active = true;
+      device.connectionStatus = 'online';
+      device.lastSeen = new Date();
+      device.areaId = zoneAtivada.id;
+      await device.save();
+      console.log(`✅ Dispositivo "${deviceId}" atualizado como ONLINE`);
+    }
+
+    console.log(`\n📊 Resumo:`);
+    console.log(`   Ativadas: ${countAtivadas}`);
+    console.log(`   Desativadas: ${countDesativadas}`);
+    console.log(`   Zona ativa: ${zoneAtivada.name}`);
+    console.log(`   Device status: ${device.connectionStatus}`);
+    console.log('==============================\n');
+
+    res.json({
+      success: true,
+      message: `Área "${zoneAtivada.name}" está agora ativa`,
+      data: {
+        activated: {
+          id: zoneAtivada.id,
+          name: zoneAtivada.name,
+          deviceId: zoneAtivada.deviceId,
+          currentlyActive: zoneAtivada.currentlyActive,
+          connectionStatus: zoneAtivada.connectionStatus,
+          lastConnection: zoneAtivada.lastConnection
+        },
+        device: {
+          id: device.id,
+          active: device.active,
+          connectionStatus: device.connectionStatus,
+          areaId: device.areaId
+        },
+        totalDeviceZones: deviceZones.length,
+        activatedCount: countAtivadas,
+        deactivatedCount: countDesativadas
+      }
+    });
+  } catch (error) {
+    console.error('❌ Erro ao ativar área:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao ativar área',
       error: error.message
     });
   }
