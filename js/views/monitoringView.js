@@ -3,6 +3,7 @@ const MonitoringView = (function(){
     const root = document.getElementById('view-root');
     let monitoringInterval = null; // Controla o intervalo de atualização de trabalhadores
     let mapRefreshInterval = null; // Controla o intervalo de atualização do mapa (áreas)
+    let editingEnabled = false; // Controla se as áreas podem ser movidas/redimensionadas
 
     function template(){
         return `
@@ -25,28 +26,39 @@ const MonitoringView = (function(){
                 <!-- Mapa Principal -->
                 <div class="col-lg-9">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <!-- Indicadores no header do mapa -->
-                            <div class="d-flex gap-3 text-white">
-                                <div class="text-center">
-                                    <div class="fw-bold" id="total-workers">0</div>
-                                    <small>Colaboradores</small>
+                        <div class="card-header map-header d-flex justify-content-between align-items-center">
+                            <div class="map-header-left d-flex align-items-center gap-3">
+                                <div class="map-title text-white">
+                                    <div class="h6 mb-0">Mapa do Canteiro</div>
+                                    <small class="text-white-50">Visão geral e controle das áreas</small>
                                 </div>
-                                <div class="text-center">
-                                    <div class="fw-bold" id="total-sensors">0</div>
-                                    <small>Sensores</small>
+                            </div>
+
+                            <div class="map-header-center d-flex align-items-center gap-2">
+                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
+                                    <div class="metric-value fw-bold" id="total-workers">0</div>
+                                    <div class="metric-label small">Colaboradores</div>
                                 </div>
-                                <div class="text-center">
-                                    <div class="fw-bold" id="total-devices">0</div>
-                                    <small>Total Ativos</small>
+                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
+                                    <div class="metric-value fw-bold" id="total-sensors">0</div>
+                                    <div class="metric-label small">Sensores</div>
                                 </div>
-                                <div class="text-center">
-                                    <div class="fw-bold" id="risk-alerts">0</div>
-                                    <small>Alertas</small>
+                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
+                                    <div class="metric-value fw-bold" id="total-devices">0</div>
+                                    <div class="metric-label small">Total Ativos</div>
                                 </div>
-                                <div class="text-center">
-                                    <button id="toggle-grid" class="btn btn-sm btn-outline-light" title="Mostrar/Esconder grade">Grade</button>
+                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded text-danger">
+                                    <div class="metric-value fw-bold" id="risk-alerts">0</div>
+                                    <div class="metric-label small">Alertas</div>
                                 </div>
+                            </div>
+
+                            <div class="map-header-right d-flex align-items-center gap-2">
+                                <div class="form-check form-switch text-white d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" id="toggle-edit-switch" aria-label="Edição do mapa">
+                                    <label class="form-check-label small ms-1 text-white" for="toggle-edit-switch" id="toggle-edit-label">Edição bloqueada</label>
+                                </div>
+                                <button id="toggle-grid" class="btn btn-sm btn-outline-light" title="Mostrar/Esconder grade">Grade</button>
                             </div>
                         </div>
                         <div class="card-body p-0">
@@ -134,11 +146,216 @@ const MonitoringView = (function(){
         `;
     }
 
+    function updateEditingToggleButton() {
+        const checkbox = document.getElementById('toggle-edit-switch');
+        const label = document.getElementById('toggle-edit-label');
+        if (!checkbox || !label) return;
+        checkbox.checked = editingEnabled;
+        label.textContent = editingEnabled ? 'Edição desbloqueada' : 'Edição bloqueada';
+        label.classList.toggle('text-success', editingEnabled);
+        label.classList.toggle('text-white', !editingEnabled);
+        checkbox.setAttribute('aria-checked', editingEnabled);
+    }
+
     async function renderMap(){
         const canvas = document.getElementById('map-canvas');
         if (!canvas) return;
         
+        const editSwitch = document.getElementById('toggle-edit-switch');
+        if (editSwitch) {
+            editSwitch.onchange = () => {
+                editingEnabled = !!editSwitch.checked;
+                updateEditingToggleButton();
+                renderMap();
+            };
+            updateEditingToggleButton();
+        }
+
+        canvas.classList.toggle('editing-enabled', editingEnabled);
+        canvas.classList.toggle('editing-disabled', !editingEnabled);
         canvas.innerHTML = '';
+
+        const MIN_AREA_SIZE = 0.05;
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+        const createResizeHandles = (areaEl, area) => {
+            if (!editingEnabled) return;
+            ['nw', 'ne', 'sw', 'se'].forEach(corner => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle resize-${corner}`;
+                handle.dataset.corner = corner;
+                handle.addEventListener('mousedown', event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!editingEnabled) return;
+                    areaEl.draggable = false;
+                    startResize(event, area, areaEl, corner);
+                });
+                areaEl.appendChild(handle);
+            });
+        };
+
+        const applyGeometryToElement = (el, geometry) => {
+            el.style.left = (geometry.x * 100) + '%';
+            el.style.top = (geometry.y * 100) + '%';
+            el.style.width = (geometry.w * 100) + '%';
+            el.style.height = (geometry.h * 100) + '%';
+        };
+
+        const computeNewGeometry = (initial, deltaX, deltaY, corner) => {
+            const right = initial.x + initial.w;
+            const bottom = initial.y + initial.h;
+            let newX = initial.x;
+            let newY = initial.y;
+            let newW = initial.w;
+            let newH = initial.h;
+
+            if (corner.includes('n')) {
+                newY = clamp(initial.y + deltaY, 0, bottom - MIN_AREA_SIZE);
+                newH = bottom - newY;
+            }
+
+            if (corner.includes('s')) {
+                newH = clamp(initial.h + deltaY, MIN_AREA_SIZE, 1 - initial.y);
+            }
+
+            if (corner.includes('w')) {
+                newX = clamp(initial.x + deltaX, 0, right - MIN_AREA_SIZE);
+                newW = right - newX;
+            }
+
+            if (corner.includes('e')) {
+                newW = clamp(initial.w + deltaX, MIN_AREA_SIZE, 1 - initial.x);
+            }
+
+            // Garantir que o retângulo permaneça dentro do canvas
+            newW = clamp(newW, MIN_AREA_SIZE, 1 - newX);
+            newH = clamp(newH, MIN_AREA_SIZE, 1 - newY);
+
+            return {
+                x: Number(newX),
+                y: Number(newY),
+                w: Number(newW),
+                h: Number(newH)
+            };
+        };
+
+        const persistAreaGeometry = async (areaId, geometry) => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('Token não encontrado');
+                }
+
+                const payload = {
+                    x: Number(geometry.x.toFixed(4)),
+                    y: Number(geometry.y.toFixed(4)),
+                    width: Number(geometry.w.toFixed(4)),
+                    height: Number(geometry.h.toFixed(4))
+                };
+
+                const response = await fetch(`http://localhost:3000/api/zones/${areaId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                console.log('💾 Dimensões da área atualizadas:', payload);
+                await AreasModel.refreshAreas();
+                await renderMap();
+            } catch (error) {
+                console.error('❌ Erro ao salvar dimensões da área:', error);
+            }
+        };
+
+        const startResize = (event, area, areaEl, corner) => {
+            if (!editingEnabled) return;
+            const rect = canvas.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const initial = { x: area.x, y: area.y, w: area.w, h: area.h };
+            let current = { ...initial };
+            const previousUserSelect = document.body.style.userSelect;
+            document.body.style.userSelect = 'none';
+            areaEl.classList.add('resizing');
+
+            const onMouseMove = moveEvent => {
+                moveEvent.preventDefault();
+                const deltaX = (moveEvent.clientX - startX) / rect.width;
+                const deltaY = (moveEvent.clientY - startY) / rect.height;
+                current = computeNewGeometry(initial, deltaX, deltaY, corner);
+                applyGeometryToElement(areaEl, current);
+            };
+
+            const onMouseUp = async () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                document.body.style.userSelect = previousUserSelect;
+                areaEl.classList.remove('resizing');
+                areaEl.draggable = true;
+                area.x = current.x;
+                area.y = current.y;
+                area.w = current.w;
+                area.h = current.h;
+                await persistAreaGeometry(area.id, current);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        };
+
+        const handleDrop = async (e) => {
+            if (!editingEnabled) return;
+            e.preventDefault();
+            const areaId = e.dataTransfer.getData('areaId');
+            if (!areaId) return;
+            const offsetX = parseFloat(e.dataTransfer.getData('offsetX')) || 0;
+            const offsetY = parseFloat(e.dataTransfer.getData('offsetY')) || 0;
+
+            const rect = canvas.getBoundingClientRect();
+            let newX = (e.clientX - rect.left - offsetX) / rect.width;
+            let newY = (e.clientY - rect.top - offsetY) / rect.height;
+
+            newX = Math.max(0, Math.min(1, newX));
+            newY = Math.max(0, Math.min(1, newY));
+
+            console.log(`🎯 Movendo área ${areaId} para (${newX.toFixed(2)}, ${newY.toFixed(2)})`);
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/api/zones/${areaId}/position`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ x: newX, y: newY })
+                });
+
+                if (response.ok) {
+                    console.log('✅ Posição salva no backend');
+                    await AreasModel.refreshAreas();
+                    await renderMap();
+                } else {
+                    console.error('❌ Erro ao salvar posição');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao atualizar posição:', error);
+            }
+        };
+
+        canvas.ondragover = (e) => {
+            if (!editingEnabled) return;
+            e.preventDefault();
+        };
+        canvas.ondrop = handleDrop;
         
         // Adicionar grid sobre a planta (estilo original)
         const grid = document.createElement('div');
@@ -171,16 +388,13 @@ const MonitoringView = (function(){
             const areaEl = document.createElement('div');
             areaEl.className = 'work-area position-absolute';
             areaEl.dataset.areaId = area.id;
-            areaEl.style.left = (area.x * 100) + '%';
-            areaEl.style.top = (area.y * 100) + '%';
-            areaEl.style.width = (area.w * 100) + '%';
-            areaEl.style.height = (area.h * 100) + '%';
+            applyGeometryToElement(areaEl, { x: area.x, y: area.y, w: area.w, h: area.h });
             areaEl.style.background = area.color + '20'; // Transparência
             areaEl.style.border = `2px solid ${area.color}`;
             areaEl.style.borderRadius = '8px';
             areaEl.style.zIndex = '1';
-            areaEl.style.cursor = 'move';
-            areaEl.draggable = true;
+            areaEl.style.cursor = editingEnabled ? 'move' : 'default';
+            areaEl.draggable = editingEnabled;
             
             // Label da área
             const label = document.createElement('div');
@@ -224,6 +438,10 @@ const MonitoringView = (function(){
             
             // DRAG & DROP IMPLEMENTATION
             areaEl.addEventListener('dragstart', function(e) {
+                if (!editingEnabled) {
+                    e.preventDefault();
+                    return;
+                }
                 const rect = canvas.getBoundingClientRect();
                 const offsetX = e.clientX - rect.left - (area.x * rect.width);
                 const offsetY = e.clientY - rect.top - (area.y * rect.height);
@@ -237,90 +455,12 @@ const MonitoringView = (function(){
                 areaEl.style.opacity = '1';
             });
             
+            if (editingEnabled) {
+                createResizeHandles(areaEl, area);
+            }
             canvas.appendChild(areaEl);
         }
         
-        // Permitir drop no canvas
-        canvas.addEventListener('dragover', function(e) {
-            e.preventDefault();
-        });
-        
-        canvas.addEventListener('drop', async function(e) {
-            e.preventDefault();
-            const areaId = e.dataTransfer.getData('areaId');
-            const offsetX = parseFloat(e.dataTransfer.getData('offsetX'));
-            const offsetY = parseFloat(e.dataTransfer.getData('offsetY'));
-            
-            const rect = canvas.getBoundingClientRect();
-            let newX = (e.clientX - rect.left - offsetX) / rect.width;
-            let newY = (e.clientY - rect.top - offsetY) / rect.height;
-            
-            // Limitar entre 0 e 1
-            newX = Math.max(0, Math.min(1, newX));
-            newY = Math.max(0, Math.min(1, newY));
-            
-            console.log(`🎯 Movendo área ${areaId} para (${newX.toFixed(2)}, ${newY.toFixed(2)})`);
-            
-            // Atualizar posição no backend
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/api/zones/${areaId}/position`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ x: newX, y: newY })
-                });
-                
-                if (response.ok) {
-                    console.log('✅ Posição salva no backend');
-                    await AreasModel.refreshAreas();
-                    await renderMap();  // Re-renderizar mapa
-                } else {
-                    console.error('❌ Erro ao salvar posição');
-                }
-            } catch (error) {
-                console.error('❌ Erro ao atualizar posição:', error);
-            }
-        });
-        
-        // Carregar zonas de perigo adicionais do MapModel - DESABILITADO
-        /* CÍRCULOS VERMELHOS REMOVIDOS A PEDIDO DO USUÁRIO
-        try {
-            const zones = await MapModel.loadZones();
-            
-            for (const zone of zones){
-                const el = document.createElement('div');
-                el.className = 'danger-zone position-absolute';
-                el.style.left = (zone.x * 100) + '%';
-                el.style.top = (zone.y * 100) + '%';
-                el.style.width = (zone.r * 2 * 100) + '%';
-                el.style.height = (zone.r * 2 * 100) + '%';
-                el.style.background = 'rgba(220, 53, 69, 0.2)';
-                el.style.border = '2px dashed #dc3545';
-                el.style.borderRadius = '50%';
-                el.style.zIndex = '2';
-                
-                const label = document.createElement('div');
-                label.className = 'position-absolute text-white fw-bold small';
-                label.style.left = '50%';
-                label.style.top = '50%';
-                label.style.transform = 'translate(-50%, -50%)';
-                label.style.background = 'rgba(220, 53, 69, 0.9)';
-                label.style.padding = '2px 8px';
-                label.style.borderRadius = '4px';
-                label.style.whiteSpace = 'nowrap';
-                label.textContent = zone.name;
-                
-                el.appendChild(label);
-                canvas.appendChild(el);
-            }
-        } catch (error) {
-            console.log('Usando zonas padrão do sistema...');
-        }
-        */
-
         // grid toggle: manter referência e estado
         const gridEl = canvas.querySelector('.map-grid');
         let gridVisible = true;
@@ -620,6 +760,8 @@ const MonitoringView = (function(){
 
             await renderSafetyAlerts(alertsCount);
             await renderAccessAlerts();
+
+            console.log(`[MonitoringView] Métricas -> colaboradores: ${workersCount}, sensores: ${sensorsCount}, alertas: ${alertsCount}`);
 
         } catch (error) {
             console.error('Erro ao renderizar workers:', error);
