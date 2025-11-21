@@ -35,10 +35,19 @@ npm install
 2) (Opcional) Normalizar UIDs no banco (faça backup antes)
 
 ```powershell
-# Defina MONGODB_URI se necessário
-$env:MONGODB_URI = 'mongodb://127.0.0.1:27017/connection4'
-npm run migrate:normalize-uids
-```
+## Conectar com MongoDB Compass (passo a passo)
+
+Se você quiser inspecionar o banco usando o MongoDB Compass, siga estes passos simples:
+
+1. Abra o **MongoDB Compass** no seu computador.
+2. Obtenha a string de conexão (URI) usada pelo projeto:
+	- Se estiver usando `.env`, abra `backend/.env` e copie o valor de `MONGODB_URI`.
+	- Exemplo local simples: `mongodb://127.0.0.1:27017/connection4`
+3. No Compass, cole a URI no campo "Paste your connection string (URI)" e clique em **Connect**.
+	- Se a sua URI usar autenticação (usuário/senha), inclua as credenciais na string ou use os campos de autenticação do Compass.
+	- Para clusters Atlas use a string `mongodb+srv://<user>:<pass>@cluster0.example.mongodb.net/myDB` (cole exatamente a string provida pelo Atlas).
+4. Após conectar, você verá a lista de bancos; selecione `connection4` (ou o nome indicado na sua URI) e então explore coleções como `people`, `zones`, `devices`, `positions` e `notifications`.
+
 
 3) Iniciar backend (modo desenvolvimento)
 
@@ -61,18 +70,9 @@ python -m http.server 8000
 ## URLs úteis
 - Backend API: `http://localhost:3000/api/`
 - Status da API: `http://localhost:3000/api/status`
-- Frontend (quando servido pelo backend): `http://localhost:3000/`
+- Frontend (quando servido pelo backend): `http://localhost:8000/`
 
-## Executando o simulador
 
-O simulador `simple_simulator.py` pode ser usado para movimentar dispositivos de teste no mapa. Antes de executar, verifique se o backend está rodando e a variável `MONGODB_URI` configurada.
-
-Exemplo (PowerShell):
-
-```powershell
-cd C:\projetos\Connection-4
-python simple_simulator.py
-```
 
 ## Observações e troubleshooting
 - Se `npm install` falhar com "Could not read package.json", verifique que você está dentro da pasta `backend`.
@@ -82,4 +82,15 @@ python simple_simulator.py
 
 ---
 
-Se quiser, eu posso também adicionar um script PowerShell `run-all.ps1` que automatiza os passos (instala, migra e inicia o backend). Deseja que eu crie esse script? 
+
+
+## Exportando dados do banco (backup / versionamento)
+
+Passos para exportar (PowerShell):
+
+```powershell
+cd C:\projetos\Connection-4\backend
+# defina a URI do Mongo se necessário
+$env:MONGODB_URI = 'mongodb://127.0.0.1:27017/connection4'
+npm run db:export
+```
