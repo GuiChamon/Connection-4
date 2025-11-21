@@ -83,7 +83,6 @@ python -m http.server 8000
 ---
 
 
-
 ## Exportando dados do banco (backup / versionamento)
 
 Passos para exportar (PowerShell):
