@@ -94,3 +94,21 @@ cd C:\projetos\Connection-4\backend
 $env:MONGODB_URI = 'mongodb://127.0.0.1:27017/connection4'
 npm run db:export
 ```
+
+## Importando as extrações (restaurando dados) — MongoDB Compass
+
+Após exportar os arquivos JSON (ex.: `people.json`, `zones.json`), você pode importá‑los em outra instância do MongoDB usando o MongoDB Compass ou `mongoimport`.
+
+Importar via MongoDB Compass (UI):
+
+1. Abra o **MongoDB Compass** e conecte-se ao servidor destino.
+2. Selecione o banco de dados de destino (por exemplo `connection4`). Se não existir, o Compass criará ao importar.
+3. Para cada arquivo exportado:
+	- Clique em **Add Data** → **Import File**.
+	- Em **File Type** selecione **JSON**.
+	- Em **File** selecione o arquivo (por exemplo `backend/exports/<timestamp>/people.json`).
+	- Marque **JSON Array** (o export gera um array de documentos).
+	- Em **Select collection** escolha (ou digite) o nome da coleção destino, por exemplo `people`.
+	- Clique em **Import**.
+4. Se quiser substituir uma coleção existente, clique nos três pontos ao lado da coleção no Compass e escolha **Drop Collection** antes de importar.
+
