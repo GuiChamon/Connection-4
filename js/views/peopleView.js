@@ -15,6 +15,11 @@ const PeopleView = (function(){
           <select id="person-device">
             <option value="">-- Sem dispositivo --</option>
           </select>
+          <select id="person-access-level">
+            <option value="1">Nível 1</option>
+            <option value="2">Nível 2</option>
+            <option value="3">Nível 3</option>
+          </select>
           <button id="btn-add-person" class="btn">Adicionar Pessoa</button>
         </div>
         <hr/>
@@ -52,20 +57,21 @@ const PeopleView = (function(){
       const info = document.createElement('div'); info.className='info';
       info.innerHTML = '<strong>'+p.name+'</strong><div class="small">'+p.role+'</div>';
       const right = document.createElement('div');
-      right.innerHTML = '<div class="small">Device: '+(p.deviceId||'--')+'</div><div style="margin-top:6px"><button data-id="'+p.id+'" class="btn btn-edit">Editar</button> <button data-id="'+p.id+'" class="btn btn-remove">Remover</button></div>';
+      right.innerHTML = '<div class="small">Device: '+(p.deviceId||'--')+' • Nível: '+(p.accessLevel||1)+'</div><div style="margin-top:6px"><button data-id="'+p.id+'" class="btn btn-edit">Editar</button> <button data-id="'+p.id+'" class="btn btn-remove">Remover</button></div>';
       div.appendChild(avatar); div.appendChild(info); div.appendChild(right);
       node.appendChild(div);
     }
   }
 
   function bind(){
-    document.getElementById('btn-add-person').addEventListener('click', ()=>{
+    document.getElementById('btn-add-person').addEventListener('click', async ()=>{
       const name = document.getElementById('person-name').value.trim();
       const role = document.getElementById('person-role').value.trim();
       const deviceId = document.getElementById('person-device').value || null;
+      const accessLevel = document.getElementById('person-access-level').value || '1';
       if (!name){ alert('Nome obrigatório'); return; }
-      PeopleController.add({name, role, deviceId});
-      document.getElementById('person-name').value=''; document.getElementById('person-role').value=''; document.getElementById('person-device').value='';
+      await PeopleController.add({name, role, deviceId, accessLevel});
+      document.getElementById('person-name').value=''; document.getElementById('person-role').value=''; document.getElementById('person-device').value=''; document.getElementById('person-access-level').value='1';
       render(); // re-render view
     });
 
@@ -78,7 +84,8 @@ const PeopleView = (function(){
         const people = PeopleModel.all(); const p = people.find(x=>x.id===id);
         const newName = prompt('Nome', p.name); if (!newName) return;
         const newRole = prompt('Função', p.role) || p.role;
-        PeopleController.update(id, {name:newName, role:newRole});
+        const newLevel = prompt('Nível de Acesso (1-3)', p.accessLevel||1) || p.accessLevel || 1;
+        PeopleController.update(id, {name:newName, role:newRole, accessLevel: Number(newLevel)});
         render();
       }
     });
