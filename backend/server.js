@@ -19,6 +19,8 @@ const { authenticate, authorize, optionalAuth } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const path = require('path');
+
 // Conectar ao MongoDB
 connectDB();
 
@@ -50,6 +52,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.path} - ${new Date().toISOString()}`);
   next();
+});
+
+// Servir frontend estático (arquivos em ../ i.e., raiz do workspace)
+app.use(express.static(path.join(__dirname, '..')));
+
+// Fallback para Single Page App: servir index.html para rotas que não começam com /api
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 // Rotas da API
