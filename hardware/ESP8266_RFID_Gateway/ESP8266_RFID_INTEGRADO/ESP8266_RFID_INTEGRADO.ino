@@ -93,6 +93,9 @@ const unsigned int RISK_DISTANCE_CM = 100;
 // Estados para modos especiais
 bool changeLevelModeActive = false;
 unsigned long changeLevelModeStarted = 0;
+// Último nível conhecido da pessoa lida (1..3)
+int lastPersonAccessLevel = 1;
+int lastZoneRequiredLevel = 1;
 
 // ========== FUNÇÕES LED ==========
 void ledSuccess() {
@@ -340,39 +343,69 @@ bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& pers
 bool logCardLevelChangeRequest(const String& cardUid, const String& personName) {
   if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
 
+  // Tentar alterar diretamente via endpoint /api/people/change-level
   HTTPClient http;
-  http.begin(wifiClient, String(SERVER_URL) + "/api/notifications");
+  http.begin(wifiClient, String(SERVER_URL) + "/api/people/change-level");
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
 
-  StaticJsonDocument<512> doc;
-  doc["type"] = "INFO";
-  doc["severity"] = "LOW";
-  doc["title"] = "Solicitação de alteração de nível";
-  doc["message"] = String("Cartão ") + cardUid + " (" + personName + ") solicitou alteração de nível na área " + getCurrentAreaName();
-  doc["deviceId"] = getCurrentAreaId();
-  doc["areaId"] = getCurrentAreaId();
-  doc["areaName"] = getCurrentAreaName();
-  doc["workerName"] = personName;
-
-  JsonObject metadata = doc.createNestedObject("metadata");
-  metadata["cardUid"] = cardUid;
-  metadata["requestedBy"] = personName;
-  metadata["area"] = getCurrentAreaName();
+  StaticJsonDocument<256> doc;
+  doc["cardUid"] = cardUid;
+  // Calcular próximo nível (1->2->3->1)
+  int nextLevel = 2;
+  if (lastPersonAccessLevel >= 1 && lastPersonAccessLevel <= 3) {
+    nextLevel = (lastPersonAccessLevel % 3) + 1;
+  }
+  doc["requestedLevel"] = nextLevel;
 
   String payload;
   serializeJson(doc, payload);
+  Serial.println("📤 Enviando change-level: " + payload);
   int httpCode = http.POST(payload);
-  if (httpCode == 201 || httpCode == 200) {
+
+  if (httpCode == 200 || httpCode == 201) {
+    Serial.println("✅ Nível alterado via API para nível " + String(nextLevel));
     http.end();
     return true;
   }
 
-  if (httpCode > 0) {
-    Serial.println("❌ Falha ao registrar solicitação de nível: " + String(httpCode));
-    Serial.println("📥 " + http.getString());
-  }
+  // Fallback: se alteração direta falhar, registrar apenas uma notificação como antes
+  Serial.println("⚠️ Falha change-level (HTTP " + String(httpCode) + "). Tentando log de notificação...");
   http.end();
+
+  HTTPClient http2;
+  http2.begin(wifiClient, String(SERVER_URL) + "/api/notifications");
+  http2.addHeader("Content-Type", "application/json");
+  http2.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  StaticJsonDocument<512> doc2;
+  doc2["type"] = "INFO";
+  doc2["severity"] = "LOW";
+  doc2["title"] = "Solicitação de alteração de nível";
+  doc2["message"] = String("Cartão ") + cardUid + " (" + personName + ") solicitou alteração de nível na área " + getCurrentAreaName();
+  doc2["deviceId"] = getCurrentAreaId();
+  doc2["areaId"] = getCurrentAreaId();
+  doc2["areaName"] = getCurrentAreaName();
+  doc2["workerName"] = personName;
+
+  JsonObject metadata = doc2.createNestedObject("metadata");
+  metadata["cardUid"] = cardUid;
+  metadata["requestedBy"] = personName;
+  metadata["area"] = getCurrentAreaName();
+
+  String payload2;
+  serializeJson(doc2, payload2);
+  int httpCode2 = http2.POST(payload2);
+  if (httpCode2 == 201 || httpCode2 == 200) {
+    http2.end();
+    return true;
+  }
+
+  if (httpCode2 > 0) {
+    Serial.println("❌ Falha ao registrar solicitação de nível: " + String(httpCode2));
+    Serial.println("📥 " + http2.getString());
+  }
+  http2.end();
   return false;
 }
 
@@ -397,22 +430,40 @@ String getPersonByDevice(String deviceId) {
   HTTPClient http;
   http.begin(wifiClient, String(SERVER_URL) + "/api/people/device/" + deviceId);
   http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
-  
   int httpCode = http.GET();
-  
+
   if (httpCode == 200) {
     String response = http.getString();
-    
+
     StaticJsonDocument<512> doc;
-    deserializeJson(doc, response);
-    
+    DeserializationError err = deserializeJson(doc, response);
+    if (err) {
+      Serial.println("❌ Erro ao parsear JSON person: " + String(err.c_str()));
+      http.end();
+      return "";
+    }
+
     if (doc["success"] == true) {
       String name = doc["data"]["name"].as<String>();
+      // Ler accessLevel quando disponível
+      if (doc["data"]["accessLevel"].is<int>()) {
+        lastPersonAccessLevel = doc["data"]["accessLevel"].as<int>();
+      } else {
+        lastPersonAccessLevel = 1;
+      }
+
+      // Ler info de zona (fornecida quando a requisição vem do device)
+      if (doc.containsKey("zone") && doc["zone"]["requiredLevel"].is<int>()) {
+        lastZoneRequiredLevel = doc["zone"]["requiredLevel"].as<int>();
+      } else {
+        lastZoneRequiredLevel = 1;
+      }
+
       http.end();
       return name;
     }
   }
-  
+
   http.end();
   return "";
 }
@@ -454,13 +505,10 @@ void validateCard(byte *uid) {
   if (personName != "") {
     Serial.println("✅ ACESSO PERMITIDO: " + personName);
     
-    // Enviar posição para backend com flag de risco
-    sendPosition(uidStr, finalRisk, finalRisk);
-    
-    // Registrar notificação se risco detectado por sensor
-    if (finalRisk && sensorRisk) {
-      logRiskZoneEntry(uidStr, measuredDistance, personName);
-    }
+    // Decidir localmente se deve marcar alertGenerated com base no accessLevel vs requiredLevel
+    bool allowedInZone = (lastPersonAccessLevel >= lastZoneRequiredLevel);
+    bool shouldAlert = finalRisk && !allowedInZone;
+    sendPosition(uidStr, finalRisk, shouldAlert);
     
     // Armazenar último cartão válido
     copyUID(lastCardUID, uid);
@@ -788,8 +836,9 @@ void loop() {
         Serial.println("   Cartão válido: SIM  UID: " + lastCardUIDStr + "  Nome: " + lastPersonName);
         Serial.println("   Enviando posição e registrando notificação de risco.");
 
-        sendPosition(lastCardUIDStr, true, true);
-        logRiskZoneEntry(lastCardUIDStr, distance, lastPersonName);
+        // Enviar posição para backend; marcar alert se a pessoa não tiver nível suficiente
+        bool allowed = (lastPersonAccessLevel >= lastZoneRequiredLevel);
+        sendPosition(lastCardUIDStr, true, (true && !allowed));
       } else {
         Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas nenhum cartão válido presente.");
         Serial.println("   Distância: " + String(distance) + " cm");
