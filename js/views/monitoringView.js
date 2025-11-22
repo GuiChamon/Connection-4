@@ -101,13 +101,7 @@ const MonitoringView = (function(){
                             <div id="safety-alerts" class="alerts-list"></div>
                         </div>
 
-                        <!-- Alertas de Controle de Acesso -->
-                        <div class="mb-3">
-                            <h6 class="text-warning mb-2 small">
-                                <i class="bi bi-shield-exclamation me-1"></i>Controle de Acesso
-                            </h6>
-                            <div id="access-alerts" class="alerts-list" style="max-height: 150px; overflow-y: auto;"></div>
-                        </div>
+                  
 
                         <!-- Controles -->
                         <div class="mb-2">
