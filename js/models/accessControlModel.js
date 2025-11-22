@@ -28,7 +28,73 @@ const AccessControlModel = (function() {
         }
     };
     
-  
+    const baseAreaPermissions = {
+        zona_perigo_1: {
+            name: 'Área de Guindastes',
+            riskLevel: 'ALTO',
+            restricted: true,
+            allowedRoles: [
+                'Operador de Guindaste','Operadora de Guindaste','Guincheiro','Operador de Torre',
+                'Engenheiro','Engenheira Civil','Engenheiro de Segurança','Técnico de Segurança',
+                'Supervisor','Supervisora'
+            ]
+        },
+        zona_perigo_2: {
+            name: 'Área de Soldas',
+            riskLevel: 'ALTO',
+            restricted: true,
+            allowedRoles: [
+                'Soldador','Soldadora','Auxiliar de Solda','Engenheiro','Engenheira Civil',
+                'Engenheiro de Segurança','Técnico de Segurança','Supervisor','Supervisora'
+            ]
+        },
+        area_construcao: {
+            name: 'Construção Principal',
+            riskLevel: 'MÉDIO',
+            restricted: false,
+            allowedRoles: [
+                'Pedreiro','Servente','Armador','Armadora','Carpinteiro','Carpinteira','Encarregado','Encarregada',
+                'Engenheiro','Engenheira Civil','Mestre de Obras','Supervisor','Supervisora','Técnico de Segurança'
+            ]
+        },
+        oficina: {
+            name: 'Oficina Mecânica',
+            riskLevel: 'MÉDIO',
+            restricted: false,
+            allowedRoles: [
+                'Mecânico','Mecânica','Eletricista','Técnico de Manutenção','Técnica de Manutenção',
+                'Auxiliar de Manutenção','Engenheiro','Engenheira Civil','Supervisor','Supervisora'
+            ]
+        },
+        betoneira: {
+            name: 'Central de Concreto',
+            riskLevel: 'MÉDIO',
+            restricted: false,
+            allowedRoles: [
+                'Operador de Betoneira','Operadora de Betoneira','Operador de Bomba','Operadora de Bomba','Motorista',
+                'Engenheiro','Engenheira Civil','Técnico em Qualidade','Técnica em Qualidade','Supervisor','Supervisora'
+            ]
+        },
+        entrada: { name: 'Portaria Principal', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        escritorio: { name: 'Escritório de Obras', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        almoxarifado: { name: 'Almoxarifado Geral', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        estacionamento: { name: 'Estacionamento', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        deposito: { name: 'Depósito Material', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        refeitorio: { name: 'Refeitório', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        enfermaria: { name: 'Enfermaria', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        laboratorio: { name: 'Laboratório de Qualidade', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        vestiario_masc: { name: 'Vestiário Masculino', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        vestiario_fem: { name: 'Vestiário Feminino', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        limpeza: { name: 'Área de Limpeza', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        manutencao: { name: 'Manutenção', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' },
+        guarita: { name: 'Guarita Saída', riskLevel: 'BAIXO', restricted: false, allowedRoles: '*' }
+    };
+
+    const areaPermissions = {
+        ...baseAreaPermissions,
+        risco1: { ...baseAreaPermissions['zona_perigo_1'], name: 'Área de Risco 1' },
+        risco2: { ...baseAreaPermissions['zona_perigo_2'], name: 'Área de Risco 2' }
+    };
     
     function hasLevelAccess(accessLevel = 1, areaId) {
         if (!areaId) return false;
@@ -82,7 +148,7 @@ const AccessControlModel = (function() {
             };
         }
         
-        if (areaPermission.authorizedRoles.includes('Todos')) {
+        if (areaPermission.allowedRoles === '*' || (Array.isArray(areaPermission.allowedRoles) && areaPermission.allowedRoles.includes('*'))) {
             return {
                 authorized: true,
                 reason: 'Área de acesso livre',
@@ -91,16 +157,16 @@ const AccessControlModel = (function() {
             };
         }
         
-        const isAuthorizedByRole = areaPermission.authorizedRoles.some(authorizedRole => 
-            role.toLowerCase().includes(authorizedRole.toLowerCase()) ||
-            authorizedRole.toLowerCase().includes(role.toLowerCase())
+        const isAuthorizedByRole = Array.isArray(areaPermission.allowedRoles) && areaPermission.allowedRoles.some(allowedRole => 
+            role.toLowerCase().includes(allowedRole.toLowerCase()) ||
+            allowedRole.toLowerCase().includes(role.toLowerCase())
         );
         
         return {
             authorized: isAuthorizedByRole,
             reason: isAuthorizedByRole 
                 ? 'Colaborador autorizado para esta área'
-                : `Acesso não autorizado! Apenas: ${areaPermission.authorizedRoles.join(', ')}`,
+                : `Acesso não autorizado! Apenas: ${Array.isArray(areaPermission.allowedRoles) ? areaPermission.allowedRoles.join(', ') : 'perfis específicos'}`,
             riskLevel: areaPermission.riskLevel,
             areaName: areaPermission.name,
             restricted: areaPermission.restricted
