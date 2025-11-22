@@ -2,6 +2,53 @@ const express = require('express');
 const router = express.Router();
 const Zone = require('../models/Zone');
 
+function clamp01(value) {
+  if (value === null || value === undefined) return value;
+  return Math.min(1, Math.max(0, Number(value)));
+}
+
+function escapeRegex(str = '') {
+  return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+function parseNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function computeZoneCenter(zone) {
+  if (!zone) return { x: 0.5, y: 0.5 };
+  const fallbackX = Number(zone.x || 0) + Number(zone.width || 0) / 2;
+  const fallbackY = Number(zone.y || 0) + Number(zone.height || 0) / 2;
+  const centerX = zone.centerX !== null && zone.centerX !== undefined ? zone.centerX : fallbackX;
+  const centerY = zone.centerY !== null && zone.centerY !== undefined ? zone.centerY : fallbackY;
+  return {
+    x: Number(clamp01(centerX).toFixed(4)),
+    y: Number(clamp01(centerY).toFixed(4))
+  };
+}
+
+function buildZoneResponse(zoneDoc) {
+  if (!zoneDoc) return null;
+  const zone = zoneDoc.toObject ? zoneDoc.toObject() : zoneDoc;
+  const center = computeZoneCenter(zone);
+  const sensorConfig = {
+    orientationDeg: zone.orientationDeg ?? 0,
+    offset: {
+      x: Number(zone.sensorOffsetX || 0),
+      y: Number(zone.sensorOffsetY || 0)
+    },
+    scaleCmPerUnit: zone.scaleCmPerUnit || 100,
+    measurementUnit: zone.measurementUnit || 'normalized'
+  };
+
+  return {
+    ...zone,
+    computedCenter: center,
+    sensorConfig
+  };
+}
+
 // Helper: normaliza coordenadas x/y para 2 casas decimais e limita entre 0 e 1
 function normalizeCoord(value) {
   if (value === undefined || value === null) return value;
@@ -17,15 +64,51 @@ function normalizeCoord(value) {
 router.get('/', async (req, res) => {
   try {
     const zones = await Zone.find({ active: true }).sort({ createdAt: -1 });
+    const formatted = zones.map(buildZoneResponse);
     res.json({
       success: true,
-      data: zones,
-      count: zones.length
+      data: formatted,
+      count: formatted.length
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Erro ao buscar zonas',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/zones/device/:deviceId - Buscar zona associada a um device
+router.get('/device/:deviceId', async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+    if (!deviceId) {
+      return res.status(400).json({
+        success: false,
+        message: 'deviceId é obrigatório'
+      });
+    }
+
+    const normalizedDeviceId = deviceId.trim();
+    const zone = await Zone.findOne({
+      deviceId: { $regex: new RegExp(`^${escapeRegex(normalizedDeviceId)}$`, 'i') }
+    });
+    if (!zone) {
+      return res.status(404).json({
+        success: false,
+        message: `Nenhuma zona vinculada ao deviceId ${deviceId}`
+      });
+    }
+
+    res.json({
+      success: true,
+      data: buildZoneResponse(zone)
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar zona pelo deviceId',
       error: error.message
     });
   }
@@ -43,7 +126,7 @@ router.get('/:id', async (req, res) => {
     }
     res.json({
       success: true,
-      data: zone
+      data: buildZoneResponse(zone)
     });
   } catch (error) {
     res.status(500).json({
@@ -59,10 +142,20 @@ router.post('/', async (req, res) => {
   try {
     console.log('📥 POST /api/zones - Body recebido:', JSON.stringify(req.body, null, 2));
     
-    let { id, name, x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, description } = req.body;
+    let { id, name, x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, description,
+      centerX, centerY, orientationDeg, sensorOffsetX, sensorOffsetY, sensorOffset, scaleCmPerUnit, measurementUnit } = req.body;
     // normalizar coordenadas recebidas
     x = normalizeCoord(x);
     y = normalizeCoord(y);
+    const parsedCenterX = centerX !== undefined ? normalizeCoord(centerX) : null;
+    const parsedCenterY = centerY !== undefined ? normalizeCoord(centerY) : null;
+    const parsedSensorOffsetX = sensorOffset && sensorOffset.x !== undefined ? parseNumber(sensorOffset.x, 0) : parseNumber(sensorOffsetX, 0);
+    const parsedSensorOffsetY = sensorOffset && sensorOffset.y !== undefined ? parseNumber(sensorOffset.y, 0) : parseNumber(sensorOffsetY, 0);
+    const parsedOrientation = parseNumber(orientationDeg, 0);
+    const parsedScale = parseNumber(scaleCmPerUnit, 100);
+    const parsedMeasurementUnit = measurementUnit && ['normalized', 'meters'].includes(String(measurementUnit).toLowerCase())
+      ? String(measurementUnit).toLowerCase()
+      : 'normalized';
     
     // Validar campos obrigatórios
     if (!id || !name) {
@@ -100,7 +193,14 @@ router.post('/', async (req, res) => {
       deviceId: deviceId || null,
       isRiskZone: isRiskZone || false,
       riskLevel: riskLevel || 'none',
-      description: description || ''
+      description: description || '',
+      centerX: parsedCenterX,
+      centerY: parsedCenterY,
+      orientationDeg: parsedOrientation,
+      sensorOffsetX: parsedSensorOffsetX,
+      sensorOffsetY: parsedSensorOffsetY,
+      scaleCmPerUnit: parsedScale || 100,
+      measurementUnit: parsedMeasurementUnit
     });
     
     await zone.save();
@@ -108,7 +208,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Zona criada com sucesso',
-      data: zone
+      data: buildZoneResponse(zone)
     });
   } catch (error) {
     res.status(400).json({
@@ -123,10 +223,20 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { name } = req.body;
-    let { x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, active, description } = req.body;
+    let { x, y, width, height, color, icon, deviceId, isRiskZone, riskLevel, active, description,
+      centerX, centerY, orientationDeg, sensorOffsetX, sensorOffsetY, sensorOffset, scaleCmPerUnit, measurementUnit } = req.body;
     // normalizar coordenadas quando atualizando
     if (x !== undefined) x = normalizeCoord(x);
     if (y !== undefined) y = normalizeCoord(y);
+    const parsedCenterX = centerX === null ? null : (centerX !== undefined ? normalizeCoord(centerX) : undefined);
+    const parsedCenterY = centerY === null ? null : (centerY !== undefined ? normalizeCoord(centerY) : undefined);
+    const parsedSensorOffsetX = sensorOffset && sensorOffset.x !== undefined ? parseNumber(sensorOffset.x, 0) : (sensorOffsetX !== undefined ? parseNumber(sensorOffsetX, 0) : undefined);
+    const parsedSensorOffsetY = sensorOffset && sensorOffset.y !== undefined ? parseNumber(sensorOffset.y, 0) : (sensorOffsetY !== undefined ? parseNumber(sensorOffsetY, 0) : undefined);
+    const parsedOrientation = orientationDeg !== undefined ? parseNumber(orientationDeg, 0) : undefined;
+    const parsedScale = scaleCmPerUnit !== undefined ? parseNumber(scaleCmPerUnit, 100) : undefined;
+    const parsedMeasurementUnit = measurementUnit && ['normalized', 'meters'].includes(String(measurementUnit).toLowerCase())
+      ? String(measurementUnit).toLowerCase()
+      : undefined;
     
     const zone = await Zone.findOne({ id: req.params.id });
     if (!zone) {
@@ -149,13 +259,20 @@ router.put('/:id', async (req, res) => {
     if (riskLevel) zone.riskLevel = riskLevel;
     if (active !== undefined) zone.active = active;
     if (description !== undefined) zone.description = description;
+    if (parsedCenterX !== undefined) zone.centerX = parsedCenterX;
+    if (parsedCenterY !== undefined) zone.centerY = parsedCenterY;
+    if (parsedOrientation !== undefined) zone.orientationDeg = parsedOrientation;
+    if (parsedSensorOffsetX !== undefined) zone.sensorOffsetX = parsedSensorOffsetX;
+    if (parsedSensorOffsetY !== undefined) zone.sensorOffsetY = parsedSensorOffsetY;
+    if (parsedScale !== undefined) zone.scaleCmPerUnit = parsedScale;
+    if (parsedMeasurementUnit !== undefined) zone.measurementUnit = parsedMeasurementUnit;
     
     await zone.save();
     
     res.json({
       success: true,
       message: 'Zona atualizada com sucesso',
-      data: zone
+      data: buildZoneResponse(zone)
     });
   } catch (error) {
     res.status(400).json({
