@@ -5,6 +5,11 @@ const MonitoringView = (function(){
     let mapRefreshInterval = null; // Controla o intervalo de atualização do mapa (áreas)
     let editingEnabled = false; // Controla se as áreas podem ser movidas/redimensionadas
 
+    const normalizeDeviceId = (value) => {
+        if (!value) return '';
+        return value.toString().trim().toUpperCase();
+    };
+
     function template(){
         return `
         <div class="col-12">
@@ -592,12 +597,14 @@ const MonitoringView = (function(){
 
             // 1. Renderizar dispositivos vinculados a pessoas (workers)
             for (const person of people) {
-                if (!person.deviceId) continue;
+                const deviceKey = normalizeDeviceId(person.deviceId);
+                if (!deviceKey) continue;
 
-                const device = devices.find(d => d.id === person.deviceId);
-                if (!device || !device.active) continue;
+                const device = devices.find(d => d.id === deviceKey);
+                const deviceIsActive = device ? device.active : true;
+                if (!deviceIsActive) continue;
 
-                const position = positions[person.deviceId];
+                const position = positions[deviceKey];
                 if (!position) continue;
 
                 workersCount++;
@@ -615,8 +622,9 @@ const MonitoringView = (function(){
                 // Verificar proximidade com sensores fixos
                 const sensorPositions = {};
                 devices.filter(d => d.type === 'sensor' && d.active).forEach(s => {
-                    if (positions[s.id]) {
-                        sensorPositions[s.id] = positions[s.id];
+                    const sensorId = normalizeDeviceId(s.id);
+                    if (positions[sensorId]) {
+                        sensorPositions[sensorId] = positions[sensorId];
                     }
                 });
                 const nearbySensors = findNearbySensors(position, sensorPositions);
@@ -661,7 +669,8 @@ const MonitoringView = (function(){
                 const accessText = unauthorizedAccess ? `\n⚠️ ${accessAuth.alert.reason}` : '';
                 const sensorInfo = detectedBySensor ? `\nDetectado por: ${nearbySensors[0].id} (${(nearbySensors[0].distance * 100).toFixed(1)}m)` : '';
                 
-                worker.title = `${person.name} - ${person.role}\nDispositivo: ${device.id}\nStatus: ${statusText}${areaText}${accessText}${sensorInfo}`;
+                const deviceLabel = device ? device.id : deviceKey;
+                worker.title = `${person.name} - ${person.role}\nDispositivo: ${deviceLabel}\nStatus: ${statusText}${areaText}${accessText}${sensorInfo}`;
                 canvas.appendChild(worker);
 
                 // Adicionar na lista lateral
@@ -684,7 +693,7 @@ const MonitoringView = (function(){
                         <div>
                             <div class="fw-bold small">${person.name} ${detectedBySensor ? '<i class="bi bi-broadcast text-purple"></i>' : ''}</div>
                             <div class="text-muted small">${person.role}</div>
-                            <div class="text-muted small">ID: ${device.id}</div>
+                            <div class="text-muted small">ID: ${deviceLabel}</div>
                             ${accessAuth.areaInfo ? `<div class="text-muted small">📍 ${accessAuth.areaInfo.name}</div>` : ''}
                             ${detectedBySensor ? `<div class="text-muted small">📡 Sensor: ${nearbySensors[0].id}</div>` : ''}
                             ${unauthorizedAccess ? `<div class="text-danger small fw-bold">⚠️ Acesso não autorizado!</div>` : ''}
@@ -696,13 +705,16 @@ const MonitoringView = (function(){
             }
 
             // 2. Renderizar sensores independentes (não vinculados a pessoas)
-            const linkedDeviceIds = people.map(p => p.deviceId).filter(Boolean);
+            const linkedDeviceIds = people
+                .map(p => normalizeDeviceId(p.deviceId))
+                .filter(Boolean);
             
             for (const device of devices) {
                 // Só renderizar sensores ativos que não estão vinculados a pessoas
-                if (device.type !== 'sensor' || !device.active || linkedDeviceIds.includes(device.id)) continue;
+                const deviceId = normalizeDeviceId(device.id);
+                if (device.type !== 'sensor' || !device.active || linkedDeviceIds.includes(deviceId)) continue;
 
-                const position = positions[device.id];
+                const position = positions[deviceId];
                 if (!position) continue;
 
                 sensorsCount++;
