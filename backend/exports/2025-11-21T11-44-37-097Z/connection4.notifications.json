@@ -1,0 +1,3987 @@
+[{
+  "_id": {
+    "$oid": "692103417203f3e6f1b03b10"
+  },
+  "type": "INFO",
+  "severity": "LOW",
+  "title": "Solicitação de alteração de nível",
+  "message": "Cartão 02 5C B4 2D (jair inacio) solicitou alteração de nível na área Area de Risco 1",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "requestedBy": "jair inacio",
+    "area": "Area de Risco 1"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:26:41.404Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:26:41.404Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921036a7203f3e6f1b03bcf"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:27:22.878Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:27:22.878Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921078aae7d728f353f06d8"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 23cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 23,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:44:58.115Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:44:58.115Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921086eae7d728f353f0aa3"
+  },
+  "type": "INFO",
+  "severity": "LOW",
+  "title": "Solicitação de alteração de nível",
+  "message": "Cartão 02 5C B4 2D (jair inacio) solicitou alteração de nível na área Area de Risco 1",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "requestedBy": "jair inacio",
+    "area": "Area de Risco 1"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:48:46.305Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:48:46.305Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692108b1ae7d728f353f0bd5"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 16cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 16,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:49:53.806Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:49:53.806Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210951ae7d728f353f0e8e"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 79cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 79,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:52:33.551Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:52:33.551Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a259cc9e5756a427758"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:05.992Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:05.992Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a279cc9e5756a427760"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:07.802Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:07.802Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a349cc9e5756a4277be"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:20.706Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:20.706Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a3b9cc9e5756a4277d9"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:27.029Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:27.029Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a3b9cc9e5756a4277db"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:27.112Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:27.112Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a3e9cc9e5756a4277f1"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:30.200Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:30.200Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a3e9cc9e5756a4277f3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:30.305Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:30.305Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a489cc9e5756a427822"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 64cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 64,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:40.807Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:40.807Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a489cc9e5756a427824"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 64cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 64,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:40.917Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:40.917Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a529cc9e5756a427851"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 66cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 66,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:50.225Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:50.225Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a529cc9e5756a427857"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 66cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 66,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:50.464Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:50.464Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a589cc9e5756a427874"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 20cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 20,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:56.466Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:56.466Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a589cc9e5756a427876"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 20cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 20,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:56:56.499Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:56:56.499Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a619cc9e5756a4278a3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 20cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 20,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:05.787Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:05.787Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a629cc9e5756a4278a5"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 20cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 20,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:06.040Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:06.040Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a649cc9e5756a4278af"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 19cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 19,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:08.626Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:08.626Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a649cc9e5756a4278b1"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 19cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 19,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:08.834Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:08.834Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a679cc9e5756a4278c7"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 19cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 19,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:11.375Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:11.375Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a679cc9e5756a4278c9"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 19cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 19,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:11.975Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:11.975Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a6c9cc9e5756a4278d8"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 18cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 18,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:16.678Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:16.678Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a6c9cc9e5756a4278da"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 18cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 18,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:16.707Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:16.707Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a779cc9e5756a42790d"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 82cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 82,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:27.108Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:27.108Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a779cc9e5756a42790f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 82cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 82,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:27.145Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:27.145Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a8d9cc9e5756a42796b"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 64cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 64,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:49.238Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:49.238Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210a8d9cc9e5756a42796d"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 64cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 64,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T00:57:49.278Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T00:57:49.278Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210b5d9cc9e5756a427b6e"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 85cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 85,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:01:17.490Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:01:17.490Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210b5f9cc9e5756a427b78"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 6cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 6,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:01:19.056Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:01:19.056Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210b6c9cc9e5756a427bd2"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 96cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 96,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:01:32.150Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:01:32.150Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210cbc9cc9e5756a427f8b"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:07:08.466Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:07:08.466Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210cbe9cc9e5756a427f95"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:07:10.016Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:07:10.016Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210cf99cc9e5756a428095"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:08:09.572Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:08:09.572Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210cfb9cc9e5756a4280af"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 15cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 15,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:08:11.766Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:08:11.766Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210d279cc9e5756a42819c"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:08:55.458Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:08:55.458Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210d289cc9e5756a4281a4"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 7cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 7,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:08:56.974Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:08:56.974Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210e909cc9e5756a42854c"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:14:56.248Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:14:56.248Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210e929cc9e5756a42855b"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 13cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 13,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:14:58.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:14:58.449Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210eaf9cc9e5756a4285e1"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 12cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 12,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:15:27.944Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:15:27.944Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210eca9cc9e5756a42865c"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 67cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 67,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:15:54.316Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:15:54.316Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210ef39cc9e5756a428722"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:35.607Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:35.607Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210ef39cc9e5756a428724"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:35.644Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:35.644Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210ef59cc9e5756a428733"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 15cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 15,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:37.586Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:37.586Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210ef69cc9e5756a42873f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 14cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 14,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:38.041Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:38.041Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210ef89cc9e5756a428751"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 16cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 16,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:40.737Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:40.737Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210f099cc9e5756a4287c8"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 93cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 93,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:16:57.627Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:16:57.627Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69210f1e9cc9e5756a428823"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 71cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 71,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:17:18.404Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:17:18.404Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692110049cc9e5756a4289f7"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 5cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 5,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:21:08.031Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:21:08.031Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921100e9cc9e5756a428a03"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 5cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 5,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:21:18.455Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:21:18.455Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692110899cc9e5756a428b17"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 6cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 6,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:23:21.338Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:23:21.338Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921108a9cc9e5756a428b21"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 6cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 6,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:23:22.968Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:23:22.968Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692110bb9cc9e5756a428c1a"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:24:11.974Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:24:11.974Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692110bd9cc9e5756a428c22"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 6cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 6,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:24:13.809Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:24:13.809Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692112dc9cc9e5756a428ff2"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 81cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 81,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:33:16.355Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:33:16.355Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692112dd9cc9e5756a429006"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 72cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "position": {
+    "x": 0.08,
+    "y": 0.1
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 72,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:33:17.901Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:33:17.901Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692112f29cc9e5756a42907f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:33:38.862Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:33:38.862Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921130a9cc9e5756a4290ff"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:44.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 44491,
+    "formattedDuration": "0:44",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:34:02.413Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:34:02.413Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113319cc9e5756a4291ac"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:34:41.520Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:34:41.520Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113339cc9e5756a4291c5"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:34:43.257Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:34:43.257Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113409cc9e5756a429215"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 78cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 78,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:34:56.628Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:34:56.628Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113569cc9e5756a429290"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:34.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 34814,
+    "formattedDuration": "0:34",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:35:18.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:35:18.086Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113689cc9e5756a4292f3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 12cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 12,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:35:36.516Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:35:36.516Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921136b9cc9e5756a42930a"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:35:39.208Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:35:39.208Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692113809cc9e5756a429379"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:21.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 21497,
+    "formattedDuration": "0:21",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T01:36:00.710Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T01:36:00.710Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e5d2f1038b52905820f2"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 75cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 75,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:33:22.986Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:33:22.986Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e5dcf1038b529058211e"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 75cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 75,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:33:32.564Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:33:32.564Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e5e3f1038b5290582139"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:10.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 10374,
+    "formattedDuration": "0:10",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:33:39.438Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:33:39.438Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e608f1038b52905821db"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:16.949Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:16.949Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e618f1038b529058221f"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:08.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 8979,
+    "formattedDuration": "0:08",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:32.997Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:32.997Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e61bf1038b5290582228"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 78cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 78,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:35.305Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:35.305Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e624f1038b5290582251"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 78cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 78,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:44.997Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:44.997Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e62af1038b5290582269"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:07.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 7867,
+    "formattedDuration": "0:07",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:50.410Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:50.410Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e62af1038b529058226c"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 74cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 74,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:50.595Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:50.595Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e62af1038b5290582274"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 74cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 74,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:50.748Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:50.748Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e62cf1038b5290582281"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 75cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 75,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:52.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:52.815Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e62ef1038b5290582296"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 85cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 85,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:54.763Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:54.763Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e630f1038b52905822a6"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 92cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 92,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:34:56.719Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:34:56.719Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e648f1038b529058232f"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:29.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 29785,
+    "formattedDuration": "0:29",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:35:20.536Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:35:20.536Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e660f1038b5290582397"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:35:44.185Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:35:44.185Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e667f1038b52905823ae"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:35:51.472Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:35:51.472Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e677f1038b5290582407"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:17.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 17379,
+    "formattedDuration": "0:17",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:36:07.781Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:36:07.781Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e698f1038b52905824bd"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:36:40.122Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:36:40.122Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e698f1038b52905824c5"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:36:40.205Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:36:40.205Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e6b0f1038b529058254d"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:24.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 24197,
+    "formattedDuration": "0:24",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:37:04.469Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:37:04.469Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e6baf1038b529058257f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:37:14.367Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:37:14.367Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e6bbf1038b5290582587"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:37:15.322Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:37:15.322Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e6d8f1038b5290582612"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:26.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 26699,
+    "formattedDuration": "0:26",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:37:44.283Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:37:44.283Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e70df1038b5290582700"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:38:37.754Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:38:37.754Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e70df1038b5290582708"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:38:37.831Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:38:37.831Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e717f1038b5290582749"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:38:47.584Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:38:47.584Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e71cf1038b529058276f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:38:52.236Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:38:52.236Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e720f1038b5290582790"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:38:56.462Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:38:56.462Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e737f1038b529058281f"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:42.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 42143,
+    "formattedDuration": "0:42",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:39:19.978Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:39:19.978Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e780f1038b529058299b"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:40:32.080Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:40:32.080Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e780f1038b52905829a3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 11cm (<=1m).",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 11,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:40:32.159Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:40:32.159Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e795f1038b5290582a16"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:20.",
+  "workerName": "jair inacio",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 20978,
+    "formattedDuration": "0:20",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:40:53.145Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:40:53.145Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e820f1038b5290582c9b"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:43:12.686Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:43:12.686Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e821f1038b5290582ca3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:43:13.008Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:43:13.008Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e831f1038b5290582d01"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:17.",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 17038,
+    "formattedDuration": "0:17",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:43:29.971Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:43:29.971Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e89bf1038b5290582ed5"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 10cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 10,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:45:15.051Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:45:15.051Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921ea7fb43271961fde5038"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 7cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 7,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:19.497Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:19.497Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921ea80b43271961fde5046"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 7cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 7,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:20.656Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:20.656Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921ea95b43271961fde50c3"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:21.",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "entrada",
+  "areaId": "entrada",
+  "areaName": "Portaria Principal",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 21275,
+    "formattedDuration": "0:21",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:41.756Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:41.756Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eaa0b43271961fde50fa"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 8cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 8,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:52.778Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:52.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eaa0b43271961fde5102"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 8cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 8,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:52.934Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:52.934Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eaa3b43271961fde511d"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 8cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 8,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:55.309Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:55.309Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eaa5b43271961fde512c"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 8cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 8,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:53:57.315Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:53:57.315Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eab8b43271961fde51a3"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:23.",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 23887,
+    "formattedDuration": "0:23",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:54:16.788Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:54:16.788Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eabcb43271961fde51b7"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 7cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 7,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:54:20.005Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:54:20.005Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eabcb43271961fde51c3"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 7cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 7,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:54:20.077Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:54:20.077Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921ead1b43271961fde527a"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 0:21.",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 21353,
+    "formattedDuration": "0:21",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:54:41.442Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:54:41.442Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eb31b43271961fde5537"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:56:17.638Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:56:17.638Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eb31b43271961fde553f"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco1",
+  "areaId": "risco1",
+  "areaName": "Area de Risco 1",
+  "position": {
+    "x": 0.5,
+    "y": 0.3
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:56:17.705Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:56:17.705Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eb3fb43271961fde559d"
+  },
+  "type": "RISK_ZONE_ENTRY",
+  "severity": "HIGH",
+  "title": "Entrada em zona de risco",
+  "message": "Cartão 02 5C B4 2D detectado a 9cm (<=1m).",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "position": {
+    "x": 0.8,
+    "y": 0.7
+  },
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "distanceCm": 9,
+    "sensor": "HC-SR04"
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:56:31.443Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:56:31.443Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921eb73b43271961fde5703"
+  },
+  "type": "INFO",
+  "severity": "MEDIUM",
+  "title": "Saída de zona de risco",
+  "message": "Cartão 02 5C B4 2D deixou a zona de risco por 1:05.",
+  "workerName": "teste",
+  "workerRole": null,
+  "deviceId": "risco2",
+  "areaId": "risco2",
+  "areaName": "Area de Risco 2",
+  "metadata": {
+    "cardUid": "02 5C B4 2D",
+    "durationMs": 65716,
+    "formattedDuration": "1:05",
+    "sessionEnded": true
+  },
+  "read": false,
+  "resolved": false,
+  "resolvedAt": null,
+  "resolvedBy": null,
+  "createdAt": {
+    "$date": "2025-11-22T16:57:23.430Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:57:23.430Z"
+  },
+  "__v": 0
+}]
