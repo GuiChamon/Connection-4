@@ -52,6 +52,48 @@ const zoneSchema = new mongoose.Schema({
     default: '📍',
     trim: true
   },
+  // Centro da área (opcional). Se não informado, será calculado via x + width/2.
+  centerX: {
+    type: Number,
+    min: [0, 'centerX deve ser entre 0 e 1'],
+    max: [1, 'centerX deve ser entre 0 e 1'],
+    default: null
+  },
+  centerY: {
+    type: Number,
+    min: [0, 'centerY deve ser entre 0 e 1'],
+    max: [1, 'centerY deve ser entre 0 e 1'],
+    default: null
+  },
+  orientationDeg: {
+    type: Number,
+    default: 0,
+    min: [-360, 'orientationDeg deve ser >= -360°'],
+    max: [360, 'orientationDeg deve ser <= 360°'],
+    description: 'Ângulo (graus) indicando a direção para onde o sensor aponta (0° = eixo X positivo)'
+  },
+  sensorOffsetX: {
+    type: Number,
+    default: 0,
+    description: 'Deslocamento do sensor em X relativo ao centro da área (mesma unidade do mapa)'
+  },
+  sensorOffsetY: {
+    type: Number,
+    default: 0,
+    description: 'Deslocamento do sensor em Y relativo ao centro da área (mesma unidade do mapa)'
+  },
+  scaleCmPerUnit: {
+    type: Number,
+    default: 100,
+    min: [1, 'scaleCmPerUnit deve ser >= 1'],
+    description: 'Quantos centímetros equivalem a uma unidade do mapa (0-1)'
+  },
+  measurementUnit: {
+    type: String,
+    enum: ['normalized', 'meters'],
+    default: 'normalized',
+    description: 'Indica se as coordenadas x/y/w/h estão normalizadas (0-1) ou em metros'
+  },
   // Vinculação com dispositivo ESP8266
   deviceId: {
     type: String,
