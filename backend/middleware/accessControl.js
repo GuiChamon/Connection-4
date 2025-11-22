@@ -32,7 +32,7 @@ const LEVEL_RULES = {
 };
 
 // Mapeamento de permissões por área
-const areaPermissions = {
+const baseAreaPermissions = {
   // ZONAS DE ALTO RISCO - Acesso Restrito
   'zona_perigo_1': {
     name: 'Área de Guindastes',
@@ -219,6 +219,19 @@ const areaPermissions = {
     riskLevel: 'BAIXO',
     restricted: false,
     allowedRoles: '*'
+  }
+};
+
+// Adicionar aliases para IDs utilizados pelo hardware/frontend
+const areaPermissions = {
+  ...baseAreaPermissions,
+  risco1: {
+    ...baseAreaPermissions['zona_perigo_1'],
+    name: 'Área de Risco 1'
+  },
+  risco2: {
+    ...baseAreaPermissions['zona_perigo_2'],
+    name: 'Área de Risco 2'
   }
 };
 
