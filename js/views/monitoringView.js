@@ -617,7 +617,7 @@ const MonitoringView = (function(){
                 const inDangerZone = checkIfInRiskArea(position);
                 
                 // Contabilizar alertas (zona de perigo OU acesso não autorizado)
-                if (inDangerZone || unauthorizedAccess) alertsCount++;
+                if (unauthorizedAccess) alertsCount++;
 
                 // Verificar proximidade com sensores fixos
                 const sensorPositions = {};
@@ -661,9 +661,11 @@ const MonitoringView = (function(){
                 `;
                 
                 // Tooltip melhorado com informação de acesso
-                let statusText = inDangerZone ? 'EM RISCO' : 'SEGURO';
+                let statusText = 'SEGURO';
                 if (unauthorizedAccess) {
                     statusText = '🚫 ACESSO NÃO AUTORIZADO';
+                } else if (inDangerZone) {
+                    statusText = '⚠️ RISCO (Autorizado)';
                 }
                 const areaText = accessAuth.areaInfo ? `\nÁrea: ${accessAuth.areaInfo.name}` : '';
                 const accessText = unauthorizedAccess ? `\n⚠️ ${accessAuth.alert.reason}` : '';
@@ -683,7 +685,7 @@ const MonitoringView = (function(){
                 if (unauthorizedAccess) {
                     badgeContent = '<span class="badge bg-warning text-dark small">🚫 SEM ACESSO</span>';
                 } else if (inDangerZone) {
-                    badgeContent = '<span class="badge bg-danger small">⚠️ RISCO</span>';
+                    badgeContent = '<span class="badge bg-info text-dark small">⚠️ RISCO (Autorizado)</span>';
                 } else {
                     badgeContent = '<span class="badge bg-success small">✅ OK</span>';
                 }
@@ -697,6 +699,7 @@ const MonitoringView = (function(){
                             ${accessAuth.areaInfo ? `<div class="text-muted small">📍 ${accessAuth.areaInfo.name}</div>` : ''}
                             ${detectedBySensor ? `<div class="text-muted small">📡 Sensor: ${nearbySensors[0].id}</div>` : ''}
                             ${unauthorizedAccess ? `<div class="text-danger small fw-bold">⚠️ Acesso não autorizado!</div>` : ''}
+                            ${!unauthorizedAccess && inDangerZone ? `<div class="text-info small">ℹ️ Operação autorizada em área de risco</div>` : ''}
                         </div>
                         ${badgeContent}
                     </div>
@@ -834,14 +837,14 @@ const MonitoringView = (function(){
             alertsContainer.innerHTML = `
                 <div class="alert alert-success alert-sm">
                     <i class="bi bi-check-circle me-2"></i>
-                    Todos os colaboradores em área segura
+                    Nenhum acesso não autorizado detectado
                 </div>
             `;
         } else {
             alertsContainer.innerHTML = `
                 <div class="alert alert-danger alert-sm">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>${alertsCount} colaborador(es) em zona de risco!</strong>
+                    <strong>${alertsCount} colaborador(es) em área restrita sem autorização!</strong>
                     <br><small>Verifique a localização no mapa</small>
                 </div>
             `;
