@@ -83,6 +83,7 @@ String lastPersonName = "";
 long lastDistanceReading = -1;
 unsigned long lastCardValidationTime = 0;
 const unsigned long CARD_VALIDITY_WINDOW = 15000; // 15 segundos
+bool lastCardAuthorized = false;
 
 // Controle de presença por ultrassom (consolidação de alertas)
 bool riskPresenceActive = false;
@@ -91,6 +92,7 @@ unsigned long riskPresenceLastSeen = 0;
 unsigned long riskPresenceLastSummary = 0;
 String riskPresenceCardUid = "";
 String riskPresencePersonName = "";
+bool riskPresenceUnauthorized = false;
 const unsigned long RISK_PRESENCE_CLEAR_DELAY = 7000; // 7s sem detecção encerra sessão
 const unsigned long RISK_PRESENCE_SUMMARY_INTERVAL = 60000; // 60s entre notificações
 
@@ -117,6 +119,7 @@ const unsigned long ULTRASONIC_ACTIVE_WINDOW = 15000; // 15 segundos
 String ultrasonicSessionUid = "";
 String ultrasonicSessionPersonName = "";
 unsigned long ultrasonicSessionExpires = 0;
+bool ultrasonicSessionUnauthorized = false;
 
 // ========== FUNÇÕES LED ==========
 void ledAccessGranted() {
@@ -432,8 +435,9 @@ bool logRiskZonePresenceSummary(const String& cardUid, unsigned long durationMs,
   String durationLabel = formatDuration(durationMs);
 
   StaticJsonDocument<512> doc;
-  doc["type"] = sessionEnded ? "RISK_ZONE_EXIT" : "RISK_ZONE_UPDATE";
-  doc["severity"] = sessionEnded ? "MEDIUM" : "INFO";
+  // O modelo Notification valida 'type' dentro do enum. Usar 'INFO' para updates/saídas.
+  doc["type"] = "INFO";
+  doc["severity"] = sessionEnded ? "MEDIUM" : "LOW";
   doc["title"] = sessionEnded ? "Saída de zona de risco" : "Permanência em zona de risco";
   doc["message"] = String("Cartão ") + cardUid + (sessionEnded ? " deixou a zona de risco" : " permanece em zona de risco") +
                     String(" por ") + durationLabel + ".";
@@ -470,17 +474,20 @@ void closeRiskPresenceSession(bool forceNow) {
   if (!forceNow && inactiveTime < RISK_PRESENCE_CLEAR_DELAY) return;
 
   unsigned long duration = millis() - riskPresenceStart;
-  logRiskZonePresenceSummary(riskPresenceCardUid, duration, riskPresencePersonName, true);
+  if (riskPresenceUnauthorized) {
+    logRiskZonePresenceSummary(riskPresenceCardUid, duration, riskPresencePersonName, true);
+  }
 
   riskPresenceActive = false;
   riskPresenceCardUid = "";
   riskPresencePersonName = "";
+  riskPresenceUnauthorized = false;
   riskPresenceStart = 0;
   riskPresenceLastSeen = 0;
   riskPresenceLastSummary = 0;
 }
 
-void registerRiskPresenceDetection(long distanceCm) {
+void registerRiskPresenceDetection(long distanceCm, bool unauthorized) {
   riskPresenceLastSeen = millis();
   if (!riskPresenceActive || riskPresenceCardUid != lastCardUIDStr) {
     if (riskPresenceActive && riskPresenceCardUid != lastCardUIDStr) {
@@ -492,11 +499,14 @@ void registerRiskPresenceDetection(long distanceCm) {
     riskPresenceLastSummary = millis();
     riskPresenceCardUid = lastCardUIDStr;
     riskPresencePersonName = lastPersonName;
-    logRiskZoneEntry(lastCardUIDStr, distanceCm, lastPersonName);
+    riskPresenceUnauthorized = unauthorized;
+    if (riskPresenceUnauthorized) {
+      logRiskZoneEntry(lastCardUIDStr, distanceCm, lastPersonName);
+    }
     return;
   }
 
-  if (millis() - riskPresenceLastSummary >= RISK_PRESENCE_SUMMARY_INTERVAL) {
+  if (riskPresenceUnauthorized && millis() - riskPresenceLastSummary >= RISK_PRESENCE_SUMMARY_INTERVAL) {
     unsigned long duration = millis() - riskPresenceStart;
     logRiskZonePresenceSummary(riskPresenceCardUid, duration, riskPresencePersonName, false);
     riskPresenceLastSummary = millis();
@@ -733,11 +743,11 @@ void validateCard(byte *uid) {
       return;
     }
 
-    // Tentar atualizar diretamente o nível no backend para o nível exigido pela área
-    int required = getCurrentAreaRequiredAccessLevel();
-    Serial.println("🔁 Tentando atualizar nível para: " + String(required));
-    if (personId.length() > 0 && updatePersonAccessLevel(personId, required)) {
-      Serial.println("✅ Nível atualizado com sucesso no backend");
+    // Decidir novo nível baseado no nível atual: ciclar 1->2->3->1
+    int newLevel = (personAccessLevel % 3) + 1;
+    Serial.println("🔁 Nível atual: " + String(personAccessLevel) + " -> Tentando mudar para: " + String(newLevel));
+    if (personId.length() > 0 && updatePersonAccessLevel(personId, newLevel)) {
+      Serial.println("✅ Nível atualizado com sucesso no backend para: " + String(newLevel));
       ledAccessGranted();
     } else {
       Serial.println("⚠️ Não foi possível atualizar diretamente. Enviando solicitação de alteração para revisão.");
@@ -763,20 +773,31 @@ void validateCard(byte *uid) {
         ultrasonicSessionUid = uidStr;
         ultrasonicSessionPersonName = personName;
         ultrasonicSessionExpires = millis() + ULTRASONIC_ACTIVE_WINDOW;
+        ultrasonicSessionUnauthorized = true;
 
         // Manter UID local temporariamente para correlação do ultrassom
         lastCardUIDStr = uidStr;
         lastPersonName = personName;
+        lastCardAuthorized = false;
 
         // Registrar notificação de risco não autorizado
         logRiskZoneEntry(uidStr, measuredDistance, personName);
 
+        // Enviar posição mesmo sem autorização para atualizar mapa/dashboard
+        sendPosition(uidStr, true, true);
+
         // Iniciar sessão de presença por ultrassom imediatamente
-        registerRiskPresenceDetection(measuredDistance);
+        registerRiskPresenceDetection(measuredDistance, true);
+
+        lastCardValid = false;
+        lastCardValidationTime = 0;
+        ledAccessDenied();
+        return;
       }
-      // marcar como inválido para leituras RFID normais, mas manter UID até expirar a sessão
+      // Sem risco detectado: apenas negar acesso
       lastCardValid = false;
       lastCardValidationTime = 0;
+      lastCardAuthorized = false;
       ledAccessDenied();
       closeRiskPresenceSession(true);
       return;
@@ -787,17 +808,14 @@ void validateCard(byte *uid) {
     // Enviar posição para backend com flag de risco
     sendPosition(uidStr, finalRisk, finalRisk);
     
-    // Registrar notificação se risco detectado por sensor
-    if (finalRisk && sensorRisk) {
-      logRiskZoneEntry(uidStr, measuredDistance, personName);
-    }
-    
     // Armazenar último cartão válido
     copyUID(lastCardUID, uid);
     lastCardValid = true;
     lastCardUIDStr = uidStr;
     lastPersonName = personName;
     lastCardValidationTime = millis();
+    lastCardAuthorized = true;
+    ultrasonicSessionUnauthorized = false;
     
     ledAccessGranted();
   } else {
@@ -806,6 +824,7 @@ void validateCard(byte *uid) {
     lastCardUIDStr = "";
     lastPersonName = "";
     lastCardValidationTime = 0;
+    lastCardAuthorized = false;
     ledAccessDenied();
     closeRiskPresenceSession(true);
   }
@@ -1140,10 +1159,12 @@ void loop() {
     if (lastCardUIDStr.length() > 0 && lastCardUIDStr == ultrasonicSessionUid && !lastCardValid) {
       lastCardUIDStr = "";
       lastPersonName = "";
+      lastCardAuthorized = false;
     }
     ultrasonicSessionUid = "";
     ultrasonicSessionPersonName = "";
     ultrasonicSessionExpires = 0;
+    ultrasonicSessionUnauthorized = false;
   }
 
   long distance = readDistance();
@@ -1154,24 +1175,36 @@ void loop() {
   // Se o ultrassom detectar presença dentro do limite de risco, logamos no Serial
   if (isWithinRiskDistance(distance)) {
     if (millis() - lastUltrasonicCheck > ULTRASONIC_DEBOUNCE) {
+      bool recentCard = hasRecentValidCard();
       bool sessionActive = (ultrasonicSessionExpires > 0 && millis() <= ultrasonicSessionExpires && ultrasonicSessionUid.length() > 0);
 
-      if (sessionActive) {
-        String uidToUse = ultrasonicSessionUid;
-        String nameToUse = ultrasonicSessionPersonName;
-        Serial.println("👋 Presença detectada (janela ultrassônica ativa) para UID: " + uidToUse);
+      if ((recentCard && lastCardUIDStr.length() > 0) || sessionActive) {
+        // Escolher UID/nome a usar (priorizar sessão ultrassônica)
+        String uidToUse = sessionActive ? ultrasonicSessionUid : lastCardUIDStr;
+        String nameToUse = sessionActive ? ultrasonicSessionPersonName : lastPersonName;
+        bool unauthorized = sessionActive ? ultrasonicSessionUnauthorized : !lastCardAuthorized;
+
+        if (sessionActive) {
+          Serial.println("👋 Presença detectada (janela ultrassônica ativa) para UID: " + uidToUse);
+        } else {
+          Serial.println("👋 Presença detectada pelo ultrassom (<=1m). Verificando cartão na área...");
+        }
+
         Serial.println("   Distância: " + String(distance) + " cm");
         Serial.println("   Cartão associado: UID: " + uidToUse + "  Nome: " + nameToUse);
         Serial.println("   Enviando posição e registrando notificação de risco.");
 
-        // Ajustar temporariamente variáveis globais usadas por outras funções
+        // Garantir que os métodos que usam variáveis globais funcionem: ajustar temporariamente
         lastCardUIDStr = uidToUse;
         lastPersonName = nameToUse;
 
         sendPosition(uidToUse, true, true);
-        registerRiskPresenceDetection(distance);
+        registerRiskPresenceDetection(distance, unauthorized);
       } else {
-        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas JANELA ULTRASSÔNICA inativa. Ignorando.");
+        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas sem sessão/UID ativo.");
+        if (lastCardValid && !recentCard) {
+          Serial.println("   O último cartão foi validado há mais de " + String(CARD_VALIDITY_WINDOW / 1000) + "s. Ignorando leitura antiga.");
+        }
         Serial.println("   Distância: " + String(distance) + " cm");
         closeRiskPresenceSession(false);
       }
