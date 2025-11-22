@@ -7,6 +7,16 @@ const positionSchema = new mongoose.Schema({
     trim: true,
     uppercase: true
   },
+  areaId: {
+    type: String,
+    default: null,
+    trim: true
+  },
+  areaName: {
+    type: String,
+    default: null,
+    trim: true
+  },
   x: {
     type: Number,
     required: [true, 'Coordenada X é obrigatória'],
@@ -18,6 +28,40 @@ const positionSchema = new mongoose.Schema({
     required: [true, 'Coordenada Y é obrigatória'],
     min: [0, 'Coordenada Y deve ser entre 0 e 1'],
     max: [1, 'Coordenada Y deve ser entre 0 e 1']
+  },
+  estimatedX: {
+    type: Number,
+    min: [0, 'estimatedX deve ser entre 0 e 1'],
+    max: [1, 'estimatedX deve ser entre 0 e 1'],
+    default: null
+  },
+  estimatedY: {
+    type: Number,
+    min: [0, 'estimatedY deve ser entre 0 e 1'],
+    max: [1, 'estimatedY deve ser entre 0 e 1'],
+    default: null
+  },
+  areaCenter: {
+    type: {
+      x: { type: Number, min: 0, max: 1 },
+      y: { type: Number, min: 0, max: 1 }
+    },
+    default: null
+  },
+  distanceCm: {
+    type: Number,
+    min: [0, 'distanceCm deve ser >= 0'],
+    default: null
+  },
+  deviceTimestamp: {
+    type: Number,
+    default: null,
+    description: 'Timestamp em milissegundos informado pelo dispositivo (millis())'
+  },
+  source: {
+    type: String,
+    enum: ['rfid', 'ultrasonic', 'manual', 'unknown'],
+    default: 'unknown'
   },
   timestamp: {
     type: Date,
