@@ -1,122 +1,70 @@
-<<<<<<< HEAD
-# Sistema de Monitoramento de Segurança em Obras
 
-Projeto acadêmico desenvolvido como parte da disciplina **Desenvolvimento de Sistemas Web**, com o objetivo de simular um ambiente de monitoramento em tempo real para controle de segurança em canteiros de obras.
+ # Connection-4 — Sistema de Monitoramento de Segurança em Obras
 
----
+Projeto acadêmico (FATEC Itapira) para simulação de monitoramento de segurança em canteiros de obras.
 
-## 1. Objetivo
+Este repositório contém o frontend (páginas estáticas e scripts), o backend (Node/Express + MongoDB) e um simulador para demonstrar rastreamento de dispositivos, zonas de risco e geração de alertas.
 
-O sistema visa representar, de forma simplificada, um modelo de monitoramento de segurança baseado em sensores e dispositivos de rastreamento.  
-A aplicação permite o **cadastro de pessoas e dispositivos**, bem como a **simulação de movimentações em tempo real**.
+Autores / Participantes:
+- Guilherme Chamon
+- Letícia Souza
+- Marco Bubola
+- Cauã Lima
 
----
+## Sumário rápido
+- Frontend: `index.html` e `js/views/*` (MVC em JavaScript puro)
+- Backend: `backend/server.js` e rotas em `backend/routes/*` (porta padrão: `3000`)
+- Simulador: `simple_simulator.py` para movimentar colaboradores no mapa
 
-## 2. Estrutura do Projeto
+## Pré-requisitos
+- Node.js (v14+ recomendado)
+- Python (v3.7+ para o simulador ou `python -m http.server`)
+- MongoDB (local ou Atlas) se for usar persistência real
 
-O projeto foi desenvolvido seguindo o padrão **MVC (Model-View-Controller)**, dividido em:
+## Como executar (PowerShell)
+Abra três terminais (um para backend, um para frontend e um para o simulador).
 
-- **Model:** Gerencia os dados e a persistência local (via `localStorage`);
-- **View:** Responsável pela renderização das interfaces e interação com o usuário;
-- **Controller:** Faz a ponte entre as ações do usuário e os dados da aplicação.
-
-=======
-# Connection-4
-
-Simulação — Segurança em Obras (frontend)
-
-Projeto em estrutura MVC para simular sensores de proximidade, cadastro de pessoas e associação de chips.
-
-# Connection-4
-
-Projeto de simulação para monitoramento de segurança em canteiros de obra.
-
-Este repositório contém o frontend (páginas estáticas e scripts) e o backend (Node/Express + MongoDB) usados para demonstrar rastreamento de dispositivos, zonas e simulação de colaboradores.
-
-## Visão Rápida
-- Frontend: páginas em `index.html` e `js/views/*` (MVC simples em JS vanilla)
-- Backend: `backend/server.js` com rotas em `backend/routes/*`
-- Simulador: `simple_simulator.py` para movimentar dispositivos no mapa
-
-## 📋 INSTRUÇÕES DE EXECUÇÃO (PowerShell)
-Execute cada comando em um terminal separado do VS Code.
-
-### 🖥️ TERMINAL 1 - BACKEND
+### 1) Backend
 ```powershell
-cd c:\projetos\Connection-4\backend
+cd C:\projetos\Connection-4\backend
 node server.js
 ```
-✅ Resultado esperado: Backend rodando na porta 3000
+Esperado: Backend rodando em `http://localhost:3000`.
 
----
-
-### 🌐 TERMINAL 2 - FRONTEND
+### 2) Frontend
+Opção A (Live Server - VS Code): botão direito em `index.html` → Open with Live Server.
+Opção B (servidor simples):
 ```powershell
-cd c:\projetos\Connection-4
-# Use o Live Server do VS Code (clique direito no index.html > Open with Live Server)
-# OU execute um servidor simples:
+cd C:\projetos\Connection-4
 python -m http.server 8000
 ```
-✅ Resultado esperado: Frontend em http://localhost:8000
+Acesse: `http://localhost:8000`.
 
----
-
-### 🐍 TERMINAL 3 - SIMULADOR
+### 3) Simulador
 ```powershell
-cd c:\projetos\Connection-4
+cd C:\projetos\Connection-4
 python simple_simulator.py
 ```
-✅ Resultado esperado: Colaboradores se movendo no mapa
+O simulador envia movimentos ao backend; garanta que o backend esteja ativo antes de iniciar o simulador.
 
-⚠️ IMPORTANTE: O simulador precisa que o backend esteja rodando primeiro!
+## Observações importantes
+- Verifique a conexão com o MongoDB em `backend/config/database.js`.
+- Para gravar o firmware nos ESPs, use a IDE/PlatformIO e configure o SSID/SENHA e o `SERVER_URL` no sketch localizado em `hardware/ESP8266_RFID_Gateway/...`.
+- Logs úteis:
+	- Backend: console do Node (`server.js`).
+	- Firmware: Serial Monitor (baud padrão configurado no sketch).
 
----
+## Estrutura de pastas (resumo)
+- `backend/` — API Node/Express, modelos Mongoose e rotas.
+- `hardware/` — sketches Arduino/ESP (ex.: ESP8266 gateways).
+- `js/` — frontend MVC (models, controllers, views).
+- `assets/` — CSS, imagens e scripts auxiliares.
+- `simple_simulator.py` — script de simulação/local testing.
 
-## 🎯 COMO EXECUTAR
-1. Abra 3 terminais no VS Code (Terminal > New Terminal)
-2. Execute cada comando em um terminal diferente
-3. Aguarde cada serviço iniciar antes do próximo
-4. Acesse http://localhost:8000 no navegador
-5. Vá para "Central de Monitoramento"
-6. Execute o simulador para ver movimento
+## Testes locais
+- Use os endpoints expostos em `backend/routes/*` para verificar dados (ex.: `/api/people`, `/api/positions`, `/api/notifications`).
 
----
 
-## 🔧 ALTERNATIVA - COMANDOS INDIVIDUAIS
+## Licença
+- Este projeto é fornecido para fins acadêmicos; adicione aqui a licença desejada (ex.: MIT) se for publicar.
 
-### Terminal 1:
-```powershell
-cd c:\projetos\Connection-4\backend
-node server.js
-```
-
-### Terminal 2:
-Use o Live Server do VS Code ou:
-```powershell
-cd c:\projetos\Connection-4
-python -m http.server 8000
-```
-
-### Terminal 3:
-```powershell
-cd c:\projetos\Connection-4
-python simple_simulator.py
-```
-
----
-
-## 🎮 SIMULADOR AVANÇADO (Opcional)
-```powershell
-cd c:\projetos\Connection-4
-python simulator.py --workers 8 --duration 30 --speed 2
-```
-
----
-
-## Observações
-- Se você estiver usando MongoDB local, verifique a string de conexão em `backend/config/database.js`.
-- Para desenvolvimento rápido use `Live Server` no VS Code.
-
-----
-
-Arquivo atualizado com instruções de execução (PowerShell). 
