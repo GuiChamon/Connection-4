@@ -5,6 +5,20 @@ const AreasModel = (function(){
     let cachedAreas = [];
     let loading = false;
 
+    function resolveAuthToken() {
+        try {
+            if (typeof AuthModel !== 'undefined' && typeof AuthModel.getToken === 'function') {
+                const tokenFromModel = AuthModel.getToken();
+                if (tokenFromModel) {
+                    return tokenFromModel;
+                }
+            }
+        } catch (err) {
+            console.warn('⚠️ Falha ao obter token via AuthModel:', err);
+        }
+        return localStorage.getItem('connection4_token') || localStorage.getItem('token');
+    }
+
     // Buscar áreas do backend
     async function loadAreas() {
         console.log('🔄 loadAreas() chamado');
@@ -15,7 +29,7 @@ const AreasModel = (function(){
         loading = true;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = resolveAuthToken();
             if (!token) {
                 console.warn('⚠️ Token não encontrado. Aguardando autenticação...');
                 loading = false;
