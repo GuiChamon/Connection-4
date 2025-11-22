@@ -3,6 +3,17 @@ const router = express.Router();
 const Position = require('../models/Position');
 const Zone = require('../models/Zone');
 
+const clamp01 = (value) => {
+  if (value === null || value === undefined) return null;
+  return Math.min(1, Math.max(0, value));
+};
+
+const parseCoord = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  return Number(clamp01(num).toFixed(4));
+};
+
 // GET /api/positions - Obter últimas posições de todos os dispositivos
 router.get('/', async (req, res) => {
   try {
@@ -79,28 +90,72 @@ router.get('/:deviceId/history', async (req, res) => {
 // POST /api/positions - Atualizar posição de um dispositivo (endpoint para ESP32)
 router.post('/', async (req, res) => {
   try {
-    const { deviceId, x, y, areaId, areaName } = req.body;
-    
+    const {
+      deviceId,
+      x,
+      y,
+      areaId,
+      areaName,
+      estimatedX,
+      estimatedY,
+      areaCenter,
+      distanceCm,
+      source,
+      timestamp,
+      deviceTimestamp
+    } = req.body;
+
     if (!deviceId || x === undefined || y === undefined) {
       return res.status(400).json({
         success: false,
         message: 'deviceId, x e y são obrigatórios'
       });
     }
-    
+
+    const parsedX = parseCoord(x);
+    const parsedY = parseCoord(y);
+    if (parsedX === null || parsedY === null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coordenadas x e y inválidas'
+      });
+    }
+
+    const parsedEstimatedX = estimatedX !== undefined ? parseCoord(estimatedX) : null;
+    const parsedEstimatedY = estimatedY !== undefined ? parseCoord(estimatedY) : null;
+    const finalX = parsedEstimatedX !== null ? parsedEstimatedX : parsedX;
+    const finalY = parsedEstimatedY !== null ? parsedEstimatedY : parsedY;
+
+    const parsedAreaCenter = areaCenter && typeof areaCenter === 'object'
+      ? (() => {
+          const centerX = areaCenter.x !== undefined ? parseCoord(areaCenter.x) : null;
+          const centerY = areaCenter.y !== undefined ? parseCoord(areaCenter.y) : null;
+          if (centerX === null || centerY === null) return null;
+          return { x: centerX, y: centerY };
+        })()
+      : null;
+
+    const parsedDistance = distanceCm !== undefined ? Math.max(0, Number(distanceCm)) : null;
+    const parsedDeviceTimestamp = deviceTimestamp !== undefined ? Math.max(0, Number(deviceTimestamp)) : null;
+    const allowedSources = ['rfid', 'ultrasonic', 'manual', 'unknown'];
+    const resolvedSource = allowedSources.includes(String(source || '').toLowerCase())
+      ? String(source).toLowerCase()
+      : 'unknown';
+
+    const normalizedDeviceId = deviceId.toUpperCase();
+
     // Buscar pessoa associada ao dispositivo (Tag RFID)
     const People = require('../models/People');
-    const person = await People.findOne({ deviceId: deviceId.toUpperCase() });
-    
-    // Verificar se está em zona de risco (verificação retangular)
+    const person = await People.findOne({ deviceId: normalizedDeviceId });
+
+    // Verificar se está em zona de risco (verificação retangular) usando coordenadas finais
     const zones = await Zone.find({ active: true });
     let inRiskZone = false;
     let currentZone = null;
-    
+
     for (const zone of zones) {
-      // Verificar se o ponto está dentro do retângulo da zona
-      if (x >= zone.x && x <= (zone.x + zone.width) &&
-          y >= zone.y && y <= (zone.y + zone.height)) {
+      if (finalX >= zone.x && finalX <= (zone.x + zone.width) &&
+          finalY >= zone.y && finalY <= (zone.y + zone.height)) {
         currentZone = zone;
         if (zone.isRiskZone && (zone.riskLevel === 'high' || zone.riskLevel === 'critical')) {
           inRiskZone = true;
@@ -108,45 +163,58 @@ router.post('/', async (req, res) => {
         break;
       }
     }
-    
+
+    const resolvedAreaId = areaId || (currentZone ? currentZone.id : null);
+    const resolvedAreaName = areaName || (currentZone ? currentZone.name : null);
+
     // Verificar controle de acesso se pessoa estiver cadastrada
     let hasAccess = true;
     let alertMessage = null;
     let alertType = null;
-    
-    if (person && areaId) {
-      // Importar lógica de controle de acesso
+
+    if (person && resolvedAreaId) {
       const accessControl = require('../middleware/accessControl');
-      
-      // Verificar se tem autorização para a área
-      hasAccess = accessControl.checkAccess(person.role, areaId, person.accessLevel || 1);
-      
+      hasAccess = accessControl.checkAccess(person.role, resolvedAreaId, person.accessLevel || 1);
+
       if (!hasAccess && inRiskZone) {
         alertType = 'UNAUTHORIZED_ACCESS';
-        alertMessage = `ACESSO NÃO AUTORIZADO: ${person.name} (${person.role}) em ${areaName || areaId}`;
+        alertMessage = `ACESSO NÃO AUTORIZADO: ${person.name} (${person.role}) em ${resolvedAreaName || resolvedAreaId}`;
       }
     } else if (!person) {
-      // Dispositivo não cadastrado
       alertType = 'UNREGISTERED_DEVICE';
       alertMessage = `Dispositivo não cadastrado: ${deviceId}`;
       hasAccess = false;
     }
-    
-    // Criar nova posição
+
     const position = new Position({
-      deviceId: deviceId.toUpperCase(),
-      x,
-      y,
+      deviceId: normalizedDeviceId,
+      areaId: resolvedAreaId,
+      areaName: resolvedAreaName,
+      x: finalX,
+      y: finalY,
+      estimatedX: parsedEstimatedX,
+      estimatedY: parsedEstimatedY,
+      areaCenter: parsedAreaCenter,
+      distanceCm: Number.isFinite(parsedDistance) ? parsedDistance : null,
+      deviceTimestamp: Number.isFinite(parsedDeviceTimestamp) ? parsedDeviceTimestamp : null,
+      source: resolvedSource,
       inRiskZone,
       alertGenerated: !hasAccess
     });
-    
+
+    if (timestamp) {
+      const customTimestamp = new Date(timestamp);
+      if (!isNaN(customTimestamp.getTime())) {
+        position.timestamp = customTimestamp;
+      }
+    }
+
     await position.save();
     
     // Atualizar status do dispositivo (lastSeen / connectionStatus)
     try {
       const Device = require('../models/Device');
-      const deviceRecord = await Device.findOne({ id: deviceId.toUpperCase() });
+      const deviceRecord = await Device.findOne({ id: normalizedDeviceId });
       if (deviceRecord) {
         deviceRecord.lastSeen = new Date();
         deviceRecord.connectionStatus = 'online';
@@ -157,12 +225,12 @@ router.post('/', async (req, res) => {
       }
 
       // Se a zona atual estiver vinculada a esse device, marcar zona como ativa/online
-      if (currentZone && currentZone.deviceId && currentZone.deviceId.toUpperCase() === deviceId.toUpperCase()) {
+      if (currentZone && currentZone.deviceId && currentZone.deviceId.toUpperCase() === normalizedDeviceId) {
         currentZone.currentlyActive = true;
         currentZone.lastConnection = new Date();
         currentZone.connectionStatus = 'online';
         await currentZone.save();
-        console.log(`📶 Zona ${currentZone.id} marcada como ATIVA via posição do device ${deviceId}`);
+        console.log(`📶 Zona ${currentZone.id} marcada como ATIVA via posição do device ${normalizedDeviceId}`);
       }
     } catch (err) {
       console.error('Erro ao atualizar status do device a partir da posição:', err);
@@ -170,11 +238,15 @@ router.post('/', async (req, res) => {
     
     // Log detalhado
     console.log('\n📍 Nova posição recebida:');
-    console.log(`   Device: ${deviceId}`);
+    console.log(`   Device: ${normalizedDeviceId}`);
     console.log(`   Pessoa: ${person ? person.name : 'Não cadastrado'}`);
     console.log(`   Função: ${person ? person.role : 'N/A'}`);
-    console.log(`   Área: ${areaName || areaId || 'N/A'}`);
-    console.log(`   Posição: (${x.toFixed(4)}, ${y.toFixed(4)})`);
+    console.log(`   Área: ${resolvedAreaName || resolvedAreaId || 'N/A'}`);
+    console.log(`   Posição base enviada: (${parsedX.toFixed(4)}, ${parsedY.toFixed(4)})`);
+    console.log(`   Posição usada no mapa: (${finalX.toFixed(4)}, ${finalY.toFixed(4)})`);
+    if (parsedDistance !== null && Number.isFinite(parsedDistance)) {
+      console.log(`   Distância medida: ${parsedDistance.toFixed(1)} cm`);
+    }
     console.log(`   Zona de Risco: ${inRiskZone ? '⚠️ SIM' : '✅ NÃO'}`);
     console.log(`   Autorizado: ${hasAccess ? '✅ SIM' : '🚫 NÃO'}`);
     if (alertMessage) {
@@ -191,7 +263,7 @@ router.post('/', async (req, res) => {
           name: person.name,
           role: person.role
         } : null,
-        area: areaName || areaId,
+        area: resolvedAreaName || resolvedAreaId,
         authorized: hasAccess
       },
       alert: !hasAccess || alertType ? {
