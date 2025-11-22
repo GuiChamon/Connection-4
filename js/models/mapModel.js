@@ -3,6 +3,11 @@ const MapModel = (function(){
     const API_BASE = 'http://localhost:3000/api';
 
     // Função auxiliar para fazer requisições
+    const clamp01 = (value) => {
+        if (typeof value !== 'number' || Number.isNaN(value)) return null;
+        return Math.min(1, Math.max(0, value));
+    };
+
     async function apiRequest(url, options = {}) {
         try {
             const headers = {
@@ -62,7 +67,28 @@ const MapModel = (function(){
             
             if (result.data) {
                 result.data.forEach(pos => {
-                    positions[pos.deviceId] = { x: pos.x, y: pos.y };
+                    const key = (pos.deviceId || '').toUpperCase();
+                    if (!key) return;
+                    const preferredX = typeof pos.estimatedX === 'number' ? pos.estimatedX : pos.x;
+                    const preferredY = typeof pos.estimatedY === 'number' ? pos.estimatedY : pos.y;
+                    const resolvedX = clamp01(preferredX);
+                    const resolvedY = clamp01(preferredY);
+                    positions[key] = {
+                        x: resolvedX !== null ? resolvedX : 0.5,
+                        y: resolvedY !== null ? resolvedY : 0.5,
+                        rawX: typeof pos.x === 'number' ? pos.x : null,
+                        rawY: typeof pos.y === 'number' ? pos.y : null,
+                        estimatedX: typeof pos.estimatedX === 'number' ? pos.estimatedX : null,
+                        estimatedY: typeof pos.estimatedY === 'number' ? pos.estimatedY : null,
+                        hasEstimate: typeof pos.estimatedX === 'number' && typeof pos.estimatedY === 'number',
+                        areaCenter: pos.areaCenter || null,
+                        areaId: pos.areaId || null,
+                        areaName: pos.areaName || null,
+                        distanceCm: typeof pos.distanceCm === 'number' ? pos.distanceCm : null,
+                        source: pos.source || 'unknown',
+                        timestamp: pos.timestamp || null,
+                        deviceTimestamp: typeof pos.deviceTimestamp === 'number' ? pos.deviceTimestamp : null
+                    };
                 });
             }
             
