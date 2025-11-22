@@ -1,11 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const People = require('../models/People');
+const Device = require('../models/Device');
 
 const normalizeDeviceId = (value) => {
   if (!value || typeof value !== 'string') return null;
   const trimmed = value.trim();
   return trimmed.length ? trimmed.toUpperCase() : null;
+};
+
+const ensureDeviceRecord = async (deviceId) => {
+  const normalized = normalizeDeviceId(deviceId);
+  if (!normalized) return null;
+
+  let device = await Device.findOne({ id: normalized });
+  if (!device) {
+    device = new Device({
+      id: normalized,
+      type: 'worker',
+      active: true,
+      connectionStatus: 'online',
+      lastSeen: new Date()
+    });
+  } else {
+    device.type = device.type || 'worker';
+    device.active = true;
+    device.connectionStatus = 'online';
+    device.lastSeen = new Date();
+  }
+  await device.save();
+  return device;
 };
 
 // GET /api/people - Listar todas as pessoas
@@ -94,6 +118,7 @@ router.post('/register-card', async (req, res) => {
     const existingPerson = await People.findByDevice(normalizedDeviceId);
 
     if (existingPerson) {
+      await ensureDeviceRecord(normalizedDeviceId);
       return res.json({
         success: true,
         message: 'Cartão já cadastrado',
@@ -114,6 +139,10 @@ router.post('/register-card', async (req, res) => {
     });
 
     await person.save();
+    if (normalizedDeviceId) {
+      await ensureDeviceRecord(normalizedDeviceId);
+    }
+    await ensureDeviceRecord(normalizedDeviceId);
 
     return res.status(201).json({
       success: true,
@@ -199,7 +228,9 @@ router.put('/:id', async (req, res) => {
     // Atualizar dados
     person.name = name || person.name;
     person.role = role || person.role;
-    person.deviceId = deviceId !== undefined ? normalizedDeviceId : person.deviceId;
+    if (deviceId !== undefined) {
+      person.deviceId = normalizedDeviceId;
+    }
     if (accessLevel !== undefined) {
       if (![1, 2, 3].includes(Number(accessLevel))) {
         return res.status(400).json({
@@ -211,6 +242,9 @@ router.put('/:id', async (req, res) => {
     }
     
     await person.save();
+    if (person.deviceId) {
+      await ensureDeviceRecord(person.deviceId);
+    }
     
     res.json({
       success: true,
