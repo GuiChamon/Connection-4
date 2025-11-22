@@ -81,6 +81,18 @@ bool lastCardValid = false;
 String lastCardUIDStr = "";
 String lastPersonName = "";
 long lastDistanceReading = -1;
+unsigned long lastCardValidationTime = 0;
+const unsigned long CARD_VALIDITY_WINDOW = 15000; // 15 segundos
+
+// Controle de presença por ultrassom (consolidação de alertas)
+bool riskPresenceActive = false;
+unsigned long riskPresenceStart = 0;
+unsigned long riskPresenceLastSeen = 0;
+unsigned long riskPresenceLastSummary = 0;
+String riskPresenceCardUid = "";
+String riskPresencePersonName = "";
+const unsigned long RISK_PRESENCE_CLEAR_DELAY = 7000; // 7s sem detecção encerra sessão
+const unsigned long RISK_PRESENCE_SUMMARY_INTERVAL = 60000; // 60s entre notificações
 
 // Controle de botão
 unsigned long btnPressStart = 0;
@@ -99,6 +111,12 @@ const unsigned int RISK_DISTANCE_CM = 100;
 // Estados para modos especiais
 bool changeLevelModeActive = false;
 unsigned long changeLevelModeStarted = 0;
+
+// Janela de ativação do ultrassônico apenas para o cartão que gerou a notificação
+const unsigned long ULTRASONIC_ACTIVE_WINDOW = 15000; // 15 segundos
+String ultrasonicSessionUid = "";
+String ultrasonicSessionPersonName = "";
+unsigned long ultrasonicSessionExpires = 0;
 
 // ========== FUNÇÕES LED ==========
 void ledAccessGranted() {
@@ -173,6 +191,23 @@ String formatUID(byte *uid) {
   return s;
 }
 
+String urlEncode(const String& value) {
+  String encoded = "";
+  char hexBuffer[4];
+  for (unsigned int i = 0; i < value.length(); i++) {
+    char c = value.charAt(i);
+    if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '-' || c == '_' || c == '.' || c == '~') {
+      encoded += c;
+    } else if (c == ' ') {
+      encoded += "%20";
+    } else {
+      sprintf(hexBuffer, "%%%02X", static_cast<unsigned char>(c));
+      encoded += hexBuffer;
+    }
+  }
+  return encoded;
+}
+
 void copyUID(byte *dest, byte *src) {
   for (byte i = 0; i < 4; i++) {
     dest[i] = src[i];
@@ -184,6 +219,13 @@ bool compareUID(byte *uid1, byte *uid2) {
     if (uid1[i] != uid2[i]) return false;
   }
   return true;
+}
+
+bool hasRecentValidCard() {
+  if (!lastCardValid || lastCardValidationTime == 0) {
+    return false;
+  }
+  return (millis() - lastCardValidationTime) <= CARD_VALIDITY_WINDOW;
 }
 
 // ========== AUTENTICAÇÃO ==========
@@ -366,6 +408,101 @@ bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& pers
   return false;
 }
 
+String formatDuration(unsigned long durationMs) {
+  unsigned long totalSeconds = durationMs / 1000;
+  unsigned long minutes = totalSeconds / 60;
+  unsigned long seconds = totalSeconds % 60;
+  char buffer[16];
+  if (minutes > 0) {
+    sprintf(buffer, "%lu:%02lu", minutes, seconds);
+  } else {
+    sprintf(buffer, "0:%02lu", seconds);
+  }
+  return String(buffer);
+}
+
+bool logRiskZonePresenceSummary(const String& cardUid, unsigned long durationMs, const String& personName, bool sessionEnded) {
+  if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
+
+  HTTPClient http;
+  http.begin(wifiClient, String(SERVER_URL) + "/api/notifications");
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  String durationLabel = formatDuration(durationMs);
+
+  StaticJsonDocument<512> doc;
+  doc["type"] = sessionEnded ? "RISK_ZONE_EXIT" : "RISK_ZONE_UPDATE";
+  doc["severity"] = sessionEnded ? "MEDIUM" : "INFO";
+  doc["title"] = sessionEnded ? "Saída de zona de risco" : "Permanência em zona de risco";
+  doc["message"] = String("Cartão ") + cardUid + (sessionEnded ? " deixou a zona de risco" : " permanece em zona de risco") +
+                    String(" por ") + durationLabel + ".";
+  doc["deviceId"] = getCurrentAreaId();
+  doc["areaId"] = getCurrentAreaId();
+  doc["areaName"] = getCurrentAreaName();
+  doc["workerName"] = personName;
+
+  JsonObject metadata = doc.createNestedObject("metadata");
+  metadata["cardUid"] = cardUid;
+  metadata["durationMs"] = durationMs;
+  metadata["formattedDuration"] = durationLabel;
+  metadata["sessionEnded"] = sessionEnded;
+
+  String payload;
+  serializeJson(doc, payload);
+  int httpCode = http.POST(payload);
+  if (httpCode == 201 || httpCode == 200) {
+    http.end();
+    return true;
+  }
+
+  if (httpCode > 0) {
+    Serial.println("❌ Falha ao registrar resumo de permanência: " + String(httpCode));
+    Serial.println("📥 " + http.getString());
+  }
+  http.end();
+  return false;
+}
+
+void closeRiskPresenceSession(bool forceNow) {
+  if (!riskPresenceActive) return;
+  unsigned long inactiveTime = millis() - riskPresenceLastSeen;
+  if (!forceNow && inactiveTime < RISK_PRESENCE_CLEAR_DELAY) return;
+
+  unsigned long duration = millis() - riskPresenceStart;
+  logRiskZonePresenceSummary(riskPresenceCardUid, duration, riskPresencePersonName, true);
+
+  riskPresenceActive = false;
+  riskPresenceCardUid = "";
+  riskPresencePersonName = "";
+  riskPresenceStart = 0;
+  riskPresenceLastSeen = 0;
+  riskPresenceLastSummary = 0;
+}
+
+void registerRiskPresenceDetection(long distanceCm) {
+  riskPresenceLastSeen = millis();
+  if (!riskPresenceActive || riskPresenceCardUid != lastCardUIDStr) {
+    if (riskPresenceActive && riskPresenceCardUid != lastCardUIDStr) {
+      closeRiskPresenceSession(true);
+    }
+
+    riskPresenceActive = true;
+    riskPresenceStart = millis();
+    riskPresenceLastSummary = millis();
+    riskPresenceCardUid = lastCardUIDStr;
+    riskPresencePersonName = lastPersonName;
+    logRiskZoneEntry(lastCardUIDStr, distanceCm, lastPersonName);
+    return;
+  }
+
+  if (millis() - riskPresenceLastSummary >= RISK_PRESENCE_SUMMARY_INTERVAL) {
+    unsigned long duration = millis() - riskPresenceStart;
+    logRiskZonePresenceSummary(riskPresenceCardUid, duration, riskPresencePersonName, false);
+    riskPresenceLastSummary = millis();
+  }
+}
+
 bool logCardLevelChangeRequest(const String& cardUid, const String& personName) {
   if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
 
@@ -473,14 +610,16 @@ void startChangeLevelMode() {
 }
 
 // ========== BUSCAR PESSOA POR DEVICE ==========
-bool getPersonByDevice(const String& deviceId, String &personName, int &accessLevel) {
+bool getPersonByDevice(const String& deviceId, String &personName, int &accessLevel, String &personId) {
   personName = "";
   accessLevel = 1;
+  personId = "";
 
   if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
   
   HTTPClient http;
-  http.begin(wifiClient, String(SERVER_URL) + "/api/people/device/" + deviceId);
+  String encodedId = urlEncode(deviceId);
+  http.begin(wifiClient, String(SERVER_URL) + "/api/people/device/" + encodedId);
   http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
   
   int httpCode = http.GET();
@@ -492,6 +631,9 @@ bool getPersonByDevice(const String& deviceId, String &personName, int &accessLe
       personName = doc["data"]["name"].as<String>();
       if (doc["data"].containsKey("accessLevel")) {
         accessLevel = doc["data"]["accessLevel"].as<int>();
+      }
+      if (doc["data"].containsKey("_id")) {
+        personId = doc["data"]["_id"].as<String>();
       }
       http.end();
       return true;
@@ -506,6 +648,60 @@ bool getPersonByDevice(const String& deviceId, String &personName, int &accessLe
     }
   }
   
+  http.end();
+  return false;
+}
+
+// Atualizar nível de acesso de uma pessoa (PUT /api/people/:id)
+bool updatePersonAccessLevel(const String& personId, int newLevel) {
+  if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
+
+  HTTPClient http;
+  String url = String(SERVER_URL) + "/api/people/" + urlEncode(personId);
+  http.begin(wifiClient, url);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+
+  StaticJsonDocument<200> doc;
+  doc["accessLevel"] = newLevel;
+
+  String payload;
+  serializeJson(doc, payload);
+
+  int httpCode = http.PUT(payload);
+  String response = "";
+  if (httpCode > 0) response = http.getString();
+
+  if (httpCode == 200) {
+    Serial.println("✅ PUT /api/people/ - retorno 200. Body: " + response);
+    http.end();
+
+    // Verificar leitura atualizada do backend
+    HTTPClient http2;
+    String url2 = String(SERVER_URL) + "/api/people/" + urlEncode(personId);
+    http2.begin(wifiClient, url2);
+    http2.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+    int getCode = http2.GET();
+    String getBody = "";
+    if (getCode > 0) getBody = http2.getString();
+    if (getCode == 200) {
+      Serial.println("🔎 GET /api/people/:id -> " + getBody);
+      StaticJsonDocument<512> respDoc;
+      DeserializationError err = deserializeJson(respDoc, getBody);
+      if (!err && respDoc.containsKey("data") && respDoc["data"].containsKey("accessLevel")) {
+        int persisted = respDoc["data"]["accessLevel"].as<int>();
+        Serial.println("ℹ️ AccessLevel persistido: " + String(persisted) + " (esperado: " + String(newLevel) + ")");
+        http2.end();
+        return persisted == newLevel;
+      }
+    }
+    Serial.println("⚠️ Não foi possível verificar via GET (HTTP " + String(getCode) + ") Body: " + getBody);
+    http2.end();
+    return true;
+  }
+
+  Serial.println("❌ Falha ao atualizar nível (HTTP " + String(httpCode) + ")");
+  if (response.length() > 0) Serial.println("📥 " + response);
   http.end();
   return false;
 }
@@ -525,7 +721,8 @@ void validateCard(byte *uid) {
   // Buscar pessoa associada ao device
   String personName = "";
   int personAccessLevel = 1;
-  bool personFound = getPersonByDevice(uidStr, personName, personAccessLevel);
+  String personId = "";
+  bool personFound = getPersonByDevice(uidStr, personName, personAccessLevel, personId);
   
   if (changeLevelModeActive) {
     changeLevelModeActive = false;
@@ -536,12 +733,21 @@ void validateCard(byte *uid) {
       return;
     }
 
-    if (logCardLevelChangeRequest(uidStr, personName)) {
-      Serial.println("✅ Solicitação de alteração registrada no backend");
+    // Tentar atualizar diretamente o nível no backend para o nível exigido pela área
+    int required = getCurrentAreaRequiredAccessLevel();
+    Serial.println("🔁 Tentando atualizar nível para: " + String(required));
+    if (personId.length() > 0 && updatePersonAccessLevel(personId, required)) {
+      Serial.println("✅ Nível atualizado com sucesso no backend");
       ledAccessGranted();
     } else {
-      Serial.println("❌ Falha ao registrar alteração de nível");
-      ledAccessDenied();
+      Serial.println("⚠️ Não foi possível atualizar diretamente. Enviando solicitação de alteração para revisão.");
+      if (logCardLevelChangeRequest(uidStr, personName)) {
+        Serial.println("✅ Solicitação de alteração registrada no backend");
+        ledAccessGranted();
+      } else {
+        Serial.println("❌ Falha ao registrar alteração de nível");
+        ledAccessDenied();
+      }
     }
     return;
   }
@@ -550,10 +756,29 @@ void validateCard(byte *uid) {
     if (!isAccessAllowedForCurrentArea(personAccessLevel)) {
       Serial.println("❌ ACESSO NEGADO: Nível insuficiente para esta área.");
       Serial.println("   Necessário: " + String(getCurrentAreaRequiredAccessLevel()) + " | Cartão: " + String(personAccessLevel));
+      // Se o sensor indica risco, registre imediatamente uma notificação de risco (não autorizado)
+      if (sensorRisk) {
+        Serial.println("⚠️ Risco detectado mas acesso negado — registrando alerta NÃO AUTORIZADO.");
+        // Ativar janela ultrassônica para este cartão por ULTRASONIC_ACTIVE_WINDOW
+        ultrasonicSessionUid = uidStr;
+        ultrasonicSessionPersonName = personName;
+        ultrasonicSessionExpires = millis() + ULTRASONIC_ACTIVE_WINDOW;
+
+        // Manter UID local temporariamente para correlação do ultrassom
+        lastCardUIDStr = uidStr;
+        lastPersonName = personName;
+
+        // Registrar notificação de risco não autorizado
+        logRiskZoneEntry(uidStr, measuredDistance, personName);
+
+        // Iniciar sessão de presença por ultrassom imediatamente
+        registerRiskPresenceDetection(measuredDistance);
+      }
+      // marcar como inválido para leituras RFID normais, mas manter UID até expirar a sessão
       lastCardValid = false;
-      lastCardUIDStr = "";
-      lastPersonName = "";
+      lastCardValidationTime = 0;
       ledAccessDenied();
+      closeRiskPresenceSession(true);
       return;
     }
 
@@ -572,6 +797,7 @@ void validateCard(byte *uid) {
     lastCardValid = true;
     lastCardUIDStr = uidStr;
     lastPersonName = personName;
+    lastCardValidationTime = millis();
     
     ledAccessGranted();
   } else {
@@ -579,7 +805,9 @@ void validateCard(byte *uid) {
     lastCardValid = false;
     lastCardUIDStr = "";
     lastPersonName = "";
+    lastCardValidationTime = 0;
     ledAccessDenied();
+    closeRiskPresenceSession(true);
   }
 }
 
@@ -875,6 +1103,7 @@ void loop() {
             lastCardValid = true;
             lastCardUIDStr = newUID;
             lastPersonName = registeredName.length() > 0 ? registeredName : String("Cartão ") + newUID;
+            lastCardValidationTime = millis();
 
             Serial.println("💾 Último cartão atualizado para monitoramento ultrassônico.");
             ledAccessGranted();
@@ -904,6 +1133,19 @@ void loop() {
   }
   
   // Leitura do sensor ultrassônico
+  // Limpar sessão ultrassônica se expirou
+  if (ultrasonicSessionExpires > 0 && millis() > ultrasonicSessionExpires) {
+    Serial.println("ℹ️ Janela ultrassônica expirada para UID: " + ultrasonicSessionUid);
+    // limpar UID temporário se não há validação recente
+    if (lastCardUIDStr.length() > 0 && lastCardUIDStr == ultrasonicSessionUid && !lastCardValid) {
+      lastCardUIDStr = "";
+      lastPersonName = "";
+    }
+    ultrasonicSessionUid = "";
+    ultrasonicSessionPersonName = "";
+    ultrasonicSessionExpires = 0;
+  }
+
   long distance = readDistance();
   if (distance > 0) {
     lastDistanceReading = distance;
@@ -912,21 +1154,32 @@ void loop() {
   // Se o ultrassom detectar presença dentro do limite de risco, logamos no Serial
   if (isWithinRiskDistance(distance)) {
     if (millis() - lastUltrasonicCheck > ULTRASONIC_DEBOUNCE) {
-      if (lastCardValid && lastCardUIDStr.length() > 0) {
-        Serial.println("👋 Presença detectada pelo ultrassom (<=1m). Verificando cartão na área...");
+      bool sessionActive = (ultrasonicSessionExpires > 0 && millis() <= ultrasonicSessionExpires && ultrasonicSessionUid.length() > 0);
+
+      if (sessionActive) {
+        String uidToUse = ultrasonicSessionUid;
+        String nameToUse = ultrasonicSessionPersonName;
+        Serial.println("👋 Presença detectada (janela ultrassônica ativa) para UID: " + uidToUse);
         Serial.println("   Distância: " + String(distance) + " cm");
-        Serial.println("   Cartão válido: SIM  UID: " + lastCardUIDStr + "  Nome: " + lastPersonName);
+        Serial.println("   Cartão associado: UID: " + uidToUse + "  Nome: " + nameToUse);
         Serial.println("   Enviando posição e registrando notificação de risco.");
 
-        sendPosition(lastCardUIDStr, true, true);
-        logRiskZoneEntry(lastCardUIDStr, distance, lastPersonName);
+        // Ajustar temporariamente variáveis globais usadas por outras funções
+        lastCardUIDStr = uidToUse;
+        lastPersonName = nameToUse;
+
+        sendPosition(uidToUse, true, true);
+        registerRiskPresenceDetection(distance);
       } else {
-        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas nenhum cartão válido presente.");
+        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas JANELA ULTRASSÔNICA inativa. Ignorando.");
         Serial.println("   Distância: " + String(distance) + " cm");
+        closeRiskPresenceSession(false);
       }
 
       lastUltrasonicCheck = millis();
     }
+  } else {
+    closeRiskPresenceSession(false);
   }
   
   // Leitura RFID
