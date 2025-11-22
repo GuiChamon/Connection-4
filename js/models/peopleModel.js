@@ -61,7 +61,9 @@ const PeopleModel = (function(){
 
     async function findByDevice(deviceId){
         try {
-            const result = await apiRequest(`${API_BASE}/people/device/${deviceId}`);
+            if (!deviceId) return null;
+            const normalized = deviceId.toString().trim().toUpperCase();
+            const result = await apiRequest(`${API_BASE}/people/device/${encodeURIComponent(normalized)}`);
             return result.data;
         } catch (error) {
             console.error('Erro ao buscar pessoa por dispositivo:', error);

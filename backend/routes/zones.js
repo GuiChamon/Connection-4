@@ -335,12 +335,19 @@ router.post('/activate-device', async (req, res) => {
       .map(z => z.deviceId);
     
     for (const otherDeviceId of otherDeviceIds) {
-      const otherDevice = await Device.findOne({ id: otherDeviceId.toUpperCase() });
-      if (otherDevice) {
-        otherDevice.active = false;
-        otherDevice.connectionStatus = 'offline';
-        await otherDevice.save();
-        console.log(`⚪ Dispositivo "${otherDeviceId}" marcado como OFFLINE`);
+      try {
+        const otherDevice = await Device.findOne({ id: otherDeviceId.toUpperCase() });
+        if (otherDevice) {
+          otherDevice.active = false;
+          otherDevice.connectionStatus = 'offline';
+          await otherDevice.save();
+          console.log(`⚪ Dispositivo "${otherDeviceId}" marcado como OFFLINE`);
+        } else {
+          console.log(`⚠️ Dispositivo "${otherDeviceId}" não encontrado na coleção devices (zona órfã)`);
+        }
+      } catch (err) {
+        console.error(`❌ Erro ao desativar dispositivo "${otherDeviceId}":`, err.message);
+        // Continuar mesmo se falhar para um dispositivo específico
       }
     }
     

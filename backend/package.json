@@ -8,9 +8,6 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate:normalize-uids": "node scripts/normalize_uids.js"
-    ,
-    "db:export": "node scripts/export_db.js",
-    "admin:create": "node scripts/create_admin.js"
   },
   "keywords": ["mongodb", "express", "nodejs", "api", "safety", "monitoring"],
   "author": "Connection-4 Team",

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Position = require('../models/Position');
 const Zone = require('../models/Zone');
-const Notification = require('../models/Notification');
 
 // GET /api/positions - Obter últimas posições de todos os dispositivos
 router.get('/', async (req, res) => {
@@ -208,32 +207,6 @@ router.post('/', async (req, res) => {
       },
       alertMessage: alertMessage // Para compatibilidade com ESP32
     });
-    
-    // Criar notificação no banco quando um alerta for gerado
-    if (alertType) {
-      try {
-        const notif = new Notification({
-          type: alertType || 'INFO',
-          severity: (!hasAccess && inRiskZone) ? 'HIGH' : 'MEDIUM',
-          title: alertType === 'UNAUTHORIZED_ACCESS' ? 'Acesso não autorizado' : (alertType === 'RISK_ZONE_AUTHORIZED' ? 'Entrada em zona de risco (autorizado)' : 'Alerta de dispositivo'),
-          message: alertMessage || `Alerta gerado para device ${deviceId}`,
-          deviceId: deviceId.toUpperCase(),
-          areaId: currentZone ? currentZone.id : areaId,
-          areaName: currentZone ? currentZone.name : areaName,
-          workerName: person ? person.name : null,
-          workerRole: person ? person.role : null,
-          metadata: {
-            inRiskZone,
-            personAccessLevel: person ? person.accessLevel : null,
-            personId: person ? person._id : null,
-            coordinates: { x, y }
-          }
-        });
-        await notif.save();
-      } catch (err) {
-        console.error('Erro ao salvar notificação a partir da posição:', err);
-      }
-    }
   } catch (error) {
     console.error('❌ Erro ao processar posição:', error);
     res.status(400).json({

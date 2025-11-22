@@ -12,102 +12,111 @@ A aplicação permite o **cadastro de pessoas e dispositivos**, bem como a **sim
 
 ---
 
+## 2. Estrutura do Projeto
+
+O projeto foi desenvolvido seguindo o padrão **MVC (Model-View-Controller)**, dividido em:
+
+- **Model:** Gerencia os dados e a persistência local (via `localStorage`);
+- **View:** Responsável pela renderização das interfaces e interação com o usuário;
+- **Controller:** Faz a ponte entre as ações do usuário e os dados da aplicação.
+
+=======
 # Connection-4
 
-Simulação — Sistema de Monitoramento de Segurança em Obras
+Simulação — Segurança em Obras (frontend)
 
-Este repositório contém o frontend (páginas estáticas e scripts) e o backend (Node/Express + MongoDB). As instruções abaixo mostram como preparar e executar o sistema localmente no Windows (PowerShell).
+Projeto em estrutura MVC para simular sensores de proximidade, cadastro de pessoas e associação de chips.
 
-## Requisitos
-- Node.js (v16+ recomendado) e npm
-- MongoDB (local ou remoto) e a string de conexão em `MONGODB_URI` no `.env` dentro de `backend/`
-- (Opcional) Python se preferir servir o frontend separadamente
+# Connection-4
 
-## Passos rápidos (PowerShell)
+Projeto de simulação para monitoramento de segurança em canteiros de obra.
 
-1) Instalar dependências do backend
+Este repositório contém o frontend (páginas estáticas e scripts) e o backend (Node/Express + MongoDB) usados para demonstrar rastreamento de dispositivos, zonas e simulação de colaboradores.
 
+## Visão Rápida
+- Frontend: páginas em `index.html` e `js/views/*` (MVC simples em JS vanilla)
+- Backend: `backend/server.js` com rotas em `backend/routes/*`
+- Simulador: `simple_simulator.py` para movimentar dispositivos no mapa
+
+## 📋 INSTRUÇÕES DE EXECUÇÃO (PowerShell)
+Execute cada comando em um terminal separado do VS Code.
+
+### 🖥️ TERMINAL 1 - BACKEND
 ```powershell
-cd C:\projetos\Connection-4\backend
-npm install
+cd c:\projetos\Connection-4\backend
+node server.js
 ```
-
-2) (Opcional) Normalizar UIDs no banco (faça backup antes)
-
-```powershell
-## Conectar com MongoDB Compass (passo a passo)
-
-Se você quiser inspecionar o banco usando o MongoDB Compass, siga estes passos simples:
-
-1. Abra o **MongoDB Compass** no seu computador.
-2. Obtenha a string de conexão (URI) usada pelo projeto:
-	- Se estiver usando `.env`, abra `backend/.env` e copie o valor de `MONGODB_URI`.
-	- Exemplo local simples: `mongodb://127.0.0.1:27017/connection4`
-3. No Compass, cole a URI no campo "Paste your connection string (URI)" e clique em **Connect**.
-	- Se a sua URI usar autenticação (usuário/senha), inclua as credenciais na string ou use os campos de autenticação do Compass.
-	- Para clusters Atlas use a string `mongodb+srv://<user>:<pass>@cluster0.example.mongodb.net/myDB` (cole exatamente a string provida pelo Atlas).
-4. Após conectar, você verá a lista de bancos; selecione `connection4` (ou o nome indicado na sua URI) e então explore coleções como `people`, `zones`, `devices`, `positions` e `notifications`.
-
-
-3) Iniciar backend (modo desenvolvimento)
-
-```powershell
-# dentro de C:\projetos\Connection-4\backend
-npm run dev
-```
-
-O backend serve o frontend estático em `http://localhost:3000/` — após iniciar o servidor, abra essa URL no navegador.
-
-Se preferir servir o frontend separadamente (não necessário se backend estiver servindo):
-
-```powershell
-cd C:\projetos\Connection-4
-# usar Live Server do VS Code ou:
-python -m http.server 8000
-# então abra http://localhost:8000/
-```
-
-## URLs úteis
-- Backend API: `http://localhost:3000/api/`
-- Status da API: `http://localhost:3000/api/status`
-- Frontend (quando servido pelo backend): `http://localhost:8000/`
-
-
-
-## Observações e troubleshooting
-- Se `npm install` falhar com "Could not read package.json", verifique que você está dentro da pasta `backend`.
-- Se a migração reclamar de caminhos, o comando correto é `npm run migrate:normalize-uids` executado em `backend`.
-- Se o frontend não carregar recursos estáticos (404), reinicie o backend — o servidor agora serve os arquivos estáticos da raiz do projeto.
-- Verifique o `.env` em `backend/` para `MONGODB_URI` e outras variáveis de ambiente necessárias.
+✅ Resultado esperado: Backend rodando na porta 3000
 
 ---
 
-
-## Exportando dados do banco (backup / versionamento)
-
-Passos para exportar (PowerShell):
-
+### 🌐 TERMINAL 2 - FRONTEND
 ```powershell
-cd C:\projetos\Connection-4\backend
-# defina a URI do Mongo se necessário
-$env:MONGODB_URI = 'mongodb://127.0.0.1:27017/connection4'
-npm run db:export
+cd c:\projetos\Connection-4
+# Use o Live Server do VS Code (clique direito no index.html > Open with Live Server)
+# OU execute um servidor simples:
+python -m http.server 8000
+```
+✅ Resultado esperado: Frontend em http://localhost:8000
+
+---
+
+### 🐍 TERMINAL 3 - SIMULADOR
+```powershell
+cd c:\projetos\Connection-4
+python simple_simulator.py
+```
+✅ Resultado esperado: Colaboradores se movendo no mapa
+
+⚠️ IMPORTANTE: O simulador precisa que o backend esteja rodando primeiro!
+
+---
+
+## 🎯 COMO EXECUTAR
+1. Abra 3 terminais no VS Code (Terminal > New Terminal)
+2. Execute cada comando em um terminal diferente
+3. Aguarde cada serviço iniciar antes do próximo
+4. Acesse http://localhost:8000 no navegador
+5. Vá para "Central de Monitoramento"
+6. Execute o simulador para ver movimento
+
+---
+
+## 🔧 ALTERNATIVA - COMANDOS INDIVIDUAIS
+
+### Terminal 1:
+```powershell
+cd c:\projetos\Connection-4\backend
+node server.js
 ```
 
-## Importando as extrações (restaurando dados) — MongoDB Compass
+### Terminal 2:
+Use o Live Server do VS Code ou:
+```powershell
+cd c:\projetos\Connection-4
+python -m http.server 8000
+```
 
-Após exportar os arquivos JSON (ex.: `people.json`, `zones.json`), você pode importá‑los em outra instância do MongoDB usando o MongoDB Compass ou `mongoimport`.
+### Terminal 3:
+```powershell
+cd c:\projetos\Connection-4
+python simple_simulator.py
+```
 
-Importar via MongoDB Compass (UI):
+---
 
-1. Abra o **MongoDB Compass** e conecte-se ao servidor destino.
-2. Selecione o banco de dados de destino (por exemplo `connection4`). Se não existir, o Compass criará ao importar.
-3. Para cada arquivo exportado:
-	- Clique em **Add Data** → **Import File**.
-	- Em **File Type** selecione **JSON**.
-	- Em **File** selecione o arquivo (por exemplo `backend/exports/<timestamp>/people.json`).
-	- Marque **JSON Array** (o export gera um array de documentos).
-	- Em **Select collection** escolha (ou digite) o nome da coleção destino, por exemplo `people`.
-	- Clique em **Import**.
-4. Se quiser substituir uma coleção existente, clique nos três pontos ao lado da coleção no Compass e escolha **Drop Collection** antes de importar.
+## 🎮 SIMULADOR AVANÇADO (Opcional)
+```powershell
+cd c:\projetos\Connection-4
+python simulator.py --workers 8 --duration 30 --speed 2
+```
 
+---
+
+## Observações
+- Se você estiver usando MongoDB local, verifique a string de conexão em `backend/config/database.js`.
+- Para desenvolvimento rápido use `Live Server` no VS Code.
+
+----
+
+Arquivo atualizado com instruções de execução (PowerShell). 

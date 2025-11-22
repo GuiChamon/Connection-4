@@ -2,6 +2,7 @@
 const CombinedView = (function(){
     const root = document.getElementById('view-root');
     let refreshInterval = null; // Controla o intervalo de atualização automática
+    let editingPersonId = null;
 
     function template(){
         return `
@@ -47,8 +48,11 @@ const CombinedView = (function(){
                                     </select>
                                     <small class="text-muted">Defina quais zonas RFID este colaborador pode acessar</small>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-check-lg me-1"></i>Cadastrar Colaborador
+                                <button type="submit" class="btn btn-primary w-100" id="person-submit-btn">
+                                    <i class="bi bi-check-lg me-1"></i><span id="person-submit-label">Cadastrar Colaborador</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary w-100 mt-2 d-none" id="person-cancel-edit">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelar edição
                                 </button>
                             </form>
                         </div>
@@ -170,6 +174,7 @@ const CombinedView = (function(){
         
         node.innerHTML = '';
         for (const person of people){
+            const personId = person.id || person._id;
             const card = document.createElement('div');
             card.className = 'card mb-3 border';
             card.innerHTML = `
@@ -189,16 +194,19 @@ const CombinedView = (function(){
                                     <i class="bi ${person.deviceId ? 'bi-tablet' : 'bi-tablet'} me-1"></i>
                                     ${person.deviceId ? person.deviceId : 'Sem dispositivo'}
                                 </span>
-                                <small class="text-muted">ID: ${person.id}</small>
+                                <small class="text-muted">ID: ${personId}</small>
                             </div>
                         </div>
                         <div class="btn-group btn-group-sm">
+                            <button data-id="${personId}" class="btn btn-outline-primary btn-edit-person" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
                             ${person.deviceId ? `
-                                <button data-id="${person.id}" class="btn btn-outline-warning btn-unlink" title="Desvincular dispositivo">
+                                <button data-id="${personId}" class="btn btn-outline-warning btn-unlink" title="Desvincular dispositivo">
                                     <i class="bi bi-link-45deg"></i>
                                 </button>
                             ` : ''}
-                            <button data-id="${person.id}" class="btn btn-outline-danger btn-remove-person" title="Remover">
+                            <button data-id="${personId}" class="btn btn-outline-danger btn-remove-person" title="Remover">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -313,9 +321,11 @@ const CombinedView = (function(){
         // Pessoas sem dispositivo
         personSelect.innerHTML = '<option value="">-- Selecione um colaborador --</option>';
         people.forEach(person => {
+            const personId = person.id || person._id;
+            if (!personId) return;
             if (!person.deviceId) {
                 const opt = document.createElement('option');
-                opt.value = person.id;
+                opt.value = personId;
                 opt.textContent = `${person.name} - ${person.role}`;
                 personSelect.appendChild(opt);
             }
@@ -350,18 +360,61 @@ const CombinedView = (function(){
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         
-        // Insere no início do conteúdo principal
         const main = document.querySelector('main');
-        main.insertBefore(alertDiv, main.firstChild);
-        console.log('🔍 [cadastro] devices fetched:', devices);
-        console.log('🔍 [cadastro] zones fetched:', zones.map(z=>({id:z.id,name:z.name,currentlyActive:z.currentlyActive,connectionStatus:z.connectionStatus})));
+        if (main) {
+            main.insertBefore(alertDiv, main.firstChild);
+        } else {
+            document.body.prepend(alertDiv);
+        }
         
-        // Remove automaticamente após 5 segundos
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.remove();
             }
         }, 5000);
+    }
+
+    function resetPersonForm(){
+        editingPersonId = null;
+        const form = document.getElementById('person-form');
+        if (form) {
+            form.reset();
+        }
+        const accessSelect = document.getElementById('person-access-level');
+        if (accessSelect) {
+            accessSelect.value = '1';
+        }
+        const label = document.getElementById('person-submit-label');
+        if (label) {
+            label.textContent = 'Cadastrar Colaborador';
+        }
+        const cancelBtn = document.getElementById('person-cancel-edit');
+        if (cancelBtn) {
+            cancelBtn.classList.add('d-none');
+        }
+    }
+
+    async function startEditPerson(personId){
+        const person = await PeopleModel.find(personId);
+        if (!person) {
+            showAlert('Não foi possível carregar os dados do colaborador para edição.', 'danger');
+            return;
+        }
+        editingPersonId = personId;
+        const nameInput = document.getElementById('person-name');
+        const roleInput = document.getElementById('person-role');
+        const accessSelect = document.getElementById('person-access-level');
+        if (nameInput) nameInput.value = person.name || '';
+        if (roleInput) roleInput.value = person.role || '';
+        if (accessSelect) accessSelect.value = String(person.accessLevel || 1);
+        const label = document.getElementById('person-submit-label');
+        if (label) {
+            label.textContent = 'Salvar alterações';
+        }
+        const cancelBtn = document.getElementById('person-cancel-edit');
+        if (cancelBtn) {
+            cancelBtn.classList.remove('d-none');
+        }
     }
 
     function bindEvents(){
@@ -372,15 +425,29 @@ const CombinedView = (function(){
             const role = document.getElementById('person-role').value.trim();
             const accessLevel = Number(document.getElementById('person-access-level').value) || 1;
             
-            const result = await PeopleController.add({ name, role, accessLevel });
-            if (result.success) {
-                showAlert('Colaborador cadastrado com sucesso!');
-                document.getElementById('person-form').reset();
-                document.getElementById('person-access-level').value = '1';
-                await render(); // Recarrega a view
-            console.log(`📱 [cadastro] Device ${device.id}: full=`, device, 'deviceZone=', deviceZone, 'isPhysicallyActive=', isPhysicallyActive, 'zoneOnline=', zoneOnline, 'isOnline=', isOnline);
-                showAlert(`Erro: ${result.error}`, 'danger');
+            if (editingPersonId) {
+                const result = await PeopleController.update(editingPersonId, { name, role, accessLevel });
+                if (result.success) {
+                    showAlert('Colaborador atualizado com sucesso!');
+                    resetPersonForm();
+                    await render();
+                } else {
+                    showAlert(`Erro: ${result.error}`, 'danger');
+                }
+            } else {
+                const result = await PeopleController.add({ name, role, accessLevel });
+                if (result.success) {
+                    showAlert('Colaborador cadastrado com sucesso!');
+                    resetPersonForm();
+                    await render();
+                } else {
+                    showAlert(`Erro: ${result.error}`, 'danger');
+                }
             }
+        });
+
+        document.getElementById('person-cancel-edit').addEventListener('click', () => {
+            resetPersonForm();
         });
 
         // Cadastrar dispositivo
@@ -423,6 +490,13 @@ const CombinedView = (function(){
 
         // Remover pessoa
         document.getElementById('people-list').addEventListener('click', async (e) => {
+            if (e.target.closest('.btn-edit-person')) {
+                const btn = e.target.closest('.btn-edit-person');
+                const id = btn.getAttribute('data-id');
+                await startEditPerson(id);
+                return;
+            }
+
             if (e.target.closest('.btn-remove-person')) {
                 const btn = e.target.closest('.btn-remove-person');
                 const id = btn.getAttribute('data-id');
@@ -440,8 +514,8 @@ const CombinedView = (function(){
             }
             
             // Desvincular dispositivo
-            if (e.target.closest('.btn-unlink-device')) {
-                const btn = e.target.closest('.btn-unlink-device');
+            if (e.target.closest('.btn-unlink')) {
+                const btn = e.target.closest('.btn-unlink');
                 const id = btn.getAttribute('data-id');
                 const person = await PeopleModel.find(id);
                 
@@ -501,6 +575,7 @@ const CombinedView = (function(){
         }
         
         root.innerHTML = template();
+        resetPersonForm();
         await renderPeopleList();
         await renderDevicesList();
         await populateLinkSelects();

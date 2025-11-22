@@ -40,7 +40,9 @@ peopleSchema.index({ deviceId: 1 });
 
 // Método para encontrar pessoa por deviceId
 peopleSchema.statics.findByDevice = function(deviceId) {
-  return this.findOne({ deviceId: deviceId, active: true });
+  if (!deviceId) return null;
+  const normalized = typeof deviceId === 'string' ? deviceId.trim().toUpperCase() : deviceId;
+  return this.findOne({ deviceId: normalized, active: true });
 };
 
 module.exports = mongoose.model('People', peopleSchema);
