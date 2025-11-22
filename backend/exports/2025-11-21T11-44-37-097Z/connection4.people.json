@@ -1,0 +1,17 @@
+[{
+  "_id": {
+    "$oid": "6920f6eb4a03b6f4e1e95b64"
+  },
+  "name": "teste",
+  "role": "admin",
+  "accessLevel": 3,
+  "deviceId": "02 5C B4 2D",
+  "active": true,
+  "createdAt": {
+    "$date": "2025-11-21T23:34:03.566Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:57:33.864Z"
+  },
+  "__v": 0
+}]
