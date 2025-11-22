@@ -1,0 +1,118 @@
+[{
+  "_id": {
+    "$oid": "691f3b0fca6591d2e25c5ce5"
+  },
+  "id": "entrada",
+  "name": "Portaria Principal",
+  "x": 0.1,
+  "y": 0.04,
+  "width": 0.2243,
+  "height": 0.3072,
+  "color": "#28a745",
+  "icon": "🚪",
+  "deviceId": "entrada",
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": true,
+  "currentlyActive": false,
+  "lastConnection": {
+    "$date": "2025-11-22T17:06:50.741Z"
+  },
+  "connectionStatus": "online",
+  "description": "Área de entrada principal - Zona segura",
+  "createdAt": {
+    "$date": "2025-11-20T16:00:15.789Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:06:57.129Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691f3b0fca6591d2e25c5ce8"
+  },
+  "id": "risco1",
+  "name": "Área de Risco 1",
+  "x": 0.48,
+  "y": 0.08,
+  "width": 0.2,
+  "height": 0.26,
+  "color": "#ffc107",
+  "icon": "⚠️",
+  "deviceId": "risco1",
+  "isRiskZone": true,
+  "riskLevel": "high",
+  "active": true,
+  "currentlyActive": false,
+  "lastConnection": {
+    "$date": "2025-11-22T17:06:57.130Z"
+  },
+  "connectionStatus": "online",
+  "description": "Primeira zona de risco - Requer autorização",
+  "createdAt": {
+    "$date": "2025-11-20T16:00:15.804Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:07:08.631Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691f3b0fca6591d2e25c5ceb"
+  },
+  "id": "risco2",
+  "name": "Área de Risco 2",
+  "x": 0.72,
+  "y": 0.6,
+  "width": 0.1988,
+  "height": 0.2486,
+  "color": "#dc3545",
+  "icon": "🚨",
+  "deviceId": "risco2",
+  "isRiskZone": true,
+  "riskLevel": "critical",
+  "active": true,
+  "currentlyActive": true,
+  "lastConnection": {
+    "$date": "2025-11-22T17:07:05.582Z"
+  },
+  "connectionStatus": "online",
+  "description": "Segunda zona de risco - Acesso altamente restrito",
+  "createdAt": {
+    "$date": "2025-11-20T16:00:15.815Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:07:07.596Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6921e94bf1038b529058322d"
+  },
+  "id": "terter",
+  "name": "terter",
+  "x": 0.41,
+  "y": 0.64,
+  "width": 0.133,
+  "height": 0.1259,
+  "color": "#28a745",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": true,
+  "currentlyActive": false,
+  "lastConnection": null,
+  "connectionStatus": "never_connected",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-11-22T16:48:11.148Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:55:12.444Z"
+  },
+  "__v": 0
+}]
