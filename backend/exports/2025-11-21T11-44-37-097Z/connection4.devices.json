@@ -1,0 +1,80 @@
+[{
+  "_id": {
+    "$oid": "6920f408374cdc20dad0a2f4"
+  },
+  "id": "ENTRADA",
+  "type": "sensor",
+  "active": false,
+  "connectionStatus": "offline",
+  "areaId": "entrada",
+  "lastSeen": {
+    "$date": "2025-11-22T17:06:52.704Z"
+  },
+  "createdAt": {
+    "$date": "2025-11-21T23:21:44.760Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:06:57.125Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6920f43d374cdc20dad0a385"
+  },
+  "id": "RISCO1",
+  "type": "sensor",
+  "active": false,
+  "connectionStatus": "offline",
+  "areaId": "risco1",
+  "lastSeen": {
+    "$date": "2025-11-22T17:07:03.927Z"
+  },
+  "createdAt": {
+    "$date": "2025-11-21T23:22:37.993Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:07:05.576Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6920f441374cdc20dad0a3a3"
+  },
+  "id": "RISCO2",
+  "type": "sensor",
+  "active": false,
+  "connectionStatus": "offline",
+  "areaId": "risco2",
+  "lastSeen": {
+    "$date": "2025-11-22T17:13:17.997Z"
+  },
+  "createdAt": {
+    "$date": "2025-11-21T23:22:41.312Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T17:13:45.045Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692103697203f3e6f1b03bbe"
+  },
+  "id": "02 5C B4 2D",
+  "type": "worker",
+  "active": false,
+  "connectionStatus": "offline",
+  "lastSeen": {
+    "$date": "2025-11-22T16:57:55.510Z"
+  },
+  "areaId": "risco2",
+  "createdAt": {
+    "$date": "2025-11-22T00:27:21.938Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-22T16:58:24.423Z"
+  },
+  "__v": 0
+}]
