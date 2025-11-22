@@ -16,6 +16,11 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
+#include <math.h>
+
+#ifndef DEG_TO_RAD
+#define DEG_TO_RAD 0.01745329251f
+#endif
 
 // ========== CONFIGURAÇÕES DE REDE ==========
 const char* WIFI_SSID = "casa 2";           // Sua rede WiFi
@@ -46,13 +51,78 @@ Area areas[3] = {
 // Área ativa atual (começa na Portaria)
 int currentAreaIndex = 0;
 
-// Funções auxiliares para área
+struct AreaBackendState {
+  bool hasCenter = false;
+  bool hasSensorOffset = false;
+  bool hasScale = false;
+  bool hasAreaSize = false;
+  float centerX = 0.5f;
+  float centerY = 0.5f;
+  float areaWidth = 0.0f;
+  float areaHeight = 0.0f;
+  float sensorOffsetX = 0.0f;
+  float sensorOffsetY = 0.0f;
+  float orientationDeg = 0.0f;
+  float scaleCmPerUnit = 100.0f;
+  unsigned long lastFetch = 0;
+  String zoneId = "";
+  String zoneName = "";
+  String measurementUnit = "normalized";
+};
+
+AreaBackendState backendAreaState;
+
+void resetBackendAreaState() {
+  backendAreaState.hasCenter = false;
+  backendAreaState.hasSensorOffset = false;
+  backendAreaState.hasScale = false;
+  backendAreaState.hasAreaSize = false;
+  backendAreaState.centerX = areas[currentAreaIndex].x;
+  backendAreaState.centerY = areas[currentAreaIndex].y;
+  backendAreaState.areaWidth = 0.0f;
+  backendAreaState.areaHeight = 0.0f;
+  backendAreaState.sensorOffsetX = 0.0f;
+  backendAreaState.sensorOffsetY = 0.0f;
+  backendAreaState.orientationDeg = 0.0f;
+  backendAreaState.scaleCmPerUnit = 100.0f;
+  backendAreaState.zoneId = "";
+  backendAreaState.zoneName = "";
+  backendAreaState.measurementUnit = "normalized";
+  backendAreaState.lastFetch = millis();
+}
+
+float getActiveAreaCenterX() {
+  return backendAreaState.hasCenter ? backendAreaState.centerX : areas[currentAreaIndex].x;
+}
+
+float getActiveAreaCenterY() {
+  return backendAreaState.hasCenter ? backendAreaState.centerY : areas[currentAreaIndex].y;
+}
+
 const char* getCurrentAreaId() { return areas[currentAreaIndex].id; }
-const char* getCurrentAreaName() { return areas[currentAreaIndex].name; }
-float getCurrentAreaX() { return areas[currentAreaIndex].x; }
-float getCurrentAreaY() { return areas[currentAreaIndex].y; }
+const char* getCurrentAreaName() {
+  if (backendAreaState.zoneName.length() > 0) {
+    return backendAreaState.zoneName.c_str();
+  }
+  return areas[currentAreaIndex].name;
+}
+float getCurrentAreaX() { return getActiveAreaCenterX(); }
+float getCurrentAreaY() { return getActiveAreaCenterY(); }
 bool isCurrentAreaRisk() { return areas[currentAreaIndex].isRiskZone; }
 int getCurrentAreaRequiredAccessLevel() { return areas[currentAreaIndex].requiredAccessLevel; }
+
+String getActiveAreaIdForPayload() {
+  if (backendAreaState.zoneId.length() > 0) return backendAreaState.zoneId;
+  return String(getCurrentAreaId());
+}
+
+String getActiveAreaNameForPayload() {
+  if (backendAreaState.zoneName.length() > 0) return backendAreaState.zoneName;
+  return String(getCurrentAreaName());
+}
+
+bool fetchAreaMetadataFromBackend();
+bool estimatePositionFromDistance(float distanceCm, float &estimatedX, float &estimatedY);
 
 bool isAccessAllowedForCurrentArea(int accessLevel) {
   return accessLevel >= getCurrentAreaRequiredAccessLevel();
@@ -68,6 +138,162 @@ bool isAccessAllowedForCurrentArea(int accessLevel) {
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 WiFiClient wifiClient;
+
+bool fetchAreaMetadataFromBackend() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("⚠️ Não é possível buscar metadados da área: WiFi desconectado");
+    return false;
+  }
+  if (AUTH_TOKEN == "") {
+    Serial.println("⚠️ Token ausente - faça login antes de buscar metadados de área");
+    return false;
+  }
+
+  String deviceId = String(getCurrentAreaId());
+  String url = String(SERVER_URL) + "/api/zones/device/" + deviceId;
+  HTTPClient http;
+  http.setTimeout(10000);
+
+  Serial.println("🌐 Sincronizando metadados da área via " + url);
+
+  if (!http.begin(wifiClient, url)) {
+    Serial.println("❌ Falha ao iniciar requisição de metadados da área");
+    return false;
+  }
+
+  http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
+  int httpCode = http.GET();
+
+  if (httpCode != 200) {
+    Serial.println("❌ Erro ao buscar metadados (HTTP " + String(httpCode) + ")");
+    if (httpCode > 0) {
+      Serial.println("📥 " + http.getString());
+    }
+    http.end();
+    return false;
+  }
+
+  String response = http.getString();
+  http.end();
+
+  StaticJsonDocument<1536> doc;
+  DeserializationError error = deserializeJson(doc, response);
+  if (error) {
+    Serial.println("❌ Erro ao parsear metadados da área: " + String(error.c_str()));
+    return false;
+  }
+
+  if (!doc["success"].as<bool>()) {
+    Serial.println("⚠️ Resposta sem sucesso ao buscar metadados da área");
+    return false;
+  }
+
+  JsonObject data = doc["data"];
+  if (data.isNull()) {
+    Serial.println("⚠️ Payload de metadados vazio");
+    return false;
+  }
+
+  backendAreaState.zoneId = data["id"].as<String>();
+  backendAreaState.zoneName = data["name"].as<String>();
+
+  float fallbackX = data["x"].isNull() ? getActiveAreaCenterX() : data["x"].as<float>();
+  float fallbackY = data["y"].isNull() ? getActiveAreaCenterY() : data["y"].as<float>();
+  float fallbackWidth = data["width"].isNull() ? 0.0f : data["width"].as<float>();
+  float fallbackHeight = data["height"].isNull() ? 0.0f : data["height"].as<float>();
+
+  JsonObject computedCenter = data["computedCenter"];
+  if (!computedCenter.isNull()) {
+    backendAreaState.centerX = computedCenter["x"].as<float>();
+    backendAreaState.centerY = computedCenter["y"].as<float>();
+    backendAreaState.hasCenter = true;
+  } else if (!data["centerX"].isNull() && !data["centerY"].isNull()) {
+    backendAreaState.centerX = data["centerX"].as<float>();
+    backendAreaState.centerY = data["centerY"].as<float>();
+    backendAreaState.hasCenter = true;
+  } else {
+    backendAreaState.centerX = fallbackX + (fallbackWidth / 2.0f);
+    backendAreaState.centerY = fallbackY + (fallbackHeight / 2.0f);
+    backendAreaState.hasCenter = true;
+  }
+
+  // Ler largura/altura da área (se fornecido) para permitir clamp interno
+  float areaW = data["width"].isNull() ? fallbackWidth : data["width"].as<float>();
+  float areaH = data["height"].isNull() ? fallbackHeight : data["height"].as<float>();
+  if (areaW > 0.0f && areaH > 0.0f) {
+    backendAreaState.areaWidth = areaW;
+    backendAreaState.areaHeight = areaH;
+    backendAreaState.hasAreaSize = true;
+  } else {
+    backendAreaState.areaWidth = 0.0f;
+    backendAreaState.areaHeight = 0.0f;
+    backendAreaState.hasAreaSize = false;
+  }
+
+  JsonObject sensorConfig = data["sensorConfig"];
+  if (!sensorConfig.isNull()) {
+    backendAreaState.orientationDeg = sensorConfig["orientationDeg"].isNull() ? 0.0f : sensorConfig["orientationDeg"].as<float>();
+    backendAreaState.scaleCmPerUnit = sensorConfig["scaleCmPerUnit"].isNull() ? backendAreaState.scaleCmPerUnit : sensorConfig["scaleCmPerUnit"].as<float>();
+    backendAreaState.measurementUnit = sensorConfig["measurementUnit"].isNull() ? backendAreaState.measurementUnit : sensorConfig["measurementUnit"].as<String>();
+
+    JsonObject offset = sensorConfig["offset"];
+    if (!offset.isNull()) {
+      backendAreaState.sensorOffsetX = offset["x"].isNull() ? 0.0f : offset["x"].as<float>();
+      backendAreaState.sensorOffsetY = offset["y"].isNull() ? 0.0f : offset["y"].as<float>();
+      backendAreaState.hasSensorOffset = true;
+    } else {
+      backendAreaState.sensorOffsetX = 0.0f;
+      backendAreaState.sensorOffsetY = 0.0f;
+      backendAreaState.hasSensorOffset = false;
+    }
+
+    backendAreaState.hasScale = backendAreaState.scaleCmPerUnit > 0.0f;
+  }
+
+  backendAreaState.lastFetch = millis();
+  Serial.println("✅ Metadados de área sincronizados: centro(" + String(backendAreaState.centerX, 4) + ", " + String(backendAreaState.centerY, 4) + ")");
+  Serial.println("   Offset sensor: (" + String(backendAreaState.sensorOffsetX, 4) + ", " + String(backendAreaState.sensorOffsetY, 4) + ")  Escala: " + String(backendAreaState.scaleCmPerUnit, 2) + " cm/unidade");
+  Serial.println("   Orientação: " + String(backendAreaState.orientationDeg, 2) + "°  Unidade: " + backendAreaState.measurementUnit);
+  return true;
+}
+
+bool estimatePositionFromDistance(float distanceCm, float &estimatedX, float &estimatedY) {
+  if (distanceCm <= 0) {
+    return false;
+  }
+
+  float scale = backendAreaState.scaleCmPerUnit > 0.0f ? backendAreaState.scaleCmPerUnit : 100.0f;
+  float distanceUnits = distanceCm / scale;
+  float thetaRad = backendAreaState.orientationDeg * DEG_TO_RAD;
+  float sensorX = getActiveAreaCenterX() + backendAreaState.sensorOffsetX;
+  float sensorY = getActiveAreaCenterY() + backendAreaState.sensorOffsetY;
+  float candidateX = sensorX + cos(thetaRad) * distanceUnits;
+  float candidateY = sensorY + sin(thetaRad) * distanceUnits;
+  // Se tivermos dimensão da área, forçar o resultado para DENTRO dos limites da área
+  if (backendAreaState.hasAreaSize) {
+    float halfW = backendAreaState.areaWidth / 2.0f;
+    float halfH = backendAreaState.areaHeight / 2.0f;
+    float minX = backendAreaState.centerX - halfW;
+    float maxX = backendAreaState.centerX + halfW;
+    float minY = backendAreaState.centerY - halfH;
+    float maxY = backendAreaState.centerY + halfH;
+
+    // Garantir limites entre 0 e 1
+    if (minX < 0.0f) minX = 0.0f;
+    if (minY < 0.0f) minY = 0.0f;
+    if (maxX > 1.0f) maxX = 1.0f;
+    if (maxY > 1.0f) maxY = 1.0f;
+
+    // Clampeamos o candidato para dentro da área
+    estimatedX = constrain(candidateX, minX, maxX);
+    estimatedY = constrain(candidateY, minY, maxY);
+  } else {
+    // Fallback para clamp global
+    estimatedX = constrain(candidateX, 0.0f, 1.0f);
+    estimatedY = constrain(candidateY, 0.0f, 1.0f);
+  }
+  return true;
+}
 
 // ========== VARIÁVEIS DE CONTROLE ==========
 unsigned long lastHeartbeat = 0;
@@ -331,7 +557,16 @@ bool registerDevice() {
 }
 
 // ========== ENVIO DE POSIÇÃO ==========
-bool sendPosition(const String& deviceId, bool inRiskZone, bool alertGenerated) {
+bool sendPosition(
+  const String& deviceId,
+  bool inRiskZone,
+  bool alertGenerated,
+  float measuredDistanceCm = -1.0f,
+  bool hasEstimate = false,
+  float estimatedX = 0.0f,
+  float estimatedY = 0.0f,
+  const char* source = "rfid"
+) {
   if (WiFi.status() != WL_CONNECTED || AUTH_TOKEN == "") return false;
   
   HTTPClient http;
@@ -339,14 +574,39 @@ bool sendPosition(const String& deviceId, bool inRiskZone, bool alertGenerated) 
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
   
-  StaticJsonDocument<300> doc;
+  StaticJsonDocument<600> doc;
+  float baseX = getActiveAreaCenterX();
+  float baseY = getActiveAreaCenterY();
+  float payloadX = hasEstimate ? estimatedX : baseX;
+  float payloadY = hasEstimate ? estimatedY : baseY;
+  if (payloadX < 0) payloadX = 0;
+  if (payloadY < 0) payloadY = 0;
+  if (payloadX > 1) payloadX = 1;
+  if (payloadY > 1) payloadY = 1;
+  if (!source) source = "unknown";
   doc["deviceId"] = deviceId;
-  doc["x"] = getCurrentAreaX();
-  doc["y"] = getCurrentAreaY();
-  doc["areaId"] = getCurrentAreaId();
-  doc["areaName"] = getCurrentAreaName();
+  doc["x"] = payloadX;
+  doc["y"] = payloadY;
+  doc["estimatedX"] = hasEstimate ? payloadX : baseX;
+  doc["estimatedY"] = hasEstimate ? payloadY : baseY;
+  doc["areaId"] = getActiveAreaIdForPayload();
+  doc["areaName"] = getActiveAreaNameForPayload();
   doc["inRiskZone"] = inRiskZone;
   doc["alertGenerated"] = alertGenerated;
+  doc["source"] = source;
+  doc["deviceTimestamp"] = millis();
+  if (measuredDistanceCm >= 0) {
+    doc["distanceCm"] = measuredDistanceCm;
+  }
+  JsonObject areaCenter = doc.createNestedObject("areaCenter");
+  areaCenter["x"] = baseX;
+  areaCenter["y"] = baseY;
+  JsonObject areaMetadata = doc.createNestedObject("areaMetadata");
+  areaMetadata["measurementUnit"] = backendAreaState.measurementUnit;
+  areaMetadata["orientationDeg"] = backendAreaState.orientationDeg;
+  areaMetadata["scaleCmPerUnit"] = backendAreaState.scaleCmPerUnit;
+  areaMetadata["sensorOffsetX"] = backendAreaState.sensorOffsetX;
+  areaMetadata["sensorOffsetY"] = backendAreaState.sensorOffsetY;
   
   String jsonString;
   serializeJson(doc, jsonString);
@@ -382,8 +642,8 @@ bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& pers
   doc["title"] = "Entrada em zona de risco";
   doc["message"] = String("Cartão ") + cardUid + " detectado a " + distanceCm + "cm (<=1m).";
   doc["deviceId"] = getCurrentAreaId();
-  doc["areaId"] = getCurrentAreaId();
-  doc["areaName"] = getCurrentAreaName();
+  doc["areaId"] = getActiveAreaIdForPayload();
+  doc["areaName"] = getActiveAreaNameForPayload();
   doc["workerName"] = personName;
   
   JsonObject position = doc.createNestedObject("position");
@@ -442,8 +702,8 @@ bool logRiskZonePresenceSummary(const String& cardUid, unsigned long durationMs,
   doc["message"] = String("Cartão ") + cardUid + (sessionEnded ? " deixou a zona de risco" : " permanece em zona de risco") +
                     String(" por ") + durationLabel + ".";
   doc["deviceId"] = getCurrentAreaId();
-  doc["areaId"] = getCurrentAreaId();
-  doc["areaName"] = getCurrentAreaName();
+  doc["areaId"] = getActiveAreaIdForPayload();
+  doc["areaName"] = getActiveAreaNameForPayload();
   doc["workerName"] = personName;
 
   JsonObject metadata = doc.createNestedObject("metadata");
@@ -527,8 +787,8 @@ bool logCardLevelChangeRequest(const String& cardUid, const String& personName) 
   doc["title"] = "Solicitação de alteração de nível";
   doc["message"] = String("Cartão ") + cardUid + " (" + personName + ") solicitou alteração de nível na área " + getCurrentAreaName();
   doc["deviceId"] = getCurrentAreaId();
-  doc["areaId"] = getCurrentAreaId();
-  doc["areaName"] = getCurrentAreaName();
+  doc["areaId"] = getActiveAreaIdForPayload();
+  doc["areaName"] = getActiveAreaNameForPayload();
   doc["workerName"] = personName;
 
   JsonObject metadata = doc.createNestedObject("metadata");
@@ -784,7 +1044,10 @@ void validateCard(byte *uid) {
         logRiskZoneEntry(uidStr, measuredDistance, personName);
 
         // Enviar posição mesmo sem autorização para atualizar mapa/dashboard
-        sendPosition(uidStr, true, true);
+        float estX = 0.0f;
+        float estY = 0.0f;
+        bool hasEstimate = estimatePositionFromDistance(measuredDistance, estX, estY);
+        sendPosition(uidStr, true, true, measuredDistance, hasEstimate, estX, estY, "rfid");
 
         // Iniciar sessão de presença por ultrassom imediatamente
         registerRiskPresenceDetection(measuredDistance, true);
@@ -806,7 +1069,10 @@ void validateCard(byte *uid) {
     Serial.println("✅ ACESSO PERMITIDO: " + personName);
     
     // Enviar posição para backend com flag de risco
-    sendPosition(uidStr, finalRisk, finalRisk);
+    float estX = 0.0f;
+    float estY = 0.0f;
+    bool hasEstimate = measuredDistance > 0 ? estimatePositionFromDistance(measuredDistance, estX, estY) : false;
+    sendPosition(uidStr, finalRisk, finalRisk, measuredDistance, hasEstimate, estX, estY, "rfid");
     
     // Armazenar último cartão válido
     copyUID(lastCardUID, uid);
@@ -882,6 +1148,7 @@ bool sendDisconnect(String deviceId) {
 void switchArea() {
   // Ciclo: Portaria (0) -> Risco1 (1) -> Risco2 (2) -> Portaria (0)
   currentAreaIndex = (currentAreaIndex + 1) % 3;
+  resetBackendAreaState();
   
   Serial.println();
   Serial.println("🔄 ===== ÁREA ALTERADA =====");
@@ -909,7 +1176,8 @@ void switchArea() {
     
     // TERCEIRO: Registrar dispositivo se necessário
     delay(500);
-    registerDevice();
+      registerDevice();
+      fetchAreaMetadataFromBackend();
     
     // Feedback visual (padrão específico para troca de área)
     for (int i = 0; i < currentAreaIndex + 1; i++) {
@@ -989,6 +1257,8 @@ bool activateAreaInBackend(const char* deviceId) {
 void setup() {
   Serial.begin(115200);
   delay(100);
+
+  resetBackendAreaState();
   
   // Configurar pinos
   pinMode(LED_PIN, OUTPUT);
@@ -1038,6 +1308,7 @@ void setup() {
       // Registrar dispositivo
       delay(1000);
       registerDevice();
+      fetchAreaMetadataFromBackend();
     }
   } else {
     Serial.println("❌ Falha ao conectar WiFi");
@@ -1198,7 +1469,10 @@ void loop() {
         lastCardUIDStr = uidToUse;
         lastPersonName = nameToUse;
 
-        sendPosition(uidToUse, true, true);
+        float estX = 0.0f;
+        float estY = 0.0f;
+        bool hasEstimate = estimatePositionFromDistance(distance, estX, estY);
+        sendPosition(uidToUse, true, true, distance, hasEstimate, estX, estY, "ultrasonic");
         registerRiskPresenceDetection(distance, unauthorized);
       } else {
         Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas sem sessão/UID ativo.");
