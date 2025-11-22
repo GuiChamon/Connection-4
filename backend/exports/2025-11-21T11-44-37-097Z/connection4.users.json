@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "6920f1af791879db02f852ee"
+  },
+  "name": "Administrador",
+  "email": "admin@admin.com",
+  "password": "$2a$12$EGx/xISCjbFsslDC1FBcaOdLo8Z2.s8YWk5hiTWfARki84htZvR7e",
+  "role": "admin",
+  "department": "TI",
+  "active": true,
+  "lastLogin": null,
+  "loginAttempts": 0,
+  "lockUntil": null,
+  "createdAt": {
+    "$date": "2025-11-21T23:11:43.478Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T23:11:43.478Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6920f1af791879db02f852f0"
+  },
+  "name": "Marco Bubola",
+  "email": "marcobubola@hotmail.com",
+  "password": "$2a$12$fBnRzAA6p5l2DWij3vOa7.1yMYbAaf5XhZuSBwGfdzTq/A7o37QMy",
+  "role": "admin",
+  "department": "Engenharia",
+  "active": true,
+  "lastLogin": {
+    "$date": "2025-11-21T23:12:02.152Z"
+  },
+  "createdAt": {
+    "$date": "2025-11-21T23:11:43.859Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T23:12:02.163Z"
+  },
+  "__v": 0
+}]
