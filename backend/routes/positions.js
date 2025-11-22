@@ -124,9 +124,6 @@ router.post('/', async (req, res) => {
       if (!hasAccess && inRiskZone) {
         alertType = 'UNAUTHORIZED_ACCESS';
         alertMessage = `ACESSO NÃO AUTORIZADO: ${person.name} (${person.role}) em ${areaName || areaId}`;
-      } else if (inRiskZone && hasAccess) {
-        alertType = 'RISK_ZONE_AUTHORIZED';
-        alertMessage = `${person.name} entrou em zona de risco (autorizado)`;
       }
     } else if (!person) {
       // Dispositivo não cadastrado
