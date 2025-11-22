@@ -938,3 +938,34 @@ h1, h2, h3, h4, h5, h6 {
       max-height: 120px;
   }
 }
+
+/* ================================================
+   ALERTAS DE MAPA - ANIMAÇÃO DE BRILHO
+   ================================================ */
+
+@keyframes alertPulse {
+  0% { box-shadow: 0 0 0 rgba(220,53,69,0.18), 0 0 30px rgba(220,53,69,0.12); }
+  40% { box-shadow: 0 0 40px rgba(220,53,69,0.6), 0 0 60px rgba(220,53,69,0.35); }
+  70% { box-shadow: 0 0 60px rgba(220,53,69,0.75), 0 0 90px rgba(220,53,69,0.45); }
+  100% { box-shadow: 0 0 0 rgba(220,53,69,0.18), 0 0 30px rgba(220,53,69,0.12); }
+}
+
+@keyframes markerPulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.02); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.map-alert-glow {
+  animation: alertPulse 1.4s ease-in-out infinite !important;
+  border-radius: 18px !important;
+  border: 6px solid rgba(220,53,69,0.9) !important; /* vermelho forte */
+  box-shadow: 0 16px 80px rgba(220,53,69,0.38) !important;
+}
+
+/* Forçar que a animação seja visível ao redor do wrapper do mapa */
+#map-wrapper.map-alert-glow {
+  animation: alertPulse 1.4s ease-in-out infinite !important;
+  border: 6px solid rgba(220,53,69,0.9) !important;
+  box-shadow: 0 18px 90px rgba(220,53,69,0.42) !important;
+}
