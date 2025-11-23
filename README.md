@@ -27,7 +27,7 @@ Abra três terminais (um para backend, um para frontend e um para o simulador).
 ### 1) Backend
 ```powershell
 cd C:\projetos\Connection-4\backend
-node server.js
+npm run dev
 ```
 Esperado: Backend rodando em `http://localhost:3000`.
 
