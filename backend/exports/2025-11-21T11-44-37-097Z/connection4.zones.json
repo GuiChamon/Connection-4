@@ -1,90 +1,229 @@
 [{
   "_id": {
-    "$oid": "691f3b0fca6591d2e25c5ce5"
+    "$oid": "691f32ccadf93c41943e5fd4"
   },
   "id": "entrada",
   "name": "Portaria Principal",
-  "x": 0.1,
-  "y": 0.04,
-  "width": 0.2243,
-  "height": 0.3072,
+  "x": 0.15,
+  "y": 0.12,
+  "width": 0.2133,
+  "height": 0.2747,
   "color": "#28a745",
   "icon": "🚪",
   "deviceId": "entrada",
   "isRiskZone": false,
   "riskLevel": "none",
   "active": true,
-  "currentlyActive": false,
-  "lastConnection": {
-    "$date": "2025-11-22T17:06:50.741Z"
-  },
-  "connectionStatus": "online",
-  "description": "Área de entrada principal - Zona segura",
+  "description": "Área de entrada principal do canteiro de obras",
   "createdAt": {
-    "$date": "2025-11-20T16:00:15.789Z"
+    "$date": "2025-11-20T15:25:00.999Z"
   },
   "updatedAt": {
-    "$date": "2025-11-22T17:06:57.129Z"
+    "$date": "2025-11-21T00:49:21.008Z"
   },
-  "__v": 0
+  "__v": 0,
+  "connectionStatus": "online",
+  "currentlyActive": false,
+  "lastConnection": {
+    "$date": "2025-11-20T21:53:40.705Z"
+  }
 },
 {
   "_id": {
-    "$oid": "691f3b0fca6591d2e25c5ce8"
+    "$oid": "691f32cdadf93c41943e5fd7"
   },
   "id": "risco1",
-  "name": "Área de Risco 1",
-  "x": 0.48,
-  "y": 0.08,
-  "width": 0.2,
-  "height": 0.26,
+  "name": "Area de Risco 1",
+  "x": 0.73,
+  "y": 0.64,
+  "width": 0.18,
+  "height": 0.18,
   "color": "#ffc107",
   "icon": "⚠️",
   "deviceId": "risco1",
   "isRiskZone": true,
   "riskLevel": "high",
   "active": true,
-  "currentlyActive": false,
-  "lastConnection": {
-    "$date": "2025-11-22T17:06:57.130Z"
-  },
-  "connectionStatus": "online",
-  "description": "Primeira zona de risco - Requer autorização",
+  "description": "Zona de alto risco - Guindastes e máquinas pesadas",
   "createdAt": {
-    "$date": "2025-11-20T16:00:15.804Z"
+    "$date": "2025-11-20T15:25:01.011Z"
   },
   "updatedAt": {
-    "$date": "2025-11-22T17:07:08.631Z"
+    "$date": "2025-11-21T01:52:28.439Z"
+  },
+  "__v": 0,
+  "connectionStatus": "online",
+  "currentlyActive": false,
+  "lastConnection": {
+    "$date": "2025-11-21T01:52:23.372Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "691f32cdadf93c41943e5fda"
+  },
+  "id": "risco2",
+  "name": "Area de Risco 2",
+  "x": 0.43,
+  "y": 0.04,
+  "width": 0.2631,
+  "height": 0.3617,
+  "color": "#dc3545",
+  "icon": "🔥",
+  "deviceId": "risco2",
+  "isRiskZone": true,
+  "riskLevel": "critical",
+  "active": true,
+  "description": "Zona crítica - Soldas e trabalhos com fogo",
+  "createdAt": {
+    "$date": "2025-11-20T15:25:01.015Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T01:52:28.441Z"
+  },
+  "__v": 0,
+  "connectionStatus": "online",
+  "currentlyActive": true,
+  "lastConnection": {
+    "$date": "2025-11-21T01:52:28.441Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "691f391a2477b5dadf1233b3"
+  },
+  "id": "234",
+  "name": "teste",
+  "x": 0.43,
+  "y": 0.65,
+  "width": 0.18,
+  "height": 0.18,
+  "color": "#2982a8",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": true,
+  "description": "",
+  "createdAt": {
+    "$date": "2025-11-20T15:51:54.147Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T00:43:12.318Z"
+  },
+  "__v": 0,
+  "connectionStatus": "never_connected",
+  "currentlyActive": false
+},
+{
+  "_id": {
+    "$oid": "691f4df8f61fffcbcb25b3ea"
+  },
+  "id": "teste12",
+  "name": "2112",
+  "x": 0.8,
+  "y": 0.09,
+  "width": 0.18,
+  "height": 0.18,
+  "color": "#3e29a8",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": true,
+  "currentlyActive": false,
+  "lastConnection": null,
+  "connectionStatus": "never_connected",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-11-20T17:20:56.921Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T01:31:00.041Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "691f3b0fca6591d2e25c5ceb"
+    "$oid": "691f53c160956bd1e4d98505"
   },
-  "id": "risco2",
-  "name": "Área de Risco 2",
-  "x": 0.72,
-  "y": 0.6,
-  "width": 0.1988,
-  "height": 0.2486,
-  "color": "#dc3545",
-  "icon": "🚨",
-  "deviceId": "risco2",
-  "isRiskZone": true,
-  "riskLevel": "critical",
-  "active": true,
-  "currentlyActive": true,
-  "lastConnection": {
-    "$date": "2025-11-22T17:07:05.582Z"
-  },
-  "connectionStatus": "online",
-  "description": "Segunda zona de risco - Acesso altamente restrito",
+  "id": "tewrte",
+  "name": "wre",
+  "x": 0.09,
+  "y": 0.3,
+  "width": 0.1,
+  "height": 0.1,
+  "color": "#28a745",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": false,
+  "currentlyActive": false,
+  "lastConnection": null,
+  "connectionStatus": "never_connected",
+  "description": "",
   "createdAt": {
-    "$date": "2025-11-20T16:00:15.815Z"
+    "$date": "2025-11-20T17:45:37.633Z"
   },
   "updatedAt": {
-    "$date": "2025-11-22T17:07:07.596Z"
+    "$date": "2025-11-20T17:48:10.446Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691f547260956bd1e4d987ab"
+  },
+  "id": "trete",
+  "name": "erter",
+  "x": 0.28,
+  "y": 0.4,
+  "width": 0.1,
+  "height": 0.1,
+  "color": "#28a745",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": false,
+  "currentlyActive": false,
+  "lastConnection": null,
+  "connectionStatus": "never_connected",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-11-20T17:48:34.058Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-20T17:49:28.680Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "691f54ad60956bd1e4d988f8"
+  },
+  "id": "fewrw",
+  "name": "werwer",
+  "x": 0.17,
+  "y": 0.55,
+  "width": 0.1164,
+  "height": 0.1305,
+  "color": "#28a745",
+  "icon": "📍",
+  "deviceId": null,
+  "isRiskZone": false,
+  "riskLevel": "none",
+  "active": true,
+  "currentlyActive": false,
+  "lastConnection": null,
+  "connectionStatus": "never_connected",
+  "description": "",
+  "createdAt": {
+    "$date": "2025-11-20T17:49:33.061Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-21T00:43:10.586Z"
   },
   "__v": 0
 },
