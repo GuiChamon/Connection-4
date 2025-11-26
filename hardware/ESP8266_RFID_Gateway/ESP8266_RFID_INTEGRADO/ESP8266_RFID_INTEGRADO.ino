@@ -637,10 +637,10 @@ bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& pers
   http.addHeader("Authorization", "Bearer " + AUTH_TOKEN);
 
   StaticJsonDocument<512> doc;
-  doc["type"] = "RISK_ZONE_ENTRY";
-  doc["severity"] = "HIGH";
-  doc["title"] = "Entrada em zona de risco";
-  doc["message"] = String("Cartão ") + cardUid + " detectado a " + distanceCm + "cm (<=1m).";
+  doc["type"] = "UNAUTHORIZED_ACCESS";
+  doc["severity"] = "CRITICAL";
+  doc["title"] = "Acesso não autorizado em zona de risco";
+  doc["message"] = String("ACESSO NEGADO: Cartão ") + cardUid + " detectado a " + distanceCm + "cm (<=1m).";
   doc["deviceId"] = getCurrentAreaId();
   doc["areaId"] = getActiveAreaIdForPayload();
   doc["areaName"] = getActiveAreaNameForPayload();
@@ -654,6 +654,8 @@ bool logRiskZoneEntry(const String& cardUid, long distanceCm, const String& pers
   metadata["cardUid"] = cardUid;
   metadata["distanceCm"] = distanceCm;
   metadata["sensor"] = "HC-SR04";
+  metadata["accessStatus"] = "denied";
+  metadata["requiredLevel"] = getCurrentAreaRequiredAccessLevel();
 
   String payload;
   serializeJson(doc, payload);
