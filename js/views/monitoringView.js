@@ -79,18 +79,7 @@ const MonitoringView = (function () {
           }
         </style>
         <div class="col-12">
-            <!-- Cabeçalho da Seção - EXATAMENTE igual ao de Gestão de Recursos -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h4 text-dark mb-1">
-                        <i class="bi bi-building text-primary me-2"></i>Sistema de Monitoramento - Canteiro de Obras
-                    </h2>
-                    <p class="text-muted mb-0"></p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6">Sistema Acadêmico</span>
-                </div>
-            </div>
+         
 
             <!-- Layout com Mapa e Painel Lateral -->
             <div class="row">
