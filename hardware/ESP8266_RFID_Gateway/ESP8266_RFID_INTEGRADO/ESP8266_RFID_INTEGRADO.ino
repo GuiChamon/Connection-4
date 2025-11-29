@@ -22,12 +22,11 @@
 #define DEG_TO_RAD 0.01745329251f
 #endif
 
-// ========== CONFIGURAÇÕES DE REDE ==========
-const char* WIFI_SSID = "casa 2";           // Sua rede WiFi
-const char* WIFI_PASSWORD = "a1b2c3d4e5";  // Senha WiFi
+const char* WIFI_SSID = "iPhone de Marquinho";           // Sua rede WiFi
+const char* WIFI_PASSWORD = "marco12345";  // Senha WiFi
 
 // Servidor Backend Connection-4
-const char* SERVER_URL = "http://192.168.0.102:3000";  // Ajustar IP do servidor
+const char* SERVER_URL = "http://172.20.10.3:3000";  // Ajustar IP do servidor
 String AUTH_TOKEN = "";  // Token JWT será obtido no login
 
 // ========== CONFIGURAÇÃO DAS ÁREAS ==========
@@ -1477,12 +1476,11 @@ void loop() {
         sendPosition(uidToUse, true, true, distance, hasEstimate, estX, estY, "ultrasonic");
         registerRiskPresenceDetection(distance, unauthorized);
       } else {
-        Serial.println("👋 Presença detectada pelo ultrassom (<=1m) mas sem sessão/UID ativo.");
-        if (lastCardValid && !recentCard) {
-          Serial.println("   O último cartão foi validado há mais de " + String(CARD_VALIDITY_WINDOW / 1000) + "s. Ignorando leitura antiga.");
-        }
-        Serial.println("   Distância: " + String(distance) + " cm");
-        closeRiskPresenceSession(false);
+        // Sem sessão ativa e sem cartão validado recentemente: ignorar completamente
+        // Não registrar notificações, não enviar posição e evitar prints excessivos.
+        // Atualizamos apenas o timestamp de debounce para não processar a mesma leitura repetidamente.
+        // (Se houver necessidade de debug, reative o println abaixo)
+        // Serial.println("👋 Presença (ignorando) - sem sessão/UID válido. Dist: " + String(distance) + " cm");
       }
 
       lastUltrasonicCheck = millis();
