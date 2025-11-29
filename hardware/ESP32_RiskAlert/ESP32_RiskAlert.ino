@@ -4,9 +4,12 @@
 #include <cstring>
 
 // ======================== CONFIGURAÇÕES ========================
-const char* WIFI_SSID = "casa 2";           // Sua rede WiFi
-const char* WIFI_PASSWORD = "a1b2c3d4e5";       // TODO: atualizar com senha
-const char* SERVER_URL = "http://192.168.0.102:3000"; // Backend Connection-4
+const char* WIFI_SSID = "iPhone de Marquinho";           // Sua rede WiFi
+const char* WIFI_PASSWORD = "marco12345";  // Senha WiFi
+
+// Servidor Backend Connection-4
+const char* SERVER_URL = "http://172.20.10.3:3000";  // Ajustar IP do servidor
+  // Ajustar IP do servidor
 const char* DEVICE_ID = "esp32_alerta_01";     // ID utilizado em /api/auth/device-login
 
 // Pinos de saída
