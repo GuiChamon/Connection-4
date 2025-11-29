@@ -31,7 +31,7 @@ const MonitoringView = (function () {
 
           .control-buttons { display:flex; gap:8px; flex-wrap:nowrap; align-items:center; }
             .control-buttons button { flex:0 1 auto; min-width:0; max-width:160px; }
-          .control-panel-card { height: calc(100vh - 210px); display:flex; flex-direction:column; }
+          .control-panel-card { height: calc(100vh - 100px); display:flex; flex-direction:column; }
           .control-panel-card .card-body { flex:1; display:flex; flex-direction:column; gap:12px; padding:12px; }
           .panel-section { border-bottom:1px solid #f1f3f5; padding-bottom:12px; }
           .panel-section:last-child { border-bottom:none; padding-bottom:0; }
@@ -122,7 +122,7 @@ const MonitoringView = (function () {
                             </div>
                         </div>
                         <div class="card-body p-0">
-                            <div class="map-container position-relative bg-light" style="height: calc(100vh - 300px);">
+                            <div class="map-container position-relative bg-light" style="height: calc(100vh - 190px);">
                               <div id="map-card" class="card map-card position-absolute w-100 h-100 p-3" style="background:transparent; border:none;">
                                 <div class="map-canvas position-absolute w-100 h-100" id="map-canvas">
                                     <!-- mapa será renderizado aqui -->
