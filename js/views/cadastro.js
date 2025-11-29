@@ -37,7 +37,10 @@ const CombinedView = (function(){
                                 </div>
                                 <div class="mb-3">
                                     <label for="person-role" class="form-label">Função/Cargo *</label>
-                                    <input type="text" class="form-control" id="person-role" placeholder="Ex: Engenheiro Civil, Mestre de Obras" required>
+                                    <select class="form-select" id="person-role" required>
+                                        <option value="">-- Selecionar Função/Cargo --</option>
+                                    </select>
+                                    <div class="form-text">Selecione a função/cargo do canteiro</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="person-access-level" class="form-label">Nível de Acesso *</label>
@@ -215,6 +218,45 @@ const CombinedView = (function(){
             `;
             node.appendChild(card);
         }
+    }
+
+    /**
+     * Retorna todas as funções encontradas nas áreas restritas (AccessControlModel)
+     */
+    function getAllRoles() {
+        try {
+            const restricted = AccessControlModel.getRestrictedAreas() || [];
+            const rolesSet = new Set();
+            restricted.forEach(area => {
+                const allowed = area.allowedRoles;
+                if (Array.isArray(allowed)) {
+                    allowed.forEach(r => {
+                        if (r && typeof r === 'string') rolesSet.add(r);
+                    });
+                }
+            });
+            return Array.from(rolesSet).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        } catch (err) {
+            console.warn('Não foi possível obter funções do AccessControlModel', err);
+            return [];
+        }
+    }
+
+    /**
+     * Popula o select de funções `#person-role` com as funções do canteiro
+     */
+    function populateRoleSelect() {
+        const sel = document.getElementById('person-role');
+        if (!sel) return;
+        // manter a primeira opção de placeholder
+        sel.innerHTML = '<option value="">-- Selecionar Função/Cargo --</option>';
+        const roles = getAllRoles();
+        roles.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r;
+            opt.textContent = r;
+            sel.appendChild(opt);
+        });
     }
 
     async function renderDevicesList(){
@@ -405,7 +447,17 @@ const CombinedView = (function(){
         const roleInput = document.getElementById('person-role');
         const accessSelect = document.getElementById('person-access-level');
         if (nameInput) nameInput.value = person.name || '';
-        if (roleInput) roleInput.value = person.role || '';
+        if (roleInput) {
+            const val = person.role || '';
+            // se a role não estiver no select, adiciona para que possa ser selecionada
+            if (val && !roleInput.querySelector(`option[value="${CSS.escape ? CSS.escape(val) : val}"]`)) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                roleInput.appendChild(opt);
+            }
+            roleInput.value = val;
+        }
         if (accessSelect) accessSelect.value = String(person.accessLevel || 1);
         const label = document.getElementById('person-submit-label');
         if (label) {
@@ -575,6 +627,8 @@ const CombinedView = (function(){
         }
         
         root.innerHTML = template();
+        // Popular select de funções baseado nas configurações do canteiro
+        populateRoleSelect();
         resetPersonForm();
         await renderPeopleList();
         await renderDevicesList();
