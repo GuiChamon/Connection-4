@@ -1,0 +1,58 @@
+[
+  {
+    "id": "SENSOR-RISCO-A",
+    "type": "sensor",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "SENSOR-RISCO-B",
+    "type": "sensor",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "SENSOR-CORREDOR-01",
+    "type": "sensor",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "SENSOR-ENTRADA-01",
+    "type": "sensor",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "BADGE-ES01",
+    "type": "worker",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "BADGE-TC02",
+    "type": "worker",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "BADGE-SC03",
+    "type": "worker",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  },
+  {
+    "id": "BADGE-IN04",
+    "type": "worker",
+    "active": true,
+    "connectionStatus": "never_connected",
+    "areaId": null
+  }
+]
