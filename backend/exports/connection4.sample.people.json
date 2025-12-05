@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Ana Souza",
+    "role": "Engenheira de Segurança",
+    "accessLevel": 3,
+    "deviceId": "BADGE-ES01",
+    "active": true
+  },
+  {
+    "name": "Bruno Lima",
+    "role": "Técnico de Campo",
+    "accessLevel": 2,
+    "deviceId": "BADGE-TC02",
+    "active": true
+  },
+  {
+    "name": "Carla Dias",
+    "role": "Operadora Sala de Controle",
+    "accessLevel": 2,
+    "deviceId": "BADGE-SC03",
+    "active": true
+  },
+  {
+    "name": "Diego Ramos",
+    "role": "Inspetor",
+    "accessLevel": 1,
+    "deviceId": "BADGE-IN04",
+    "active": true
+  }
+]
