@@ -99,7 +99,6 @@
 
   <!-- Views (APENAS as necessárias) -->
   <script src="js/views/authView.js"></script>
-  <script src="js/views/mapView.js"></script>
   <script src="js/views/monitoringView.js"></script>
   <script src="js/views/cadastro.js"></script>
   <script src="js/views/zonesManagement.js"></script>
@@ -179,58 +178,41 @@
       console.log('DOM carregado, inicializando sistema...');
       
       try {
-        // GARANTIR LOGIN ANTES DE QUALQUER COISA
-        let token = localStorage.getItem('token');
-        
-        if (!token || !AuthModel.isAuthenticated()) {
-          console.log('🔐 Fazendo login automático...');
-          
-          // LOGIN AUTOMÁTICO PARA DESENVOLVIMENTO/DISPOSITIVOS
-          try {
-            const autoLoginResponse = await fetch('http://localhost:3000/api/auth/device-login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                deviceId: 'web_admin',
-                deviceSecret: 'device_secret_web_admin'
-              })
-            });
-            
-            if (autoLoginResponse.ok) {
-              const result = await autoLoginResponse.json();
-              if (result.success && result.token) {
-                localStorage.setItem('token', result.token);
-                token = result.token;
-                console.log('✅ Login automático realizado - Token salvo');
-              } else {
-                throw new Error('Token não retornado');
-              }
-            } else {
-              const errorText = await autoLoginResponse.text();
-              console.error('❌ Login falhou:', errorText);
-              AuthView.renderLogin();
-              return;
-            }
-          } catch (error) {
-            console.error('❌ Erro no login automático:', error);
-            AuthView.renderLogin();
-            return;
-          }
+        // MIGRAR TOKEN LEGADO SE EXISTIR
+        const legacyToken = localStorage.getItem('token');
+        if (!AuthModel.getToken() && legacyToken) {
+          localStorage.setItem('connection4_token', legacyToken);
+          localStorage.removeItem('token');
         }
 
-        // Verificar se token é válido (pode ser que o token antigo exista mas esteja expirado)
-        console.log('🔍 Verificando validade do token...');
-        const isTokenValid = await AuthModel.verifyToken();
-        if (!isTokenValid) {
-          console.log('⚠️ Token inválido, removendo e fazendo novo login...');
-          localStorage.removeItem('token');
-          location.reload();
+        // Exigir token de usuário; se não houver, exibir login
+        let token = AuthModel.getToken();
+        if (!token || !AuthModel.isAuthenticated()) {
+          console.log('🔐 Nenhum token de usuário, exibindo tela de login');
+          AuthView.renderLogin();
           return;
         }
 
-        console.log('✅ Token válido, inicializando sistema...');
+        // Verificar token
+        console.log('🔍 Verificando validade do token...');
+        const isTokenValid = await AuthModel.verifyToken();
+        if (!isTokenValid) {
+          console.log('⚠️ Token inválido, limpando e pedindo login');
+          AuthModel.clearAuthData();
+          AuthView.renderLogin();
+          return;
+        }
 
-        // Usuário autenticado - mostrar sistema principal
+        // Garantir dados do usuário carregados; se falhar, voltar ao login
+        const currentUser = AuthModel.getUser() || await AuthModel.getCurrentUser();
+        if (!currentUser) {
+          console.log('⚠️ Usuário não carregado, voltando ao login');
+          AuthModel.clearAuthData();
+          AuthView.renderLogin();
+          return;
+        }
+
+        console.log('✅ Token válido e usuário carregado, inicializando sistema...');
         await initializeMainSystem();
         
       } catch (error) {
