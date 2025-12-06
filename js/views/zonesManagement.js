@@ -25,6 +25,13 @@ const ZonesManagementView = (function(){
         zones: { panelId: 'zones-filter-panel' }
     };
 
+    function getAuthToken(){
+        if (typeof AuthModel !== 'undefined' && AuthModel.getToken) {
+            return AuthModel.getToken();
+        }
+        return localStorage.getItem('connection4_token') || localStorage.getItem('token');
+    }
+
     const RISK_LEVEL_LABELS = {
         '1': 'Nível 1 • Áreas comuns',
         '2': 'Nível 2 • Risco moderado',
@@ -671,7 +678,7 @@ const ZonesManagementView = (function(){
     async function loadZones(){
         const listNode = document.getElementById('zones-list');
         try {
-            const token = localStorage.getItem('token');
+            const token = getAuthToken();
             await loadDevices();
             const response = await fetch(API_URL, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -1207,7 +1214,7 @@ const ZonesManagementView = (function(){
     }
 
     async function saveZone(formData){
-        const token = localStorage.getItem('token');
+        const token = getAuthToken();
         const editId = editingZoneId || document.getElementById('zone-edit-id').value;
         const isEdit = Boolean(editId);
         const url = isEdit ? `${API_URL}/${editId}` : API_URL;
@@ -1252,7 +1259,7 @@ const ZonesManagementView = (function(){
 
     async function fetchZoneById(zoneId){
         try {
-            const token = localStorage.getItem('token');
+            const token = getAuthToken();
             const response = await fetch(`${API_URL}/${zoneId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -1277,7 +1284,7 @@ const ZonesManagementView = (function(){
         });
         if (!accepted) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = getAuthToken();
             const response = await fetch(`${API_URL}/${zoneId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
