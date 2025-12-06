@@ -4,6 +4,19 @@ const MonitoringView = (function () {
   let monitoringInterval = null; // Controla o intervalo de atualização de trabalhadores
   let mapRefreshInterval = null; // Controla o intervalo de atualização do mapa (áreas)
   let editingEnabled = false; // Controla se as áreas podem ser movidas/redimensionadas
+  let hasAnimatedMapAreas = false; // Evita reiniciar animações a cada atualização
+
+  const getAuthToken = () => {
+    try {
+      if (typeof AuthModel !== "undefined" && typeof AuthModel.getToken === "function") {
+        const token = AuthModel.getToken();
+        if (token) return token;
+      }
+    } catch (err) {
+      console.warn("⚠️ Falha ao obter token via AuthModel:", err);
+    }
+    return localStorage.getItem("connection4_token") || localStorage.getItem("token");
+  };
 
   const normalizeDeviceId = (value) => {
     if (!value) return "";
@@ -13,48 +26,98 @@ const MonitoringView = (function () {
   function template() {
     return `
         <style>
+          @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+          
           /* Modern buttons */
           .btn-modern {
             color: #fff;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-            transition: transform .12s ease, box-shadow .12s ease;
-            padding: 0.32rem 0.7rem;
-            font-size: 0.88rem;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
           }
-          .btn-modern:active { transform: translateY(1px); box-shadow: 0 3px 12px rgba(0,0,0,0.12); }
-          .btn-modern.primary { background: linear-gradient(135deg,#6f42c1 0%,#4b2c97 100%); }
-          .btn-modern.secondary { background: linear-gradient(135deg,#0d6efd 0%,#073a8c 100%); }
-          .btn-modern.accent { background: linear-gradient(135deg,#ff8a00 0%,#ff5f6d 100%); }
+          .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+          .btn-modern:active { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+          .btn-modern.primary { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+          .btn-modern.secondary { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+          .btn-modern.accent { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
           .control-buttons { display:flex; gap:8px; flex-wrap:nowrap; align-items:center; }
             .control-buttons button { flex:0 1 auto; min-width:0; max-width:160px; }
           .control-panel-card { height: calc(100vh - 100px); display:flex; flex-direction:column; }
           .control-panel-card .card-body { flex:1; display:flex; flex-direction:column; gap:12px; padding:12px; }
-          .panel-section { border-bottom:1px solid #f1f3f5; padding-bottom:12px; }
-          .panel-section:last-child { border-bottom:none; padding-bottom:0; }
+          .panel-section { border-bottom: 1px solid rgba(148, 163, 184, 0.15); padding-bottom: 16px; }
+          .panel-section:last-child { border-bottom: none; padding-bottom: 0; }
 
           .workers-list { max-height:none; flex:3 1 auto; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px; }
-          .worker-card { border:1px solid #eceff3; border-radius:12px; padding:10px; background:#fff; box-shadow:0 5px 12px rgba(18,38,63,0.06); }
-          .worker-card-unauthorized { border-color:#ffb38a; background:#fff6f1; }
-          .worker-card-danger { border-color:#ff6384; }
-          .worker-card .worker-name { font-weight:600; font-size:0.95rem; }
-          .worker-card .worker-role { font-size:0.8rem; color:#6c757d; }
-          .worker-meta { display:flex; flex-wrap:wrap; gap:8px; font-size:0.75rem; color:#6c757d; margin-top:6px; }
-          .worker-meta span { display:flex; align-items:center; gap:4px; }
-          .status-pill { padding:2px 8px; border-radius:999px; font-size:0.7rem; font-weight:600; }
-          .status-pill.warning { background:#ffe8cc; color:#b65700; }
-          .status-pill.danger { background:#ffe4e8; color:#c30032; }
-          .status-pill.success { background:#d1f2e1; color:#146c43; }
+          .worker-card { 
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 12px;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .worker-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          }
+          .worker-card-unauthorized { 
+            border-color: rgba(255, 107, 0, 0.6);
+            background: linear-gradient(145deg, rgba(255, 107, 0, 0.15), rgba(185, 28, 28, 0.1));
+            box-shadow: 0 8px 24px rgba(255, 107, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          }
+          .worker-card-danger { 
+            border-color: rgba(239, 68, 68, 0.6);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+          }
+          .worker-card .worker-name { font-weight:700; font-size:0.95rem; color: #fff; }
+          .worker-card .worker-role { font-size:0.8rem; color: rgba(203, 213, 225, 0.8); }
+          .worker-meta { display:flex; flex-wrap:wrap; gap:8px; font-size:0.75rem; color: rgba(148, 163, 184, 0.9); margin-top:8px; }
+          .worker-meta span { display:flex; align-items:center; gap:4px; background: rgba(15, 23, 42, 0.5); padding: 3px 8px; border-radius: 8px; }
+          .status-pill { padding:4px 10px; border-radius:999px; font-size:0.7rem; font-weight:700; text-transform: uppercase; letter-spacing: 0.5px; }
+          .status-pill.warning { background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
+          .status-pill.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color:#fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+          .status-pill.success { background: linear-gradient(135deg, #10b981, #059669); color:#fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 
           /* Alert cards */
-          .alert-card { display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:12px; border:1px solid #f1f3f5; background:#fff; box-shadow:0 5px 14px rgba(18,38,63,0.08); }
-          .alert-card .alert-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; }
-          .alert-card .alert-body { flex:1; }
-          .alert-card .alert-title { font-weight:700; font-size:0.95rem; }
-          .alert-card .alert-sub { font-size:0.8rem; color:#6c757d; margin-top:2px; }
+          .alert-card { 
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px;
+            border-radius: 16px;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .alert-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          }
+          .alert-card .alert-icon { 
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+          }
+          .alert-card .alert-body { flex: 1; }
+          .alert-card .alert-title { font-weight: 700; font-size: 0.95rem; color: #fff; }
+          .alert-card .alert-sub { font-size: 0.8rem; color: rgba(203, 213, 225, 0.8); margin-top: 4px; }
 
           /* Glow animations */
           @keyframes alertPulse {
@@ -79,107 +142,124 @@ const MonitoringView = (function () {
           }
         </style>
         <div class="col-12">
-         
+            <!-- Card Único contendo Mapa e Painel -->
+            <div class="card shadow-lg border-0" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 20px; overflow: hidden;">
+                <div class="card-header border-0" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #312e81 100%); padding: 1.5rem;">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="p-2 rounded-circle" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);">
+                                        <i class="bi bi-geo-alt-fill text-white fs-4"></i>
+                                    </div>
+                                    <div class="text-white">
+                                        <div class="h5 mb-1 fw-bold" style="letter-spacing: -0.5px;">
+                                            <i class="bi bi-map me-2" style="color: #06b6d4;"></i>Mapa Inteligente
+                                        </div>
+                                        <small class="text-white-75 d-flex align-items-center gap-1">
+                                            <i class="bi bi-shield-check" style="color: #10b981;"></i>
+                                            Monitoramento em tempo real
+                                        </small>
+                                    </div>
+                                </div>
 
-            <!-- Layout com Mapa e Painel Lateral -->
-            <div class="row">
-                <!-- Mapa Principal -->
-                <div class="col-lg-9">
-                    <div id="map-wrapper" class="card shadow-sm border-0">
-                        <div class="card-header map-header d-flex justify-content-between align-items-center">
-                            <div class="map-header-left d-flex align-items-center gap-3">
-                                <div class="map-title text-white">
-                                    <div class="h6 mb-0">Mapa do Canteiro</div>
-                                    <small class="text-white-50">Visão geral e controle das áreas</small>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); min-width: 90px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <i class="bi bi-people-fill text-success"></i>
+                                            <div>
+                                                <div class="fw-bold text-white" id="total-workers">0</div>
+                                                <small class="text-white-75" style="font-size: 0.7rem;">Pessoas</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(124, 58, 237, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); min-width: 90px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <i class="bi bi-broadcast text-warning"></i>
+                                            <div>
+                                                <div class="fw-bold text-white" id="total-sensors">0</div>
+                                                <small class="text-white-75" style="font-size: 0.7rem;">Sensores</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3); min-width: 90px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                            <div>
+                                                <div class="fw-bold text-white" id="risk-alerts">0</div>
+                                                <small class="text-white-75" style="font-size: 0.7rem;">Alertas</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="map-header-center d-flex align-items-center gap-2">
-                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
-                                    <div class="metric-value fw-bold" id="total-workers">0</div>
-                                    <div class="metric-label small">Colaboradores</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch d-flex align-items-center gap-2 p-2 rounded-3" style="background: rgba(255,255,255,0.1);">
+                                        <input class="form-check-input" type="checkbox" id="toggle-edit-switch" aria-label="Edição do mapa" style="cursor: pointer;">
+                                        <label class="form-check-label small text-white fw-semibold mb-0" for="toggle-edit-switch" id="toggle-edit-label" style="cursor: pointer;">
+                                            <i class="bi bi-lock-fill me-1"></i>Bloqueado
+                                        </label>
+                                    </div>
+                                    <button id="toggle-grid" class="btn btn-sm text-white fw-semibold" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px;" title="Mostrar/Esconder grade">
+                                        <i class="bi bi-grid-3x3 me-1"></i>Grade
+                                    </button>
                                 </div>
-                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
-                                    <div class="metric-value fw-bold" id="total-sensors">0</div>
-                                    <div class="metric-label small">Sensores</div>
-                                </div>
-                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded">
-                                    <div class="metric-value fw-bold" id="total-devices">0</div>
-                                    <div class="metric-label small">Total Ativos</div>
-                                </div>
-                                <div class="metric-chip text-center bg-light bg-opacity-10 text-white p-2 rounded text-danger">
-                                    <div class="metric-value fw-bold" id="risk-alerts">0</div>
-                                    <div class="metric-label small">Alertas</div>
-                                </div>
-                            </div>
-
-                            <div class="map-header-right d-flex align-items-center gap-2">
-                                <div class="form-check form-switch text-white d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" id="toggle-edit-switch" aria-label="Edição do mapa">
-                                    <label class="form-check-label small ms-1 text-white" for="toggle-edit-switch" id="toggle-edit-label">Edição bloqueada</label>
-                                </div>
-                                <button id="toggle-grid" class="btn btn-sm btn-outline-light" title="Mostrar/Esconder grade">Grade</button>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="map-container position-relative bg-light" style="height: calc(100vh - 190px);">
-                              <div id="map-card" class="card map-card position-absolute w-100 h-100 p-3" style="background:transparent; border:none;">
-                                <div class="map-canvas position-absolute w-100 h-100" id="map-canvas">
-                                    <!-- mapa será renderizado aqui -->
-                                </div>
-                              </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-
-                <!-- Painel de Controle Lateral -->
-                <div class="col-lg-3">
-                  <div class="card shadow-sm border-0 control-panel-card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0 text-white">
-                                <i class="bi bi-sliders me-2"></i>Painel de Controle
-                            </h6>
-                        </div>
-                    <div class="card-body">
-                      <div class="panel-section flex-grow-1">
-                        <h6 class="text-primary mb-2 small">
-                          <i class="bi bi-people-fill me-1"></i>Colaboradores Ativos
-                        </h6>
-                        <div id="workers-list" class="workers-list"></div>
-                      </div>
-                      <div class="panel-section">
-                        <h6 class="text-danger mb-2 small">
-                          <i class="bi bi-exclamation-triangle-fill me-1"></i>Alertas de Segurança
-                        </h6>
-                        <div id="safety-alerts" class="alerts-list"></div>
-                      </div>
-                      <div class="panel-section">
-                   
-                          <div style="display:flex; flex-direction:column; gap:8px;">
-                            <h6 class="text-success mb-2 small">
-                              <i class="bi bi-gear-fill me-1"></i>Controles
-                            </h6>
-                            <div class="control-footer" style="margin-top:auto; display:flex; justify-content:space-between; gap:8px;">
-                              <div class="control-buttons">
-                                <button id="btn-refresh" class="btn btn-modern primary">
-                                  <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
-                                </button>
-                                <button id="btn-manage" class="btn btn-modern secondary">
-                                  <i class="bi bi-person-gear me-1"></i>RECUROSOS
-                                </button>
-                                <button id="btn-cadastrar-area" class="btn btn-modern accent">
-                                  <i class="bi bi-pin-map me-1"></i>Área
-                                </button>
-                              </div>
+                
+                <!-- Layout interno: Mapa + Painel lado a lado -->
+                <div class="card-body p-0">
+                    <div class="row g-0" style="height: calc(100vh - 220px);">
+                        <!-- Área do Mapa -->
+                        <div class="col-lg-9">
+                            <div class="map-container position-relative h-100" style="background: linear-gradient(145deg, #f8fafc, #f1f5f9);">
+                                <div id="map-card" class="card map-card position-absolute w-100 h-100 p-3" style="background:transparent; border:none;">
+                                    <div class="map-canvas position-absolute w-100 h-100" id="map-canvas" style="border-radius: 16px; overflow: hidden;">
+                                        <!-- mapa será renderizado aqui -->
+                                    </div>
+                                </div>
                             </div>
-                          </div>
+                        </div>
+
+                        <!-- Painel de Controle (dentro do mesmo card, mas separado visualmente) -->
+                        <div class="col-lg-3" style="border-left: 3px solid rgba(29, 78, 216, 0.2);">
+                            <div class="h-100 d-flex flex-column" style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);">
+                                <div class="p-3 border-bottom" style="background: linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(49, 46, 129, 0.1)); backdrop-filter: blur(10px);">
+                                    <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                                        <div class="p-2 rounded-circle" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);">
+                                            <i class="bi bi-sliders" style="font-size: 0.9rem;"></i>
+                                        </div>
+                                        <span style="letter-spacing: -0.3px;">Painel de Controle</span>
+                                    </h6>
+                                </div>
+                                <div class="flex-grow-1 overflow-auto p-3" style="display: flex; flex-direction: column; gap: 20px;">
+                                    <!-- Colaboradores Ativos -->
+                                    <div class="panel-section flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <div class="p-2 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3);">
+                                                <i class="bi bi-people-fill" style="color: #10b981; font-size: 1rem;"></i>
+                                            </div>
+                                            <h6 class="mb-0 fw-bold text-white small">Colaboradores Ativos</h6>
+                                        </div>
+                                        <div id="workers-list" class="workers-list"></div>
+                                    </div>
+
+                                    <!-- Alertas de Segurança -->
+                                    <div class="panel-section">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <div class="p-2 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                                <i class="bi bi-exclamation-triangle-fill" style="color: #ef4444; font-size: 1rem;"></i>
+                                            </div>
+                                            <h6 class="mb-0 fw-bold text-white small">Alertas de Segurança</h6>
+                                        </div>
+                                        <div id="safety-alerts" class="alerts-list"></div>
+                                    </div>
+
+                                    <!-- Controles removidos conforme solicitado -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
             </div>
-            <!-- Fim do Row -->
-
+            <!-- Fim do Card Principal -->
         </div>
         `;
   }
@@ -282,7 +362,7 @@ const MonitoringView = (function () {
 
     const persistAreaGeometry = async (areaId, geometry) => {
       try {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         if (!token) {
           throw new Error("Token não encontrado");
         }
@@ -376,7 +456,7 @@ const MonitoringView = (function () {
       );
 
       try {
-        const token = localStorage.getItem("token");
+        const token = getAuthToken();
         const response = await fetch(
           `http://localhost:3000/api/zones/${areaId}/position`,
           {
@@ -407,9 +487,19 @@ const MonitoringView = (function () {
     };
     canvas.ondrop = handleDrop;
 
-    // Adicionar grid sobre a planta (estilo original)
+    // Adicionar grid sofisticado com gradientes (estilo login)
     const grid = document.createElement("div");
     grid.className = "map-grid";
+    grid.style.position = 'absolute';
+    grid.style.inset = '0';
+    grid.style.backgroundImage = `
+      repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.12) 0px, transparent 1px, transparent 30px, rgba(148, 163, 184, 0.12) 31px),
+      repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.12) 0px, transparent 1px, transparent 30px, rgba(148, 163, 184, 0.12) 31px),
+      radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.06), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.06), transparent 40%)
+    `;
+    grid.style.backgroundSize = '30px 30px, 30px 30px, 100% 100%, 100% 100%';
+    grid.style.pointerEvents = 'none';
     canvas.appendChild(grid);
 
     // ✅ CARREGAR ÁREAS DO BACKEND (assíncrono)
@@ -467,19 +557,35 @@ const MonitoringView = (function () {
       areaEl.dataset.areaId = area.id;
       areaEl.draggable = !!editingEnabled;
       areaEl.style.position = "absolute";
-      areaEl.style.borderRadius = "18px";
-      areaEl.style.border = area.isRiskZone
-        ? "2px dashed rgba(220,53,69,0.85)"
-        : "1px solid rgba(33,37,41,0.18)";
+      areaEl.style.borderRadius = "16px";
+      areaEl.style.border = `3px solid ${area.color || '#06b6d4'}`;
       areaEl.style.background = area.color
-        ? `${area.color}22`
-        : "rgba(40,167,69,0.18)";
-      areaEl.style.backdropFilter = "blur(2px)";
-      areaEl.style.boxShadow = area.isRiskZone
-        ? "0 0 18px rgba(220,53,69,0.2)"
-        : "0 8px 18px rgba(0,0,0,0.08)";
+        ? `linear-gradient(135deg, ${area.color}20, ${area.color}08)`
+        : "linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.08))";
+      areaEl.style.backdropFilter = "blur(8px)";
+      areaEl.style.boxShadow = `0 6px 24px ${area.color || '#06b6d4'}35, inset 0 1px 0 rgba(255,255,255,0.15)`;
       areaEl.style.cursor = editingEnabled ? "move" : "default";
+      areaEl.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+      if (!hasAnimatedMapAreas) {
+        areaEl.style.animation = "fadeInUp 0.5s ease-out backwards";
+      } else {
+        areaEl.style.animation = "none";
+      }
       applyGeometryToElement(areaEl, geometry);
+      
+      // Hover effect
+      areaEl.addEventListener('mouseenter', () => {
+        if (!editingEnabled) {
+          areaEl.style.transform = 'scale(1.02) translateY(-2px)';
+          areaEl.style.boxShadow = `0 10px 32px ${area.color || '#06b6d4'}50`;
+        }
+      });
+      areaEl.addEventListener('mouseleave', () => {
+        if (!editingEnabled) {
+          areaEl.style.transform = 'scale(1) translateY(0)';
+          areaEl.style.boxShadow = `0 6px 24px ${area.color || '#06b6d4'}35`;
+        }
+      });
 
       let deviceActiveFlag = true;
       if (area.deviceId) {
@@ -506,42 +612,80 @@ const MonitoringView = (function () {
       const label = document.createElement("div");
       label.className = "area-label";
       label.style.position = "absolute";
-      label.style.left = "12px";
-      label.style.top = "12px";
+      label.style.left = "10px";
+      label.style.top = "10px";
       label.style.display = "flex";
-      label.style.flexDirection = "column";
-      label.style.alignItems = "flex-start";
-      label.style.gap = "4px";
-      label.style.padding = "10px 14px";
-      label.style.background = "linear-gradient(135deg, rgba(20,20,20,0.6), rgba(20,20,20,0.25))";
-      label.style.borderRadius = "16px";
-      label.style.border = "1px solid rgba(255,255,255,0.2)";
+      label.style.justifyContent = "space-between";
+      label.style.alignItems = "center";
+      label.style.gap = "8px";
+      label.style.padding = "6px 12px";
+      label.style.background = `linear-gradient(135deg, ${area.color || '#06b6d4'}, ${area.color || '#06b6d4'}dd)`;
+      label.style.borderRadius = "10px";
+      label.style.boxShadow = `0 3px 10px ${area.color || '#06b6d4'}50`;
       label.style.color = "#fff";
-      label.style.fontSize = "13px";
-      label.style.fontWeight = "600";
-      label.style.backdropFilter = "blur(6px)";
-      label.style.boxShadow = "0 8px 18px rgba(0,0,0,0.25)";
+      label.style.fontSize = "0.9rem";
+      label.style.fontWeight = "800";
+      label.style.textShadow = "0 2px 6px rgba(0,0,0,0.6)";
       label.style.pointerEvents = "none";
+      
+      const areaIcon = area.isRiskZone ? 'exclamation-triangle-fill' : 
+                      area.name.toLowerCase().includes('armazém') ? 'box-seam-fill' :
+                      area.name.toLowerCase().includes('produção') ? 'gear-fill' :
+                      area.name.toLowerCase().includes('escritório') ? 'building' :
+                      area.name.toLowerCase().includes('estacionamento') ? 'car-front-fill' : 'geo-alt-fill';
+      
       label.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; font-size: 15px; letter-spacing:0.5px;">
-            <span style="font-size: 22px;">${area.icon || "📍"}</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <i class="bi bi-${areaIcon}"></i>
             <span>${area.name}</span>
           </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:11px; text-transform:uppercase; opacity:0.85; letter-spacing:0.4px;">
-            ${
-              area.deviceId
-                ? `<span style='display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,0.12);'><i class='bi bi-broadcast'></i>${area.deviceId}</span>`
-                : ''
-            }
-            ${
-              area.isRiskZone
-                ? '<span style="padding:2px 8px; border-radius:999px; background:rgba(220,53,69,0.25); color:#ffc2c7;">Zona de Risco</span>'
-                : '<span style="padding:2px 8px; border-radius:999px; background:rgba(13,110,253,0.25); color:#cfe2ff;">Área Operacional</span>'
-            }
-          </div>
-          ${statusIcon}
       `;
+      
+      // Status LED
+      const statusContainer = document.createElement("div");
+      statusContainer.style.position = "absolute";
+      statusContainer.style.top = "10px";
+      statusContainer.style.right = "10px";
+      statusContainer.style.display = "flex";
+      statusContainer.style.alignItems = "center";
+      statusContainer.style.gap = "4px";
+      
+      const statusLED = document.createElement("div");
+      statusLED.style.width = "12px";
+      statusLED.style.height = "12px";
+      statusLED.style.borderRadius = "50%";
+      statusLED.style.background = isOnline ? '#10b981' : '#6b7280';
+      statusLED.style.boxShadow = `0 0 12px ${isOnline ? '#10b981' : '#6b7280'}`;
+      statusLED.style.animation = isOnline ? 'pulse 2s infinite' : 'none';
+      
+      statusContainer.appendChild(statusLED);
+      
+      // Info adicional
+      const infoContainer = document.createElement("div");
+      infoContainer.style.position = "absolute";
+      infoContainer.style.bottom = "10px";
+      infoContainer.style.left = "10px";
+      infoContainer.style.right = "10px";
+      infoContainer.style.display = "flex";
+      infoContainer.style.justifyContent = "space-between";
+      infoContainer.style.alignItems = "center";
+      
+      if (area.deviceId) {
+        const deviceBadge = document.createElement("div");
+        deviceBadge.style.background = "rgba(0,0,0,0.4)";
+        deviceBadge.style.color = "#fff";
+        deviceBadge.style.padding = "4px 8px";
+        deviceBadge.style.borderRadius = "8px";
+        deviceBadge.style.fontSize = "0.75rem";
+        deviceBadge.style.fontWeight = "700";
+        deviceBadge.style.backdropFilter = "blur(4px)";
+        deviceBadge.innerHTML = `<i class="bi bi-broadcast-pin"></i> ${area.deviceId}`;
+        infoContainer.appendChild(deviceBadge);
+      }
+      
       areaEl.appendChild(label);
+      areaEl.appendChild(statusContainer);
+      areaEl.appendChild(infoContainer);
 
       areaEl.addEventListener("dragstart", function (e) {
         if (!editingEnabled) {
@@ -567,6 +711,8 @@ const MonitoringView = (function () {
 
       canvas.appendChild(areaEl);
     }
+
+    hasAnimatedMapAreas = true;
 
     // grid toggle: manter referência e estado
     const gridEl = canvas.querySelector(".map-grid");
@@ -1122,8 +1268,8 @@ const MonitoringView = (function () {
     if (!alertsContainer) return;
     if (alertsCount === 0) {
       alertsContainer.innerHTML = `
-          <div class="alert-card bg-white border mb-0">
-            <div class="alert-icon bg-success"><i class="bi bi-check-circle"></i></div>
+          <div class="alert-card border mb-0" style="border-color: rgba(16, 185, 129, 0.4) !important;">
+            <div class="alert-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="bi bi-check-circle"></i></div>
             <div class="alert-body">
               <div class="alert-title">Nenhum acesso não autorizado</div>
               <div class="alert-sub">O sistema não detectou entradas não autorizadas recentemente.</div>
@@ -1132,8 +1278,8 @@ const MonitoringView = (function () {
         `;
     } else {
       alertsContainer.innerHTML = `
-          <div class="alert-card bg-white border mb-0">
-            <div class="alert-icon bg-danger"><i class="bi bi-exclamation-triangle"></i></div>
+          <div class="alert-card border mb-0" style="border-color: rgba(239, 68, 68, 0.6) !important;">
+            <div class="alert-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="bi bi-exclamation-triangle"></i></div>
             <div class="alert-body">
               <div class="alert-title">${alertsCount} colaborador(es) sem autorização</div>
               <div class="alert-sub">Verifique as localizações no mapa e consulte o histórico de alertas.</div>
@@ -1223,15 +1369,7 @@ const MonitoringView = (function () {
       btnRestrictedAreas.addEventListener("click", showRestrictedAreasModal);
     }
 
-    // Listeners para botões do painel (modernos)
-    const btnRefresh = document.getElementById("btn-refresh");
-    if (btnRefresh) btnRefresh.addEventListener("click", () => location.reload());
-
-    const btnManage = document.getElementById("btn-manage");
-    if (btnManage) btnManage.addEventListener("click", () => Router.show("cadastro"));
-
-    const btnCadastrarArea = document.getElementById("btn-cadastrar-area");
-    if (btnCadastrarArea) btnCadastrarArea.addEventListener("click", () => Router.show("cadastro"));
+    // Botões de controle removidos do painel — não há listeners registrados.
 
     // Limpar intervalo anterior se existir
     if (monitoringInterval) {
