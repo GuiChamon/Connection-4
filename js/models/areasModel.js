@@ -30,17 +30,12 @@ const AreasModel = (function(){
 
         try {
             const token = resolveAuthToken();
-            if (!token) {
-                console.warn('⚠️ Token não encontrado. Aguardando autenticação...');
-                loading = false;
-                return [];
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch(API_URL, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await fetch(API_URL, { headers });
 
             if (!response.ok) {
                 console.warn(`⚠️ Erro ao carregar áreas: HTTP ${response.status}`);
