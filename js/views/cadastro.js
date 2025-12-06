@@ -11,7 +11,7 @@ const CombinedView = (function(){
             level: 'all',
             sort: 'name-asc',
             page: 1,
-            perPage: 5,
+            perPage: 4,
             filtersOpen: false
         },
         devices: {
@@ -20,7 +20,7 @@ const CombinedView = (function(){
             status: 'all',
             sort: 'status-desc',
             page: 1,
-            perPage: 5,
+            perPage: 4,
             filtersOpen: false
         }
     };
@@ -29,6 +29,13 @@ const CombinedView = (function(){
         people: { panelId: 'people-filter-panel' },
         devices: { panelId: 'devices-filter-panel' }
     };
+
+    function getAuthToken(){
+        if (typeof AuthModel !== 'undefined' && AuthModel.getToken) {
+            return AuthModel.getToken();
+        }
+        return localStorage.getItem('connection4_token') || localStorage.getItem('token');
+    }
 
     const ACCESS_LEVEL_DETAILS = {
         1: {
@@ -714,7 +721,7 @@ const CombinedView = (function(){
         
         // ✅ BUSCAR ZONAS PARA VERIFICAR currentlyActive
         const zonesResponse = await fetch('http://localhost:3000/api/zones', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
         });
         const zonesData = await zonesResponse.json();
         const zones = zonesData.success ? zonesData.data : [];
@@ -831,6 +838,13 @@ const CombinedView = (function(){
                         </div>
                     </div>
                 `;
+                // aumentar um pouco a altura mínima dos cards de dispositivo
+                try {
+                    card.style.minHeight = '100px';
+                } catch (err) {
+                    // não fatal — só garante compatibilidade em navegadores estranhos
+                    console.warn('Não foi possível aplicar minHeight ao card de dispositivo', err);
+                }
                 node.appendChild(card);
             }
         }
@@ -856,6 +870,10 @@ const CombinedView = (function(){
     async function populateLinkSelects(){
         const personSelect = document.getElementById('link-person');
         const deviceSelect = document.getElementById('link-device');
+        
+        // ✅ SALVAR VALORES SELECIONADOS ANTES DE ATUALIZAR
+        const selectedPersonId = personSelect?.value || '';
+        const selectedDeviceId = deviceSelect?.value || '';
         
         const people = await PeopleController.getAll();
         const devices = await DevicesController.getAll();
@@ -885,6 +903,21 @@ const CombinedView = (function(){
                 deviceSelect.appendChild(opt);
             }
         });
+        
+        // ✅ RESTAURAR VALORES SELECIONADOS SE AINDA EXISTIREM NAS OPTIONS
+        if (selectedPersonId) {
+            const personOption = Array.from(personSelect.options).find(opt => opt.value === selectedPersonId);
+            if (personOption) {
+                personSelect.value = selectedPersonId;
+            }
+        }
+        
+        if (selectedDeviceId) {
+            const deviceOption = Array.from(deviceSelect.options).find(opt => opt.value === selectedDeviceId);
+            if (deviceOption) {
+                deviceSelect.value = selectedDeviceId;
+            }
+        }
     }
 
     async function updateCounters(){
@@ -1223,6 +1256,7 @@ const CombinedView = (function(){
                     if (result.success) {
                         showAlert('Colaborador atualizado com sucesso!');
                         resetPersonForm();
+                        closeManualEntryPanel();
                         await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
@@ -1232,6 +1266,7 @@ const CombinedView = (function(){
                     if (result.success) {
                         showAlert('Colaborador cadastrado com sucesso!');
                         resetPersonForm();
+                        closeManualEntryPanel();
                         await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
@@ -1265,6 +1300,7 @@ const CombinedView = (function(){
                     if (result.success) {
                         showAlert('Dispositivo atualizado com sucesso!');
                         resetDeviceForm();
+                        closeManualEntryPanel();
                         await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
@@ -1274,6 +1310,7 @@ const CombinedView = (function(){
                     if (result.success) {
                         showAlert('Dispositivo cadastrado com sucesso!');
                         deviceForm.reset();
+                        closeManualEntryPanel();
                         await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
@@ -1305,6 +1342,7 @@ const CombinedView = (function(){
                     const result = await PeopleController.update(personId, { deviceId: deviceId });
                     if (result.success) {
                         showAlert('Dispositivo vinculado com sucesso!');
+                        closeManualEntryPanel();
                         await render();
                     } else {
                         showAlert(`Erro: ${result.error}`, 'danger');
