@@ -16,9 +16,15 @@ const MapModel = (function(){
             };
 
             // Adicionar token de autenticação
-            const token = AuthModel ? AuthModel.getToken() : null;
-            if (token) {
-                headers.Authorization = `Bearer ${token}`;
+            try {
+                if (typeof AuthModel !== 'undefined' && typeof AuthModel.getToken === 'function') {
+                    const token = AuthModel.getToken();
+                    if (token) {
+                        headers.Authorization = `Bearer ${token}`;
+                    }
+                }
+            } catch (tokenErr) {
+                console.warn('⚠️ Falha ao obter token para request do mapa:', tokenErr);
             }
 
             const response = await fetch(url, {
@@ -30,7 +36,7 @@ const MapModel = (function(){
             
             if (!response.ok) {
                 // Se erro 401, limpar autenticação
-                if (response.status === 401 && AuthModel) {
+                if (response.status === 401 && typeof AuthModel !== 'undefined' && AuthModel) {
                     AuthModel.clearAuthData();
                     window.location.reload();
                 }
