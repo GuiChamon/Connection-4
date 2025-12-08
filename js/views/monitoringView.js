@@ -33,12 +33,12 @@ const MonitoringView = (function () {
           .btn-modern {
             color: #fff;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-weight: 700;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
           }
           .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
           .btn-modern:active { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
@@ -48,19 +48,19 @@ const MonitoringView = (function () {
 
           .control-buttons { display:flex; gap:8px; flex-wrap:nowrap; align-items:center; }
             .control-buttons button { flex:0 1 auto; min-width:0; max-width:160px; }
-          .control-panel-card { height: calc(100vh - 100px); display:flex; flex-direction:column; }
-          .control-panel-card .card-body { flex:1; display:flex; flex-direction:column; gap:12px; padding:12px; }
+          .control-panel-card { height: calc(100vh - 80px); display:flex; flex-direction:column; }
+          .control-panel-card .card-body { flex:1; display:flex; flex-direction:column; gap:8px; padding:8px; }
           .panel-section { border-bottom: 1px solid rgba(148, 163, 184, 0.15); padding-bottom: 16px; }
           .panel-section:last-child { border-bottom: none; padding-bottom: 0; }
 
-          .workers-list { max-height:none; flex:3 1 auto; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px; }
+          .workers-list { max-height:none; flex:3 1 auto; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-right:4px; }
           .worker-card { 
             border: 2px solid rgba(59, 130, 246, 0.2);
-            border-radius: 16px;
-            padding: 12px;
+            border-radius: 12px;
+            padding: 8px;
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           }
           .worker-card:hover {
@@ -77,11 +77,11 @@ const MonitoringView = (function () {
             border-color: rgba(239, 68, 68, 0.6);
             background: linear-gradient(145deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
           }
-          .worker-card .worker-name { font-weight:700; font-size:0.95rem; color: #fff; }
-          .worker-card .worker-role { font-size:0.8rem; color: rgba(203, 213, 225, 0.8); }
-          .worker-meta { display:flex; flex-wrap:wrap; gap:8px; font-size:0.75rem; color: rgba(148, 163, 184, 0.9); margin-top:8px; }
-          .worker-meta span { display:flex; align-items:center; gap:4px; background: rgba(15, 23, 42, 0.5); padding: 3px 8px; border-radius: 8px; }
-          .status-pill { padding:4px 10px; border-radius:999px; font-size:0.7rem; font-weight:700; text-transform: uppercase; letter-spacing: 0.5px; }
+          .worker-card .worker-name { font-weight:700; font-size:0.8rem; color: #fff; }
+          .worker-card .worker-role { font-size:0.7rem; color: rgba(203, 213, 225, 0.8); }
+          .worker-meta { display:flex; flex-wrap:wrap; gap:6px; font-size:0.65rem; color: rgba(148, 163, 184, 0.9); margin-top:6px; }
+          .worker-meta span { display:flex; align-items:center; gap:3px; background: rgba(15, 23, 42, 0.5); padding: 2px 6px; border-radius: 6px; }
+          .status-pill { padding:3px 8px; border-radius:999px; font-size:0.65rem; font-weight:700; text-transform: uppercase; letter-spacing: 0.4px; }
           .status-pill.warning { background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
           .status-pill.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color:#fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
           .status-pill.success { background: linear-gradient(135deg, #10b981, #059669); color:#fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
@@ -89,14 +89,14 @@ const MonitoringView = (function () {
           /* Alert cards */
           .alert-card { 
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: flex-start;
-            padding: 14px;
-            border-radius: 16px;
+            padding: 10px;
+            border-radius: 12px;
             border: 2px solid rgba(59, 130, 246, 0.2);
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           }
           .alert-card:hover {
@@ -105,19 +105,19 @@ const MonitoringView = (function () {
             box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
           }
           .alert-card .alert-icon { 
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            font-size: 16px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
           }
           .alert-card .alert-body { flex: 1; }
-          .alert-card .alert-title { font-weight: 700; font-size: 0.95rem; color: #fff; }
-          .alert-card .alert-sub { font-size: 0.8rem; color: rgba(203, 213, 225, 0.8); margin-top: 4px; }
+          .alert-card .alert-title { font-weight: 700; font-size: 0.8rem; color: #fff; }
+          .alert-card .alert-sub { font-size: 0.7rem; color: rgba(203, 213, 225, 0.8); margin-top: 3px; }
 
           /* Glow animations */
           @keyframes alertPulse {
@@ -143,70 +143,70 @@ const MonitoringView = (function () {
         </style>
         <div class="col-12">
             <!-- Card Único contendo Mapa e Painel -->
-            <div class="card shadow-lg border-0" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 20px; overflow: hidden;">
-                <div class="card-header border-0" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #312e81 100%); padding: 1.5rem;">
+            <div class="card shadow-lg border-0" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border-radius: 16px; overflow: hidden;">
+                <div class="card-header border-0" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #312e81 100%); padding: 0.5rem;">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="p-2 rounded-circle" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);">
-                                        <i class="bi bi-geo-alt-fill text-white fs-4"></i>
+                                <div class="d-flex align-items-center ">
+                                    <div class="p-1 rounded-circle" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 3px 8px rgba(6, 182, 212, 0.4);">
+                                        <i class="bi bi-geo-alt-fill text-white" style="font-size: 1.1rem;"></i>
                                     </div>
-                                    <div class="text-white">
-                                        <div class="h5 mb-1 fw-bold" style="letter-spacing: -0.5px;">
-                                            <i class="bi bi-map me-2" style="color: #06b6d4;"></i>Mapa Inteligente
+                                    <div class="text-white ms-2">
+                                        <div class="h6 mb-0 fw-bold" style="letter-spacing: -0.3px; font-size: 0.9rem;">
+                                            <i class="bi bi-map me-1" style="color: #06b6d4; font-size: 0.85rem;"></i>Mapa Inteligente
                                         </div>
-                                        <small class="text-white-75 d-flex align-items-center gap-1">
+                                        <small class="text-white-75 d-flex align-items-center gap-1" style="font-size: 0.7rem;">
                                             <i class="bi bi-shield-check" style="color: #10b981;"></i>
                                             Monitoramento em tempo real
                                         </small>
                                     </div>
                                 </div>
 
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); min-width: 90px;">
-                                        <div class="d-flex align-items-center justify-content-center gap-2">
-                                            <i class="bi bi-people-fill text-success"></i>
+                                <div class="d-flex align-items-center gap-1 flex-wrap">
+                                    <div class="metric-chip text-center py-1 px-2 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); min-width: 75px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <i class="bi bi-people-fill text-success" style="font-size: 0.85rem;"></i>
                                             <div>
-                                                <div class="fw-bold text-white" id="total-workers">0</div>
-                                                <small class="text-white-75" style="font-size: 0.7rem;">Pessoas</small>
+                                                <div class="fw-bold text-white" style="font-size: 0.85rem;" id="total-workers">0</div>
+                                                <small class="text-white-75" style="font-size: 0.65rem;">Pessoas</small>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(124, 58, 237, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); min-width: 90px;">
-                                        <div class="d-flex align-items-center justify-content-center gap-2">
-                                            <i class="bi bi-broadcast text-warning"></i>
+                                    <div class="metric-chip text-center py-1 px-2 rounded-3" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(124, 58, 237, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); min-width: 75px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <i class="bi bi-broadcast text-warning" style="font-size: 0.85rem;"></i>
                                             <div>
-                                                <div class="fw-bold text-white" id="total-sensors">0</div>
-                                                <small class="text-white-75" style="font-size: 0.7rem;">Sensores</small>
+                                                <div class="fw-bold text-white" style="font-size: 0.85rem;" id="total-sensors">0</div>
+                                                <small class="text-white-75" style="font-size: 0.65rem;">Sensores</small>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="metric-chip text-center p-2 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3); min-width: 90px;">
-                                        <div class="d-flex align-items-center justify-content-center gap-2">
-                                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                    <div class="metric-chip text-center py-1 px-2 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3); min-width: 75px;">
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 0.85rem;"></i>
                                             <div>
-                                                <div class="fw-bold text-white" id="risk-alerts">0</div>
-                                                <small class="text-white-75" style="font-size: 0.7rem;">Alertas</small>
+                                                <div class="fw-bold text-white" style="font-size: 0.85rem;" id="risk-alerts">0</div>
+                                                <small class="text-white-75" style="font-size: 0.65rem;">Alertas</small>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="form-check form-switch d-flex align-items-center gap-2 p-2 rounded-3" style="background: rgba(255,255,255,0.1);">
+                                <div class="d-flex align-items-center gap-1">
+                                    <div class="form-check form-switch d-flex align-items-center gap-1 py-1 px-2 rounded-3" style="background: rgba(255,255,255,0.1);">
                                         <input class="form-check-input" type="checkbox" id="toggle-edit-switch" aria-label="Edição do mapa" style="cursor: pointer;">
-                                        <label class="form-check-label small text-white fw-semibold mb-0" for="toggle-edit-switch" id="toggle-edit-label" style="cursor: pointer;">
-                                            <i class="bi bi-lock-fill me-1"></i>Bloqueado
+                                        <label class="form-check-label text-white fw-semibold mb-0" for="toggle-edit-switch" id="toggle-edit-label" style="cursor: pointer; font-size: 0.75rem;">
+                                            <i class="bi bi-lock-fill me-1" style="font-size: 0.7rem;"></i>Bloqueado
                                         </label>
                                     </div>
-                                    <button id="toggle-grid" class="btn btn-sm text-white fw-semibold" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px;" title="Mostrar/Esconder grade">
-                                        <i class="bi bi-grid-3x3 me-1"></i>Grade
+                                    <button id="toggle-grid" class="btn btn-sm text-white fw-semibold py-1 px-2" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.75rem;" title="Mostrar/Esconder grade">
+                                        <i class="bi bi-grid-3x3 me-1" style="font-size: 0.7rem;"></i>Grade
                                     </button>
                                 </div>
                 </div>
                 
                 <!-- Layout interno: Mapa + Painel lado a lado -->
                 <div class="card-body p-0">
-                    <div class="row g-0" style="height: calc(100vh - 220px);">
+                    <div class="row g-0" style="height: calc(100vh - 140px);">
                         <!-- Área do Mapa -->
                         <div class="col-lg-9">
                             <div class="map-container position-relative h-100" style="background: linear-gradient(145deg, #f8fafc, #f1f5f9);">
@@ -221,33 +221,26 @@ const MonitoringView = (function () {
                         <!-- Painel de Controle (dentro do mesmo card, mas separado visualmente) -->
                         <div class="col-lg-3" style="border-left: 3px solid rgba(29, 78, 216, 0.2);">
                             <div class="h-100 d-flex flex-column" style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);">
-                                <div class="p-3 border-bottom" style="background: linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(49, 46, 129, 0.1)); backdrop-filter: blur(10px);">
-                                    <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
-                                        <div class="p-2 rounded-circle" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);">
-                                            <i class="bi bi-sliders" style="font-size: 0.9rem;"></i>
-                                        </div>
-                                        <span style="letter-spacing: -0.3px;">Painel de Controle</span>
-                                    </h6>
-                                </div>
+                               
                                 <div class="flex-grow-1 overflow-auto p-3" style="display: flex; flex-direction: column; gap: 20px;">
                                     <!-- Colaboradores Ativos -->
                                     <div class="panel-section flex-grow-1">
-                                        <div class="d-flex align-items-center gap-2 mb-3">
-                                            <div class="p-2 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3);">
-                                                <i class="bi bi-people-fill" style="color: #10b981; font-size: 1rem;"></i>
+                                        <div class="d-flex align-items-center gap-1 mb-2">
+                                            <div class="p-1 rounded-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3);">
+                                                <i class="bi bi-people-fill" style="color: #10b981; font-size: 0.85rem;"></i>
                                             </div>
-                                            <h6 class="mb-0 fw-bold text-white small">Colaboradores Ativos</h6>
+                                            <h6 class="mb-0 fw-bold text-white" style="font-size: 0.8rem;">Colaboradores Ativos</h6>
                                         </div>
                                         <div id="workers-list" class="workers-list"></div>
                                     </div>
 
                                     <!-- Alertas de Segurança -->
                                     <div class="panel-section">
-                                        <div class="d-flex align-items-center gap-2 mb-3">
-                                            <div class="p-2 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3);">
-                                                <i class="bi bi-exclamation-triangle-fill" style="color: #ef4444; font-size: 1rem;"></i>
+                                        <div class="d-flex align-items-center gap-1 mb-2">
+                                            <div class="p-1 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                                <i class="bi bi-exclamation-triangle-fill" style="color: #ef4444; font-size: 0.85rem;"></i>
                                             </div>
-                                            <h6 class="mb-0 fw-bold text-white small">Alertas de Segurança</h6>
+                                            <h6 class="mb-0 fw-bold text-white" style="font-size: 0.8rem;">Alertas de Segurança</h6>
                                         </div>
                                         <div id="safety-alerts" class="alerts-list"></div>
                                     </div>
