@@ -17,7 +17,7 @@ const ZonesManagementView = (function(){
             sort: 'name-asc'
         },
         page: 1,
-        perPage: 5,
+        perPage: 6,
         filtersOpen: false
     };
 
@@ -67,7 +67,7 @@ const ZonesManagementView = (function(){
     function template(){
         return `
         <div class="col-12 zone-dashboard">
-            <div class="zone-hero card border-0 shadow-sm mb-4">
+            <div class="zone-hero card border-0 shadow-sm mb-3">
                 <div class="zone-hero__body">
                     <div class="zone-hero__main">
                         <span class="hero-chip">Topografia inteligente</span>
@@ -210,7 +210,6 @@ const ZonesManagementView = (function(){
                         <div>
                             <p class="zone-modal__kicker" id="zone-modal-kicker">Nova área</p>
                             <h3 class="zone-modal__title" id="zone-modal-title">Cadastrar nova zona</h3>
-                            <p class="zone-modal__subtitle">Preencha os dados abaixo e visualize o preview imediatamente.</p>
                         </div>
                         <span class="zone-modal__badge" id="zone-modal-mode-label">Criação</span>
                     </div>
@@ -262,7 +261,6 @@ const ZonesManagementView = (function(){
                                                     <option value="3">Nível 3 • Áreas críticas</option>
                                                 </select>
                                             </div>
-                                            <small class="text-muted">Níveis 2 e 3 marcam automaticamente como zona de risco.</small>
                                         </div>
                                     </div>
                                 </div>
