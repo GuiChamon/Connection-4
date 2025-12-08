@@ -42,11 +42,11 @@ const AuthView = (function(){
             }
             
             .auth-form .form-control {
-                border-radius: 12px;
+                border-radius: 10px;
                 border: 2px solid #e2e8f0;
                 transition: all 0.3s;
-                padding: 12px 16px;
-                font-size: 0.95rem;
+                padding: 8px 12px;
+                font-size: 0.85rem;
             }
             
             .auth-form .form-control:focus {
@@ -60,13 +60,13 @@ const AuthView = (function(){
             .auth-btn-primary {
                 background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0284c7 100%);
                 border: none;
-                border-radius: 14px;
-                padding: 16px;
+                border-radius: 12px;
+                padding: 12px;
                 font-weight: 700;
-                font-size: 1rem;
+                font-size: 0.9rem;
                 color: white;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
+                box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
                 position: relative;
                 overflow: hidden;
             }
@@ -81,11 +81,12 @@ const AuthView = (function(){
             }
             
             .auth-tab-btn {
-                border-radius: 12px;
-                padding: 12px 24px;
+                border-radius: 10px;
+                padding: 8px 18px;
                 font-weight: 600;
                 transition: all 0.3s;
                 border: 2px solid transparent;
+                font-size: 0.85rem;
             }
             
             .auth-tab-active {
@@ -109,23 +110,23 @@ const AuthView = (function(){
             .auth-header-badge {
                 background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #d97706 100%);
                 color: white;
-                padding: 8px 18px;
-                border-radius: 24px;
-                font-size: 0.7rem;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 0.65rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+                letter-spacing: 0.8px;
+                box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
+                gap: 4px;
             }
             
             .auth-stat-card {
                 background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
                 border: 1px solid rgba(255,255,255,0.2);
-                border-radius: 16px;
-                padding: 16px 20px;
+                border-radius: 14px;
+                padding: 12px 16px;
                 transition: all 0.3s;
             }
             
@@ -157,12 +158,12 @@ const AuthView = (function(){
                 font-weight: 600;
             }
         </style>
-        <div class="container-fluid py-4">
+        <div class="container-fluid py-3">
             <div class="row justify-content-center">
                 <div class="col-12 col-xxl-11">
                     <div class="card border-0 shadow-lg text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); overflow:hidden;">
-                        <div class="card-body p-4 p-lg-5">
-                            <div class="row g-4 align-items-stretch">
+                        <div class="card-body p-3 p-lg-4">
+                            <div class="row g-3 align-items-stretch">
                                 <div class="col-xl-7">
                                     <div class="d-flex flex-column gap-3 h-100">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -171,10 +172,10 @@ const AuthView = (function(){
                                                     <i class="bi bi-cpu-fill"></i>
                                                     Connection-4
                                                 </span>
-                                                <h2 class="mt-3 mb-2 fw-bold" style="font-size: 2rem; letter-spacing: -0.5px;">
-                                                    <i class="bi bi-globe2 me-2" style="color: #06b6d4;"></i>Mapa Inteligente
+                                                <h2 class="mt-2 mb-2 fw-bold" style="font-size: 1.5rem; letter-spacing: -0.3px;">
+                                                    <i class="bi bi-globe2 me-2" style="color: #06b6d4; font-size: 1.3rem;"></i>Mapa Inteligente
                                                 </h2>
-                                                <p class="mb-0 text-white-75 d-flex align-items-center gap-2">
+                                                <p class="mb-0 text-white-75 d-flex align-items-center gap-2" style="font-size: 0.85rem;">
                                                     <i class="bi bi-shield-check" style="color: #10b981;"></i>
                                                     Monitoramento em tempo real com zonas dinâmicas e sensores IoT
                                                 </p>
